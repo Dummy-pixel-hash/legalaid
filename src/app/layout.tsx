@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/provider";
+import { CaseProvider } from "@/lib/store/case-store";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { AppFooter } from "@/components/shell/AppFooter";
 
@@ -48,9 +49,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
-          <AppHeader />
-          <main className="flex-1">{children}</main>
-          <AppFooter />
+          <CaseProvider>
+            <AppHeader />
+            <main className="flex-1">{children}</main>
+            <AppFooter />
+          </CaseProvider>
         </LanguageProvider>
       </body>
     </html>
