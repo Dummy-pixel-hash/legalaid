@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow dev-server access from the tailnet IP (and ngrok-style public hosts).
+  // Next's dev-origin check (DNS-rebinding protection) 403s JS chunks for
+  // non-allowlisted origins, which breaks hydration/interactivity off localhost.
+  allowedDevOrigins: [
+    "100.86.95.34",
+    "localhost",
+    "127.0.0.1",
+    "::1",
+    "e47d-49-36-89-84.ngrok-free.app",
+  ],
 };
 
 export default nextConfig;
