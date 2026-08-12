@@ -59,7 +59,7 @@ export function CaseStepper({ caseId }: { caseId: string }) {
                   isCurrent
                     ? "bg-accent text-accent-foreground"
                     : isDone
-                      ? "text-accent-strong hover:bg-accent-soft"
+                      ? "text-accent-strong hover:bg-accent"
                       : "text-ink-50 hover:text-ink",
                 )}
               >

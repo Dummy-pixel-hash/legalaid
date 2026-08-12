@@ -128,7 +128,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
               <Save className="h-4 w-4" aria-hidden />
               {savedFlash ? t("saved") : t("save")}
             </Button>
-            <Button size="sm" onClick={handlePdf}>
+            <Button variant="seal" size="sm" onClick={handlePdf}>
               <FileDown className="h-4 w-4" aria-hidden />
               {t("downloadPdf")}
             </Button>

@@ -23,7 +23,7 @@ export function UnderstandingBlock({
         </div>
         <Link
           href={`/intake?edit=${caseId}`}
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-accent-strong hover:bg-accent-soft"
+          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-accent-strong hover:bg-accent"
         >
           <PencilLine className="h-3.5 w-3.5" aria-hidden />
           {t("editMySituation")}

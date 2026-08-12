@@ -17,8 +17,13 @@
   --color-ink-50: var(--ink-50);
   --color-ink-30: var(--ink-30);
   --color-line: var(--line);
+  --color-paper-line-inactive: var(--paper-line-inactive);
   --color-accent-strong: var(--accent-strong);
   --color-accent-strong-hover: var(--accent-strong-hover);
+  --color-seal: var(--seal);
+  --color-seal-hover: var(--seal-hover);
+  --color-seal-soft: var(--seal-soft);
+  --color-seal-wash: var(--seal-wash);
 
   /* Status semantics */
   --color-status-neutral: var(--status-neutral);
@@ -61,54 +66,61 @@
 }
 
 :root {
-  /* Surfaces & ink */
-  --background: #f7f7f5;
-  --surface: #ffffff;
-  --surface-muted: #f0f0ed;
-  --foreground: #1a2433;
-  --ink: #1a2433;
-  --ink-70: #46515f;
-  --ink-50: #6b7583;
-  --ink-30: #a6aeb8;
-  --line: #e2e4e0;
+  /* Surfaces & ink — paper and seal */
+  --background: #f1ead6; /* paper shade */
+  --surface: #fbf8f1; /* paper */
+  --surface-muted: #f4eee0; /* nearest-muted paper */
+  --foreground: #1b2436; /* ink */
+  --ink: #1b2436;
+  --ink-70: #535c71; /* ink soft */
+  --ink-50: #667084; /* ink faint — ≥4.5 on paper */
+  --ink-30: #b6bcc8; /* paler ink for disabled/hairlines-on-line */
+  --line: #ded2ae; /* paper line */
+  --paper-line-inactive: #e6dcc0; /* softer hairline within paper surfaces */
 
-  /* Accent (deep teal — live state only) */
-  --accent-strong: #0e7a66;
-  --accent-strong-hover: #0a5c4d;
-  --accent: #e4f1ee;
-  --accent-foreground: #0a5c4d;
+  /* Accent = brass (legal citations / focus / live state) */
+  --accent-strong: #705a1f;
+  --accent-strong-hover: #5f4a1c;
+  --accent: #efe6c9; /* brass wash */
+  --accent-foreground: #4d3a14;
 
-  /* Status semantics */
-  --status-neutral: #5b6472;
-  --status-neutral-bg: #edeff2;
-  --status-caution: #8a5a00;
-  --status-caution-bg: #fbf1dc;
-  --status-info: #2b5b8c;
-  --status-info-bg: #e6eef6;
-  --status-ai: #0e7a66;
-  --status-ai-bg: #e4f1ee;
-  --status-success: #1e7a45;
-  --status-success-bg: #e6f4eb;
-  --status-danger: #a3362b;
-  --status-danger-bg: #faeae8;
-  --status-demo: #6b4fa0;
-  --status-demo-bg: #efebf6;
+  /* Brand important-action = seal */
+  --seal: #9a3324;
+  --seal-hover: #7f2a1e;
+  --seal-soft: #c25c43;
+  --seal-wash: #f3e2da;
+
+  /* Status semantics (on paper) */
+  --status-neutral: #535c71; /* ink soft */
+  --status-neutral-bg: #efebdf; /* neutral wash on paper */
+  --status-caution: #9a3324; /* seal */
+  --status-caution-bg: #f3e2da; /* seal wash */
+  --status-info: #93732a; /* brass */
+  --status-info-bg: #efe6c9; /* brass wash */
+  --status-ai: #6c4f1f; /* darker brass for legibility on brass wash */
+  --status-ai-bg: #efe6c9; /* brass wash */
+  --status-success: #2f5d4e; /* verified */
+  --status-success-bg: #e1ebe5; /* verified wash */
+  --status-danger: #9a3324; /* seal */
+  --status-danger-bg: #f3e2da; /* seal wash */
+  --status-demo: #7a5f22; /* brass (demo is legal-guidance) — deeper for contrast */
+  --status-demo-bg: #efe6c9; /* brass wash */
 
   /* shadcn aliases */
-  --card: #ffffff;
-  --card-foreground: #1a2433;
-  --popover: #ffffff;
-  --popover-foreground: #1a2433;
-  --primary: #1a2433;
-  --primary-foreground: #ffffff;
-  --secondary: #f0f0ed;
-  --secondary-foreground: #1a2433;
-  --muted: #f0f0ed;
-  --muted-foreground: #6b7583;
-  --destructive: #a3362b;
-  --border: #e2e4e0;
-  --input: #e2e4e0;
-  --ring: #0e7a66;
+  --card: #fbf8f1;
+  --card-foreground: #1b2436;
+  --popover: #fbf8f1;
+  --popover-foreground: #1b2436;
+  --primary: #1b2436; /* ink */
+  --primary-foreground: #fbf8f1;
+  --secondary: #f4eee0;
+  --secondary-foreground: #1b2436;
+  --muted: #f4eee0;
+  --muted-foreground: #535c71;
+  --input: #d8cba6;
+  --border: #ded2ae;
+  --ring: #93732a;
+  --destructive: #9a3324;
 
   /* Radius (restrained) */
   --radius-sm: 0.25rem;
@@ -139,13 +151,17 @@
 
 /* Paper sheet for documents */
 .doc-sheet {
-  background: #ffffff;
+  background: #fbf8f1;
 }
 
 /* Print: only the document sheet */
 @media print {
   body {
     background: #ffffff !important;
+  }
+  .doc-sheet {
+    background: #ffffff !important;
+    color: #1b2436 !important;
   }
   .print-hide {
     display: none !important;

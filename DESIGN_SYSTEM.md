@@ -8,7 +8,7 @@
 
 **THESIS** — LegalAId is the careful paralegal's desk, not a chat window: it takes your story down, works through it methodically, and hands you a real document. It refuses the category default (a chatbot with a legal prompt) and the civic-tool rut (a government-portal form wall).
 
-**OWN-WORLD** — Cool paper white ground; near-black ink navy for type and primary actions; one restrained deep-teal accent used only for live state and interaction. IBM Plex Sans (Latin) + IBM Plex Devanagari for Hindi; hairline rules and numbered section labels as the organizing grammar; the document renders on paper in serif (Source Serif 4 / Noto Serif Devanagari). Small, precise, quiet.
+**OWN-WORLD** — Paper and seal. Warm paper surfaces (`#FBF8F1`) on a paper-shade mat (`#F1EAD6`), joined by paper-line hairlines (`#DED2AE`); near-black ink (`#1B2436`) type and primary action; **brass** (`#93732A`) for citations, links, and live state; **seal** red (`#9A3324`) reserved for the one consequential action — Download PDF. IBM Plex Sans / Devanagari for UI, Source Serif / Noto Serif Devanagari for the document. Small, precise, quiet, authoritative.
 
 **STORY** — A first-time user understands instantly: this is a serious, trustworthy place that will explain their rights and tell them what to do next. They feel held, not lectured; guided, not interrogated.
 
@@ -65,41 +65,48 @@ Rhythm rules:
 
 ## 3. Colors
 
-### Strategy: **Restrained** (neutrals + one accent). This is an Operate/Read surface; the user came to understand and act, so calm wins. Color commits at region scale, not as scattered accents.
+### Strategy: **Restrained** (paper neutrals + brass lived state + one seal action). This is an Operate/Read surface; the visitor came to understand and act, so calm wins. Color commits at region scale, not as scattered accents.
 
-### Palette (cool paper, ink, one accent)
+### Palette (paper and seal)
 
 | Token | Value | Use |
 |---|---|---|
-| `--bg` | `#F7F7F5` | App background (cool paper) |
-| `--surface` | `#FFFFFF` | Cards, sheets |
-| `--surface-muted` | `#F0F0ED` | Muted blocks, skeletons |
-| `--ink` | `#1A2433` | Primary text, primary button |
-| `--ink-70` | `#46515F` | Secondary text |
-| `--ink-50` | `#6B7583` | Tertiary text, placeholders |
-| `--ink-30` | `#A6AEB8` | Disabled, hairlines-on-white |
-| `--line` | `#E2E4E0` | Hairline borders |
-| `--accent` | `#0E7A66` (deep teal) | Live state: active step, links, focus, checked |
-| `--accent-ink` | `#0A5C4D` | Accent hover/pressed |
-| `--accent-soft` | `#E4F1EE` | Accent tinted backgrounds (selected, tags) |
+| `--background` | `#F1EAD6` (paper shade) | App background (mat) |
+| `--surface` | `#FBF8F1` (paper) | Cards, sheets |
+| `--surface-muted` | `#F4EEE0` | Muted blocks, skeletons |
+| `--ink` | `#1B2436` | Primary text, primary buttons |
+| `--ink-70` | `#535C71` (ink soft) | Secondary text |
+| `--ink-50` | `#667084` (ink faint) | Tertiary text, placeholders |
+| `--ink-30` | `#B6BCC8` | Disabled, hairline-on-line |
+| `--line` | `#DED2AE` (paper line) | Hairline borders, dividers |
+| `--paper-line-inactive` | `#E6DCC0` | Softer hairline within paper surfaces |
+| `--accent` | `#705A1F` brass | Live state: active step, links, focus, checked |
+| `--accent-hover` | `#5F4A1C` | Accent hover/pressed |
+| `--accent-bg` | `#EFE6C9` (brass wash) | Accent/tinted backgrounds |
+| `--seal` | `#9A3324` | Brand accent / important actions |
+| `--seal-hover` | `#7F2A1E` | Seal pressed/hover |
+| `--seal-soft` | `#C25C43` | Secondary red |
+| `--seal-wash` | `#F3E2DA` | Warnings / safety tint |
 
 **Semantic status colors** (badges/states only, never as decorative accents):
 
 | Role | Token | Usage |
 |---|---|---|
-| Fact / neutral | `#5B6472` bg `#EDEFF2` | FACT, neutral info |
-| Possible / caution | `#8A5A00` bg `#FBF1DC` | POSSIBLE LEGAL ISSUE |
-| Legal info | `#2B5B8C` bg `#E6EEF6` | LEGAL INFORMATION |
-| AI interpretation | `#0E7A66` bg `#E4F1EE` | AI INTERPRETATION (dashed border) |
-| Good / have | `#1E7A45` bg `#E6F4EB` | Evidence "Have it" |
-| Find / need | `#8A5A00` bg `#FBF1DC` | Evidence "Need to find it" |
-| Don't have | `#A3362B` bg `#FAEAE8` | Evidence "Don't have it" |
-| Demo flag | `#6B4FA0` bg `#EFEBF6` | "Demo — verify with an expert" |
+| Fact / neutral | `#535C71` bg `#EFEBDF` | FACT, neutral info |
+| Possible / caution | `#9A3324` bg `#F3E2DA` | POSSIBLE LEGAL ISSUE (seal) |
+| Legal info | `#705A1F` bg `#EFE6C9` | LEGAL INFORMATION (brass) |
+| AI interpretation | `#6C4F1F` bg `#EFE6C9` | AI INTERPRETATION (brass wash, dashed border) |
+| Good / have | `#2F5D4E` bg `#E1EBE5` | Evidence "Have it" (verified) |
+| Find / need | `#9A3324` bg `#F3E2DA` | Evidence "Need to find it" (seal) |
+| Don't have | `#9A3324` bg `#F3E2DA` | Evidence "Don't have it" (seal) |
+| Demo flag | `#7A5F22` bg `#EFE6C9` | "Demo — verify with an expert" (brass) |
 
 ### Color rules
-- Primary button is **ink** (near-black navy), not a saturated brand color — authority without shouting. Accent teal is for live/active/selected/links only.
-- All badge text ≥ 4.5:1 on its bg (verified against the tokens above).
-- No gradients anywhere except the paper sheet's subtle `#FFFFFF → #FDFDFC` for the document surface (barely perceptible).
+- Primary button is **ink** (`#1B2436`) — print, authority without shouting. The **only** important-action button styled seal-red is **Download PDF** (the payoff) — the single authorized bold move.
+- **Brass** (`--accent`) is for legal citations, links, live state, and focus — never for big filled surfaces.
+- **Bring your own paper:** surfaces use `#FBF8F1` paper on `#F1EAD6` paper-shade background; the document sheet is paper. Background/card contrast is intentional — a desk on a shaded mat.
+- All badge/link/inline text ≥ 4.5:1 on its bg (verified: ink-50 `#667084` 4.7, brass `#705A1F` 6.2, seal `#9A3324` 6.9, AI `#6C4F1F` 7.1, verified `#2F5D4E` 6.2).
+- **No gradients anywhere.** The document paper is flat `#FBF8F1` (white on print).
 
 ## 4. Borders & radius
 
@@ -111,13 +118,15 @@ Rhythm rules:
 
 | Variant | Style | Use |
 |---|---|---|
-| Primary | `bg ink · text white · 6px radius · h44` | The one action on a screen (Understand, Continue, Download PDF) |
+| Primary | `bg ink · text paper · 6px radius · h44` | The one action on a screen (Understand, Continue) |
+| Seal | `bg seal #9A3324 · text white` | The single consequential action — **Download PDF** |
 | Secondary | `1px line border · bg surface · text ink` | Alternative actions (Save, Preview) |
 | Ghost | `text ink-70 · hover bg muted` | Inline actions (Edit my situation, Skip) |
-| Link | `text accent · underline on hover` | Text links |
-| Destructive (rare) | `border + text #A3362B` | Reset/delete (only in document toolbar, with confirm) |
+| Link | `text accent · underline on hover` | Text links, legal citations |
+| Destructive (rare) | `border + seal red text` | Reset/delete (only in document toolbar, with confirm) |
 
 - One primary per screen region. Primary never competes with an accent-colored element nearby.
+- **Seal is reserved for the payoff.** Only the Download PDF action uses it — one bold move per path.
 - Disabled: `ink-30 text`, no shadow, still focusable-but-explained (with helper text rather than silent disable).
 
 ## 6. Inputs

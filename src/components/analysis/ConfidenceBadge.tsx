@@ -31,7 +31,7 @@ const CONFIG: Record<
     labelKey: "confidenceAi",
     icon: Sparkles,
     classes:
-      "bg-status-ai-bg text-status-ai border border-dashed border-status-ai/50",
+      "bg-status-ai-bg text-status-ai border border-dashed border-accent-strong/40",
     iconColor: "text-status-ai",
   },
 };
