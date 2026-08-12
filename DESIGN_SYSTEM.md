@@ -141,7 +141,7 @@ Rhythm rules:
 ## 7. Cards
 
 - Flat: `bg surface`, `1px line` border, `6px` radius, `20px` padding. No drop shadows by default.
-- **Domain cards (home):** slightly larger padding, icon in a muted square, 2–3 example lines, "Start here →" link. Hover: border darkens to ink-30, arrow nudges.
+- **Domain cards (home):** press-block cards — large padding, a 3-col grid (single-column on mobile), each card edged by a **seal keyline** on its left (seal = Consumer, brass = Labour, verified-green = Tenant), a raised icon, generous 19px titles, and "Start here →" + "worked example" links. Live-accepted from the bolder pass.
 - **The intake sheet (home hero):** the whole hero fills the **first viewport** (`min-h-[100svh]`) as a centered cover column — serif "Situation sheet" label, the cover title, and the intake sheet bottom-anchored (`mt-auto`) so it sits at the fold line, density 0.65. The sheet carries a 4px ink letterhead rule and a 10px radius with the system's one ambient shadow.
 - **The journey ledger (home):** the five steps render as a ruled contents table — serif page numbers (01–05), hairline dividers, a single direction arrow per row. Icons are omitted: the sequence is the content.
 - **Law cards (analysis):** left accent hairline? No — keep flat; structure via type: Act name (h3) + section chip + plain explanation + "Why it may apply" + source tag row.
