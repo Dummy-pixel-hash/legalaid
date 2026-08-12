@@ -20,6 +20,7 @@ export interface LegalAnalysisProvider {
     intake: IntakeData,
     lang: Language,
     onProgress?: (p: Progress) => void,
+    opts?: { fast?: boolean },
   ): Promise<CaseAnalysis>;
   /** Return the document for an analysis, optionally regenerated for a language. */
   generateDocument(

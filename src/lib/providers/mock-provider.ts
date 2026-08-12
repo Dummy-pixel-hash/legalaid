@@ -37,6 +37,7 @@ export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
     intake: IntakeData,
     lang: Language,
     onProgress?: (p: Progress) => void,
+    opts?: { fast?: boolean },
   ): Promise<CaseAnalysis> {
     const domain = intake.domain ?? detectDomain(intake.description);
     const id =
@@ -45,11 +46,18 @@ export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
         : `case-${Date.now()}`;
 
     // Staged "work" with honest progress copy per stage.
+    // Language switches pass fast:true so they resolve the same intake
+    // instantly instead of replaying the full staged pipeline.
     let pct = 0;
-    for (const stage of ANALYSIS_STAGES) {
-      pct += Math.round(100 / ANALYSIS_STAGES.length);
-      onProgress?.({ stage, pct });
-      await sleep(STAGE_DELAY_MS[stage]);
+    if (!opts?.fast) {
+      for (const stage of ANALYSIS_STAGES) {
+        pct += Math.round(100 / ANALYSIS_STAGES.length);
+        onProgress?.({ stage, pct });
+        await sleep(STAGE_DELAY_MS[stage]);
+      }
+    } else {
+      pct = 100;
+      onProgress?.({ stage: "document", pct });
     }
 
     const builders: Record<Domain, typeof buildConsumerAnalysis> = {
