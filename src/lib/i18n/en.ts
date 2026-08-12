@@ -98,6 +98,7 @@ export const en = {
 
   // ── Intake ──────────────────────────────────────────────────────
   intakeTitle: "Tell us what happened",
+  situationSheet: "Situation sheet \u2014 describe what happened",
   intakeSubtitle:
     "Describe your situation in your own words — English, Hindi, or both. You can skip any question you can't answer.",
   describeLabel: "Your situation",

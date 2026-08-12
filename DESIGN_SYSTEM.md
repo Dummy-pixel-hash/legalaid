@@ -48,6 +48,7 @@
 - No italic for emphasis; use weight + color.
 - Section markers: `text-xs` uppercase, letter-spacing `0.08em`, ink-60.
 - Numbers/amounts: `font-variant-numeric: tabular-nums` in tables and document.
+- **Serif is the cover voice.** The document face (Source Serif 4 / Noto Serif Devanagari) is the system's signature: it sets the home hero title (the cover page of the file), the document sheet itself, and ledger page numbers (home journey, analysis numbers). Sans (IBM Plex) carries everything else. Never use serif for form inputs.
 
 ## 2. Spacing
 
@@ -132,6 +133,8 @@ Rhythm rules:
 
 - Flat: `bg surface`, `1px line` border, `6px` radius, `20px` padding. No drop shadows by default.
 - **Domain cards (home):** slightly larger padding, icon in a muted square, 2–3 example lines, "Start here →" link. Hover: border darkens to ink-30, arrow nudges.
+- **The intake sheet (home hero):** the first sheet of the file — letterhead rule (`border-b-2 ink` under a filing row reading "Situation sheet · Step 1 of 5"), then the form body. Mirrors the document letterhead grammar.
+- **The journey ledger (home):** the five steps render as a ruled contents table — serif page numbers (01–05), hairline dividers, a single direction arrow per row. Icons are omitted: the sequence is the content.
 - **Law cards (analysis):** left accent hairline? No — keep flat; structure via type: Act name (h3) + section chip + plain explanation + "Why it may apply" + source tag row.
 - **What we understood:** presented as a bordered block with a pencil icon action, not a card-with-shadow.
 - Elevation (`shadow-sm`) reserved for: sticky stepper header, document toolbar, mobile bottom action bar.

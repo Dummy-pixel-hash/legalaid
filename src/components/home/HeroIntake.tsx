@@ -8,10 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n/provider";
 import { EXAMPLE_SCENARIOS } from "@/lib/mock/demo-cases";
 
+/**
+ * The cover page of the file: serif document title, and the intake
+ * styled as the first sheet — letterhead rule, filing row, body.
+ */
 export function HeroIntake() {
   const { t, lang } = useI18n();
   const router = useRouter();
   const [text, setText] = useState("");
+
+  const serif = lang === "hi" ? "font-doc-hi" : "font-doc";
 
   const submit = () => {
     if (!text.trim()) return;
@@ -21,20 +27,33 @@ export function HeroIntake() {
   return (
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 pb-4 pt-14 sm:px-6 sm:pt-20">
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           <p className="text-xs font-medium uppercase tracking-[0.08em] text-accent-strong">
             {t("headerSub")}
           </p>
-          <h1 className="mt-3 text-[34px] leading-[1.15] font-semibold tracking-tight text-ink sm:text-5xl">
+          <h1
+            className={`mt-4 text-[36px] leading-[1.12] font-semibold tracking-tight text-ink sm:text-[52px] ${serif}`}
+          >
             {t("homeHeroTitle")}
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-70 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-70 sm:text-lg">
             {t("homeHeroSubtitle")}
           </p>
         </div>
 
-        <div className="mt-8 rounded-lg border border-line bg-surface p-4 shadow-sm sm:p-5">
+        {/* The first sheet of the file */}
+        <div className="mt-9 rounded-lg border border-line bg-surface shadow-sm">
+          <div className="flex items-baseline justify-between gap-3 border-b-2 border-ink px-4 pt-3.5 pb-2.5 sm:px-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-ink">
+              {t("situationSheet")}
+            </p>
+            <p className="text-[11px] uppercase tracking-[0.1em] text-ink-50">
+              {t("stepOf", { current: 1, total: 5 })}
+            </p>
+          </div>
+
           <form
+            className="p-4 sm:p-6"
             onSubmit={(e) => {
               e.preventDefault();
               submit();
@@ -51,9 +70,9 @@ export function HeroIntake() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t("homeIntakePlaceholder")}
-              className="mt-2 min-h-[120px] text-base leading-relaxed"
+              className="mt-2 min-h-[132px] text-base leading-relaxed"
             />
-            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <ul
                 className="flex flex-wrap gap-2"
                 aria-label={t("homeExamplesHeading")}
