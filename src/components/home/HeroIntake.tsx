@@ -32,12 +32,10 @@ export function HeroIntake() {
           <p className="text-xs font-medium uppercase tracking-[0.08em] text-accent-strong">
             {t("headerSub")}
           </p>
-          <h1
-            className={`mt-4 text-[36px] leading-[1.12] font-semibold tracking-tight text-ink sm:text-[52px] ${serif}`}
-          >
+          <h1 className="mt-[18px] text-[clamp(34px,4.75vw,46px)] font-semibold uppercase leading-[1.12] tracking-[0.01em] text-ink">
             {t("homeHeroTitle")}
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-70 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-[1.6] text-ink-70">
             {t("homeHeroSubtitle")}
           </p>
         </div>

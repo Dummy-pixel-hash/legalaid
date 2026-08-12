@@ -48,7 +48,7 @@
 - No italic for emphasis; use weight + color.
 - Section markers: `text-xs` uppercase, letter-spacing `0.08em`, ink-60.
 - Numbers/amounts: `font-variant-numeric: tabular-nums` in tables and document.
-- **Serif is the cover voice.** The document face (Source Serif 4 / Noto Serif Devanagari) is the system's signature: it sets the home hero title (the cover page of the file), the document sheet itself, and ledger page numbers (home journey, analysis numbers). Sans (IBM Plex) carries everything else. Never use serif for form inputs.
+- **Serif is the document voice.** The document face (Source Serif 4 / Noto Serif Devanagari) sets the "Situation sheet" label, the document sheet itself, and ledger page numbers (home journey, analysis numbers). The home hero title is **IBM Plex Sans semibold, uppercase, tracking 0.01em**, sized `clamp(34px, 4.75vw, 46px)` (live-accepted). Sans carries everything else. Never use serif in form inputs.
 
 ## 2. Spacing
 
