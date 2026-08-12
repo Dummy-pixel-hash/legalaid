@@ -32,41 +32,44 @@ export function TrustSection() {
   ];
 
   return (
-    <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">
-      <div className="max-w-2xl">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-          {t("homeTrustHeading")}
-        </p>
-        <p className="mt-2 text-ink-70">{t("homeTrustHint")}</p>
-      </div>
+        <section className="t2-sec mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+          <div className="max-w-2xl">
+            <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
+              {t("homeTrustHeading")}
+            </p>
+            <p className="mt-3 text-lg leading-relaxed text-ink-70">
+              {t("homeTrustHint")}
+            </p>
+          </div>
 
-      <div className="mt-6 rounded-lg border border-line bg-surface">
-        {rows.map((row, i) => {
-          const Icon = row.icon;
-          return (
-            <div
-              key={i}
-              className={
-                "flex gap-4 p-5 " + (i < rows.length - 1 ? "border-b border-line" : "")
-              }
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-muted">
-                <Icon className={"h-4.5 w-4.5 " + row.iconClass} aria-hidden />
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-ink">{row.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-ink-70">
-                  {row.body}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+          <div className="mt-7">
+            {rows.map((row, i) => {
+              const Icon = row.icon;
+              return (
+                <div
+                  key={i}
+                  className={
+                    "flex gap-4 py-[23px] " +
+                    (i < rows.length - 1 ? "border-b border-line" : "")
+                  }
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-muted">
+                    <Icon className={"h-4 w-4 " + row.iconClass} aria-hidden />
+                  </span>
+                  <div>
+                    <p className="text-[15px] font-semibold text-ink">{row.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-70">
+                      {row.body}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-      <p className="mt-6 max-w-2xl rounded-lg border border-line bg-surface-muted px-4 py-3 text-xs leading-relaxed text-ink-70">
-        {t("homeDisclaimerNote")}
-      </p>
-    </section>
+          <p className="mt-8 max-w-2xl rounded-lg border border-line bg-surface-muted px-4 py-3 text-xs leading-relaxed text-ink-70">
+            {t("homeDisclaimerNote")}
+          </p>
+        </section>
   );
 }
