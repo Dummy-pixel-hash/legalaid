@@ -32,7 +32,7 @@ export function TrustSection() {
   ];
 
   return (
-        <section className="t2-sec mx-auto max-w-5xl px-4 pb-16 sm:px-6">
+        <section className="t2-sec mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pb-28">
           <div className="max-w-2xl">
             <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
               {t("homeTrustHeading")}
@@ -66,10 +66,6 @@ export function TrustSection() {
               );
             })}
           </div>
-
-          <p className="mt-8 max-w-2xl rounded-lg border border-line bg-surface-muted px-4 py-3 text-xs leading-relaxed text-ink-70">
-            {t("homeDisclaimerNote")}
-          </p>
         </section>
   );
 }
