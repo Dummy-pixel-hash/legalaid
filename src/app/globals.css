@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-ui);
+
+  /* LegalAId palette (calm legal-aid desk) */
+  --color-ink: var(--ink);
+  --color-ink-70: var(--ink-70);
+  --color-ink-50: var(--ink-50);
+  --color-ink-30: var(--ink-30);
+  --color-line: var(--line);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-strong-hover: var(--accent-strong-hover);
+
+  /* Status semantics */
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-caution: var(--status-caution);
+  --color-status-caution-bg: var(--status-caution-bg);
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-ai: var(--status-ai);
+  --color-status-ai-bg: var(--status-ai-bg);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-demo: var(--status-demo);
+  --color-status-demo-bg: var(--status-demo-bg);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+:root {
+  /* Surfaces & ink */
+  --background: #f7f7f5;
+  --surface: #ffffff;
+  --surface-muted: #f0f0ed;
+  --foreground: #1a2433;
+  --ink: #1a2433;
+  --ink-70: #46515f;
+  --ink-50: #6b7583;
+  --ink-30: #a6aeb8;
+  --line: #e2e4e0;
+
+  /* Accent (deep teal — live state only) */
+  --accent-strong: #0e7a66;
+  --accent-strong-hover: #0a5c4d;
+  --accent: #e4f1ee;
+  --accent-foreground: #0a5c4d;
+
+  /* Status semantics */
+  --status-neutral: #5b6472;
+  --status-neutral-bg: #edeff2;
+  --status-caution: #8a5a00;
+  --status-caution-bg: #fbf1dc;
+  --status-info: #2b5b8c;
+  --status-info-bg: #e6eef6;
+  --status-ai: #0e7a66;
+  --status-ai-bg: #e4f1ee;
+  --status-success: #1e7a45;
+  --status-success-bg: #e6f4eb;
+  --status-danger: #a3362b;
+  --status-danger-bg: #faeae8;
+  --status-demo: #6b4fa0;
+  --status-demo-bg: #efebf6;
+
+  /* shadcn aliases */
+  --card: #ffffff;
+  --card-foreground: #1a2433;
+  --popover: #ffffff;
+  --popover-foreground: #1a2433;
+  --primary: #1a2433;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0ed;
+  --secondary-foreground: #1a2433;
+  --muted: #f0f0ed;
+  --muted-foreground: #6b7583;
+  --destructive: #a3362b;
+  --border: #e2e4e0;
+  --input: #e2e4e0;
+  --ring: #0e7a66;
+
+  /* Radius (restrained) */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+}
+
+/* No dark mode — the product is calm daylight. */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-ui), system-ui, sans-serif;
+  }
+  /* Devanagari gets its own face + a touch more line-height */
+  html[lang="hi"] body {
+    font-family: var(--font-ui-hi), var(--font-ui), system-ui, sans-serif;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Paper sheet for documents */
+.doc-sheet {
+  background: #ffffff;
+}
+
+/* Print: only the document sheet */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  .print-hide {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  @page {
+    margin: 20mm;
+  }
+}
