@@ -85,20 +85,28 @@ export function getDemoIntake(id: string): IntakeData | undefined {
 }
 
 /** Example chips shown on the home page and intake — real scenarios from the demo cases. */
-export const EXAMPLE_SCENARIOS: { key: string; text: string; demo?: string }[] = [
+export const EXAMPLE_SCENARIOS: {
+  key: string;
+  en: string;
+  hi: string;
+  demo?: string;
+}[] = [
   {
     key: "deposit",
-    text: "My landlord hasn't returned my ₹30,000 security deposit even though I moved out and there was no damage.",
+    en: "My landlord hasn't returned my ₹30,000 security deposit even though I moved out and there was no damage.",
+    hi: "मेरे मकान मालिक ने मेरी ₹30,000 की सिक्योरिटी डिपॉज़िट नहीं लौटाई, जबकि मैंने फ्लैट खाली कर दिया और कोई नुकसान नहीं था।",
     demo: "demo-tenant",
   },
   {
     key: "salary",
-    text: "My employer hasn't paid my salary for 3 months — about ₹48,000 — and is pressuring me to resign.",
+    en: "My employer hasn't paid my salary for 3 months — about ₹48,000 — and is pressuring me to resign.",
+    hi: "मेरे नियोक्ता ने 3 महीने का मेरा वेतन — लगभग ₹48,000 — नहीं दिया और इस्तीफ़ा देने का दबाव बना रहे हैं।",
     demo: "demo-labour",
   },
   {
     key: "refrigerator",
-    text: "My refrigerator broke twice within its 1-year warranty and the seller and brand both refuse to replace it.",
+    en: "My refrigerator broke twice within its 1-year warranty and the seller and brand both refuse to replace it.",
+    hi: "मेरा फ्रिज 1 साल की वारंटी में दो बार खराब हुआ और विक्रेता व ब्रांड दोनों बदलने से इनकार कर रहे हैं।",
     demo: "demo-consumer",
   },
 ];

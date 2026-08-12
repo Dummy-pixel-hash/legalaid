@@ -107,11 +107,14 @@ export function CaseStepper({ caseId }: { caseId: string }) {
           <Link
             href={
               current === STEPS.length - 1
-                ? `/intake?edit=${caseId}`
+                ? `/case/${caseId}${STEPS[current].path}`
                 : `/case/${caseId}${STEPS[current + 1].path}`
             }
             aria-label={t("next")}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink-70"
+            className={cn(
+              "flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink-70",
+              current === STEPS.length - 1 && "pointer-events-none opacity-40",
+            )}
           >
             <ChevronRight className="h-4 w-4" aria-hidden />
           </Link>

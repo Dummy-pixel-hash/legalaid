@@ -52,6 +52,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --font-doc: var(--font-doc);
+  --font-doc-hi: var(--font-doc-hi);
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
@@ -123,7 +125,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-ui), system-ui, sans-serif;
+    font-family: var(--font-body, var(--font-ui)), system-ui, sans-serif;
   }
   /* Devanagari gets its own face + a touch more line-height */
   html[lang="hi"] body {

@@ -56,11 +56,18 @@ export const en = {
   homeTrustHint:
     "LegalAId cites the specific law and section it refers to. Where the law is uncertain or varies by state, we say so — we never invent legal sections.",
   homeVerifiedNote: "Verified legal sources",
+  homeVerifiedBody:
+    "Every citation is a real Act/Code section from a versioned registry — e.g. Consumer Protection Act, 2019 §35.",
   homeDemoNote: "Demo references are clearly marked",
+  homeDemoBody:
+    "Where the law is uncertain or varies by state, we tag it 'Demo — verify with an expert' and never present it as established law.",
   homePrivacyNote: "Works on your device — your situation stays on your device",
+  homePrivacyBody:
+    "The MVP runs entirely in your browser. Your situation is never sent to a server.",
   homeDisclaimerNote:
     "LegalAId provides general legal information, not legal advice. It is not a substitute for a qualified lawyer. For help, contact the State Legal Services Authority (helpline 15100).",
   startHere: "Start here",
+  viewWorkedExample: "See a worked example",
 
   // ── Domain cards ────────────────────────────────────────────────
   domainConsumer: "Consumer",

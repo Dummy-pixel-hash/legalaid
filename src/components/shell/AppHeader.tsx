@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Scale } from "lucide-react";
 import { useI18n } from "@/lib/i18n/provider";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { cn } from "@/lib/utils";
 
 export function AppHeader() {
   const { t } = useI18n();
@@ -42,7 +41,7 @@ export function AppHeader() {
           >
             {t("legalInfo")}
           </Link>
-          <LanguageSwitcher className={cn(inCase && "max-sm:hidden")} />
+          <LanguageSwitcher />
         </nav>
       </div>
     </header>

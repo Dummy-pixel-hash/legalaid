@@ -10,6 +10,7 @@ const DOMAINS: {
   icon: typeof ShoppingCart;
   titleKey: "domainConsumer" | "domainLabour" | "domainTenant";
   plainKey: "domainConsumerPlain" | "domainLabourPlain" | "domainTenantPlain";
+  demoId: string;
   exampleKeys: (
     | "domainConsumerExample1"
     | "domainConsumerExample2"
@@ -24,6 +25,7 @@ const DOMAINS: {
     icon: ShoppingCart,
     titleKey: "domainConsumer",
     plainKey: "domainConsumerPlain",
+    demoId: "demo-consumer",
     exampleKeys: ["domainConsumerExample1", "domainConsumerExample2"],
   },
   {
@@ -31,6 +33,7 @@ const DOMAINS: {
     icon: Briefcase,
     titleKey: "domainLabour",
     plainKey: "domainLabourPlain",
+    demoId: "demo-labour",
     exampleKeys: ["domainLabourExample1", "domainLabourExample2"],
   },
   {
@@ -38,6 +41,7 @@ const DOMAINS: {
     icon: Home,
     titleKey: "domainTenant",
     plainKey: "domainTenantPlain",
+    demoId: "demo-tenant",
     exampleKeys: ["domainTenantExample1", "domainTenantExample2"],
   },
 ];
@@ -57,10 +61,9 @@ export function DomainCards() {
         {DOMAINS.map((d) => {
           const Icon = d.icon;
           return (
-            <Link
+            <div
               key={d.id}
-              href={`/intake?domain=${d.id}`}
-              className="group flex flex-col rounded-lg border border-line bg-surface p-5 transition-colors hover:border-ink-30"
+              className="flex flex-col rounded-lg border border-line bg-surface p-5"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-md bg-surface-muted text-ink-70">
                 <Icon className="h-5 w-5" aria-hidden />
@@ -85,14 +88,25 @@ export function DomainCards() {
                   </li>
                 ))}
               </ul>
-              <span className="mt-auto flex items-center gap-1.5 pt-4 text-sm font-medium text-accent-strong">
-                {t("startHere")}
-                <ArrowRight
-                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden
-                />
-              </span>
-            </Link>
+              <div className="mt-auto flex flex-col gap-1.5 pt-5">
+                <Link
+                  href={`/intake?domain=${d.id}`}
+                  className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent-strong hover:underline"
+                >
+                  {t("startHere")}
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
+                <Link
+                  href={`/case/${d.demoId}/analysis`}
+                  className="text-xs text-ink-50 hover:underline"
+                >
+                  {t("viewWorkedExample")}
+                </Link>
+              </div>
+            </div>
           );
         })}
       </div>

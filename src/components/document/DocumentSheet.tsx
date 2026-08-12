@@ -39,7 +39,7 @@ function EditableText({
   ariaLabel?: string;
 }) {
   const base = cn(
-    "w-full rounded-sm bg-transparent p-0.5 text-[14.5px] leading-[1.55] text-ink outline-none transition-colors focus:bg-accent-soft/60 focus:outline-1 focus:outline-accent-strong",
+    "w-full rounded-sm bg-transparent p-0.5 text-[14.5px] leading-[1.55] text-ink outline-none transition-colors focus:bg-accent/60 focus:outline-1 focus:outline-accent-strong",
     className,
   );
   if (multiline) {

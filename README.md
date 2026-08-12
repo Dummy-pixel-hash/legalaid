@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LegalAId
 
-## Getting Started
+**Understand your rights. Know what to do next.**
 
-First, run the development server:
+LegalAId is a civic-tech web app that helps first-generation litigants in India
+understand a legal problem in plain language and act on it — for Consumer,
+Labour, and Tenant disputes, in English and Hindi.
+
+## The journey
+
+**Problem → Understanding → Applicable Law → Evidence → Next Action → Document**
+
+1. **Situation** (`/intake`) — describe what happened in your own words (English, Hindi, or mixed). Optional clarifying questions.
+2. **Analysis** (`/case/[id]/analysis`) — what we understood, possible issues, your possible rights, applicable law with plain-language explanations, and an honest "what we're unsure about" section.
+3. **Evidence** (`/case/[id]/evidence`) — an interactive checklist: have it / don't have it / need to find it.
+4. **Next steps** (`/case/[id]/next-steps`) — a prioritized, honest action plan.
+5. **Document** (`/case/[id]/document`) — an editable legal notice/complaint draft you can save, copy, and export as PDF.
+
+## Try it fast
+
+- `/case/demo-consumer` — defective refrigerator within warranty (₹18,500)
+- `/case/demo-labour` — three months of unpaid wages (₹48,000)
+- `/case/demo-tenant` — security deposit not returned (₹30,000)
+
+Each demo exists in English and Hindi — switch language in the header.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev        # development
+pnpm build      # production build
+pnpm start      # serve the build
+pnpm tsx scripts/smoke.ts   # pipeline smoke tests
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture in brief
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js 15 (App Router) + TypeScript + Tailwind v4 + shadcn/ui.** Client-only MVP; all state lives in a context store persisted to `localStorage`.
+- **AI provider seam** (`src/lib/providers/`) — `LegalAnalysisProvider` interface; a mock provider generates structured, parameterized analyses. Swap in an API/local/fine-tuned/RAG provider later without touching the UI.
+- **Versioned legal-source registry** (`src/lib/legal/sources.ts`) — the single source of truth for citations.
+- **First-class language** (`src/lib/i18n/`) — typed dictionaries (en, hi) + per-language analysis content. Adding a language = one dictionary file + content.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Legal verification rule (strict)
 
-## Learn More
+- `verified: true` only for real, confirmed Act/Code + section.
+- `verified: false` for demo/state-specific/advisory references — the UI tags these **"Demo — verify with an expert"** and never presents them as established law.
+- LegalAId provides **general legal information, not legal advice**. Every analysis and document carries the disclaimer. Free legal aid: **State Legal Services Authority helpline 15100**.
 
-To learn more about Next.js, take a look at the following resources:
+## Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `PRODUCT.md`, `UX.md`, `DESIGN_SYSTEM.md`, `ARCHITECTURE.md`, `ROUTES.md`,
+`COMPONENTS.md`, `MOCK_DATA.md`, `ROADMAP.md` in the repo root.

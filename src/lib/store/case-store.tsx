@@ -194,16 +194,16 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       id: string,
       intake: IntakeData,
       lang: Language,
-      isDemo: boolean,
+      _isDemo: boolean,
     ) => {
       patchRecord(id, { status: "analyzing", stage: "reading", pct: 0 });
       const provider = getProvider();
       try {
-        const analysis = isDemo
-          ? DEMO_CASES[id].analysis(lang)
-          : await provider.analyze(intake, lang, (p) =>
-              patchRecord(id, { stage: p.stage, pct: p.pct }),
-            );
+        // Always through the provider so re-analysis (edits, language switch)
+        // reflects the current intake — even for demo cases.
+        const analysis = await provider.analyze(intake, lang, (p) =>
+          patchRecord(id, { stage: p.stage, pct: p.pct }),
+        );
         patchRecord(id, {
           baseAnalysis: analysis,
           intake,
@@ -254,6 +254,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
       const rec = recordsRef.current[id];
       if (!rec || !rec.baseAnalysis) return;
       if (rec.baseAnalysis.language === lang) return;
+      if (rec.status === "analyzing") return; // already regenerating
       await runAnalysis(id, rec.intake, lang, rec.isDemo);
     },
     [runAnalysis],

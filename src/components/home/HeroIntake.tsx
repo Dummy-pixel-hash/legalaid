@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { EXAMPLE_SCENARIOS } from "@/lib/mock/demo-cases";
 
 export function HeroIntake() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const router = useRouter();
   const [text, setText] = useState("");
 
@@ -57,17 +57,20 @@ export function HeroIntake() {
             />
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <ul className="flex flex-wrap gap-2" aria-label={t("homeExamplesHeading")}>
-                {EXAMPLE_SCENARIOS.map((s) => (
-                  <li key={s.key}>
-                    <button
-                      type="button"
-                      onClick={() => setText(s.text)}
-                      className="rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
-                    >
-                      {s.text.length > 60 ? `${s.text.slice(0, 60)}…` : s.text}
-                    </button>
-                  </li>
-                ))}
+                {EXAMPLE_SCENARIOS.map((s) => {
+                  const label = lang === "hi" ? s.hi : s.en;
+                  return (
+                    <li key={s.key}>
+                      <button
+                        type="button"
+                        onClick={() => setText(lang === "hi" ? s.hi : s.en)}
+                        className="rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
+                      >
+                        {label.length > 60 ? `${label.slice(0, 60)}…` : label}
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
               <Button
                 type="submit"

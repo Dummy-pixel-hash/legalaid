@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, ShieldAlert, ShieldCheck, Lock } from "lucide-react";
+import { BadgeCheck, ShieldAlert, Lock } from "lucide-react";
 import { useI18n } from "@/lib/i18n/provider";
 
 export function TrustSection() {
@@ -21,7 +21,7 @@ export function TrustSection() {
             {t("homeVerifiedNote")}
           </h3>
           <p className="mt-1.5 text-xs leading-relaxed text-ink-70">
-            {t("homeTrustHint")}
+            {t("homeVerifiedBody")}
           </p>
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
@@ -30,7 +30,7 @@ export function TrustSection() {
             {t("homeDemoNote")}
           </h3>
           <p className="mt-1.5 text-xs leading-relaxed text-ink-70">
-            {t("homeDemoNote")} — {t("demoTag")}
+            {t("homeDemoBody")}
           </p>
         </div>
         <div className="rounded-lg border border-line bg-surface p-5">
@@ -39,7 +39,7 @@ export function TrustSection() {
             {t("homePrivacyNote")}
           </h3>
           <p className="mt-1.5 text-xs leading-relaxed text-ink-70">
-            {t("homePrivacyNote")}
+            {t("homePrivacyBody")}
           </p>
         </div>
       </div>
