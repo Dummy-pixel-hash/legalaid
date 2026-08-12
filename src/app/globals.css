@@ -130,6 +130,7 @@
   /* Devanagari gets its own face + a touch more line-height */
   html[lang="hi"] body {
     font-family: var(--font-ui-hi), var(--font-ui), system-ui, sans-serif;
+    line-height: 1.65;
   }
   html {
     @apply font-sans;
