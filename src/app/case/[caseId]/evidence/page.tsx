@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n/provider";
 import { useCase } from "@/lib/store/case-store";
@@ -70,6 +70,13 @@ function EvidenceClient({ caseId }: { caseId: string }) {
             style={{ width: `${progressPct}%` }}
           />
         </div>
+        {items.length > 0 &&
+          items.every((i) => i.status !== "unset") && (
+            <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-status-success">
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+              {t("evidenceAllReviewed")}
+            </p>
+          )}
       </div>
 
       <ul className="mt-6 space-y-3">

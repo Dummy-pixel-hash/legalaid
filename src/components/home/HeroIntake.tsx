@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n/provider";
@@ -22,8 +22,7 @@ export function HeroIntake() {
     <section className="relative overflow-hidden">
       <div className="mx-auto max-w-5xl px-4 pb-4 pt-14 sm:px-6 sm:pt-20">
         <div className="max-w-2xl">
-          <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.08em] text-accent-strong">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-accent-strong">
             {t("headerSub")}
           </p>
           <h1 className="mt-3 text-[34px] leading-[1.15] font-semibold tracking-tight text-ink sm:text-5xl">
@@ -53,24 +52,23 @@ export function HeroIntake() {
               onChange={(e) => setText(e.target.value)}
               placeholder={t("homeIntakePlaceholder")}
               className="mt-2 min-h-[120px] text-base leading-relaxed"
-              autoFocus={false}
             />
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <ul className="flex flex-wrap gap-2" aria-label={t("homeExamplesHeading")}>
-                {EXAMPLE_SCENARIOS.map((s) => {
-                  const label = lang === "hi" ? s.hi : s.en;
-                  return (
-                    <li key={s.key}>
-                      <button
-                        type="button"
-                        onClick={() => setText(lang === "hi" ? s.hi : s.en)}
-                        className="rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
-                      >
-                        {label.length > 60 ? `${label.slice(0, 60)}…` : label}
-                      </button>
-                    </li>
-                  );
-                })}
+            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <ul
+                className="flex flex-wrap gap-2"
+                aria-label={t("homeExamplesHeading")}
+              >
+                {EXAMPLE_SCENARIOS.map((s) => (
+                  <li key={s.key}>
+                    <button
+                      type="button"
+                      onClick={() => setText(lang === "hi" ? s.hi : s.en)}
+                      className="rounded-md border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
+                    >
+                      {lang === "hi" ? s.labelHi : s.labelEn}
+                    </button>
+                  </li>
+                ))}
               </ul>
               <Button
                 type="submit"

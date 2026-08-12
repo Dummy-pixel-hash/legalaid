@@ -30,7 +30,7 @@ export function AppFooter() {
             </p>
           </div>
         </div>
-        <p className="mt-6 text-[11px] text-ink-30">
+        <p className="mt-6 text-[11px] text-ink-50">
           © {new Date().getFullYear()} LegalAId · {t("headerSub")}
         </p>
       </div>

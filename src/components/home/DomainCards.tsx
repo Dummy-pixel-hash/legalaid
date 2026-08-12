@@ -53,7 +53,7 @@ export function DomainCards() {
     <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <div className="max-w-2xl">
         <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-          02 · {t("homeDomainsHeading")}
+          {t("homeDomainsHeading")}
         </p>
         <p className="mt-2 text-ink-70">{t("homeDomainsHint")}</p>
       </div>

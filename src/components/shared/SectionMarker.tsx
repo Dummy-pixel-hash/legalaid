@@ -6,7 +6,7 @@ export function SectionMarker({
   label,
   className,
 }: {
-  number: string;
+  number?: string;
   label: string;
   className?: string;
 }) {
@@ -17,7 +17,8 @@ export function SectionMarker({
         className,
       )}
     >
-      {number} · {label}
+      {number ? `${number} · ` : ""}
+      {label}
     </p>
   );
 }

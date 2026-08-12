@@ -82,9 +82,19 @@ export function DocumentSheet({
         serif,
       )}
     >
-      <div className="border-b-2 border-ink pb-4">
-        <p className="text-center text-[10px] uppercase tracking-[0.2em] text-ink-50">
-          {lang === "hi" ? "कानूनी दस्तावेज़" : "LEGAL AID DOCUMENT"}
+      <div className="flex items-end justify-between border-b-2 border-ink pb-3">
+        <div>
+          <p className="text-[15px] font-semibold tracking-tight text-ink">
+            LegalAId
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.14em] text-ink-50">
+            {lang === "hi"
+              ? "कानूनी सहायता दस्तावेज़"
+              : "Legal assistance document"}
+          </p>
+        </div>
+        <p className="text-[10px] text-ink-50">
+          {lang === "hi" ? "हेल्पलाइन" : "Helpline"} 15100
         </p>
       </div>
 

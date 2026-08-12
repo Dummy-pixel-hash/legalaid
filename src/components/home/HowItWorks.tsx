@@ -23,7 +23,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="max-w-2xl">
           <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-            03 · {t("homeHowHeading")}
+            {t("homeHowHeading")}
           </p>
           <p className="mt-2 text-ink-70">{t("homeHowHint")}</p>
         </div>
