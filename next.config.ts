@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
     "localhost",
     "127.0.0.1",
     "::1",
-    "e47d-49-36-89-84.ngrok-free.app",
+    "ed52-49-36-89-84.ngrok-free.app",
+    "100.86.95.34:8080",
   ],
 };
 
