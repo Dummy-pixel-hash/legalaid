@@ -142,7 +142,7 @@ Rhythm rules:
 
 - Flat: `bg surface`, `1px line` border, `6px` radius, `20px` padding. No drop shadows by default.
 - **Domain cards (home):** slightly larger padding, icon in a muted square, 2–3 example lines, "Start here →" link. Hover: border darkens to ink-30, arrow nudges.
-- **The intake sheet (home hero):** the first sheet of the file — a heavy ink letterhead rule (`border-b-4`, 4px), the "Situation sheet" label set in the **document serif** at 17px, and a hero-scale field (`min-h 220px`, 17px type). Filing row reads "Situation sheet · Step 1 of 5". Mirrors the document letterhead grammar.
+- **The intake sheet (home hero):** the whole hero fills the **first viewport** (`min-h-[100svh]`) as a centered cover column — serif "Situation sheet" label, the cover title, and the intake sheet bottom-anchored (`mt-auto`) so it sits at the fold line, density 0.65. The sheet carries a 4px ink letterhead rule and a 10px radius with the system's one ambient shadow.
 - **The journey ledger (home):** the five steps render as a ruled contents table — serif page numbers (01–05), hairline dividers, a single direction arrow per row. Icons are omitted: the sequence is the content.
 - **Law cards (analysis):** left accent hairline? No — keep flat; structure via type: Act name (h3) + section chip + plain explanation + "Why it may apply" + source tag row.
 - **What we understood:** presented as a bordered block with a pencil icon action, not a card-with-shadow.
