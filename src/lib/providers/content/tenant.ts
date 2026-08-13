@@ -14,7 +14,6 @@ import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
-  lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
   const src = getLocalSource(id);
@@ -22,9 +21,9 @@ function law(
     id,
     act: src.act,
     section: src.section,
-    title: src.title[lang],
-    plainExplanation: src.plain[lang],
-    whyApplies: whyApplies[lang],
+    title: src.title,
+    plainExplanation: src.plain,
+    whyApplies,
     source: src.source,
   };
 }
@@ -51,57 +50,62 @@ export function buildTenantAnalysis(ctx: {
   const issues = [
     {
       id: "deposit-withheld",
-      label: hi
-        ? "बिना आइटमाइज़्ड दावे के सिक्योरिटी डिपॉज़िट रोकना"
-        : "Security deposit withheld without itemized claim",
+      label: {
+        en: "Security deposit withheld without itemized claim",
+        hi: "बिना आइटमाइज़्ड दावे के सिक्योरिटी डिपॉज़िट रोकना",
+      },
       kind: "possible-issue" as const,
-      detail: hi
-        ? `किरायेदारी समाप्त होने पर डिपॉज़िट लौटाना होता है, सिवाय सिद्ध और उचित कटौतियों के।${amtClause}${partyClause}`
-        : `On the tenancy ending, the deposit must be returned except for proven, proper deductions.${amtClause}${partyClause}`,
+      detail: {
+        en: `On the tenancy ending, the deposit must be returned except for proven, proper deductions.${amtClause}${partyClause}`,
+        hi: `किरायेदारी समाप्त होने पर डिपॉज़िट लौटाना होता है, सिवाय सिद्ध और उचित कटौतियों के।${amtClause}${partyClause}`,
+      },
     },
     {
       id: "no-agreement",
-      label: hi ? "कोई लिखित समझौता नहीं" : "No written agreement",
+      label: { en: "No written agreement", hi: "कोई लिखित समझौता नहीं" },
       kind: "fact" as const,
-      detail: hi
-        ? "लिखित समझौते का न होना अधिकार खत्म नहीं करता — पर सबूत कमज़ोर करता है।"
-        : "A missing written agreement does not remove rights — but it weakens proof.",
+      detail: {
+        en: "A missing written agreement does not remove rights — but it weakens proof.",
+        hi: "लिखित समझौते का न होना अधिकार खत्म नहीं करता — पर सबूत कमज़ोर करता है।",
+      },
     },
     {
       id: "repairs-claim",
-      label: hi
-        ? "बिना सबूत 'मरम्मत' का दावा"
-        : "'Repairs' claimed without proof",
+      label: { en: "'Repairs' claimed without proof", hi: "बिना सबूत 'मरम्मत' का दावा" },
       kind: "possible-issue" as const,
-      detail: hi
-        ? "कटौतियाँ वास्तविक और आइटमाइज़्ड होनी चाहिए — सिर्फ़ कहने से नहीं।"
-        : "Deductions must be real and itemized — not just asserted.",
+      detail: {
+        en: "Deductions must be real and itemized — not just asserted.",
+        hi: "कटौतियाँ वास्तविक और आइटमाइज़्ड होनी चाहिए — सिर्फ़ कहने से नहीं।",
+      },
     },
   ];
 
   const rights = [
     {
       id: "right-deposit",
-      title: hi ? "डिपॉज़िट वापस पाने का अधिकार" : "Right to refund of the deposit",
-      plain: hi
-        ? "किरायेदारी समाप्त होने पर डिपॉज़िट वापस मिलना चाहिए, सिवाय सिद्ध कटौतियों के।"
-        : "The deposit should be returned when the tenancy ends, minus proven deductions.",
+      title: { en: "Right to refund of the deposit", hi: "डिपॉज़िट वापस पाने का अधिकार" },
+      plain: {
+        en: "The deposit should be returned when the tenancy ends, minus proven deductions.",
+        hi: "किरायेदारी समाप्त होने पर डिपॉज़िट वापस मिलना चाहिए, सिवाय सिद्ध कटौतियों के।",
+      },
       linkedLaws: ["tpa-1882-s108", "tpa-1882-s111", "ica-1872-s73"],
     },
     {
       id: "right-notice",
-      title: hi ? "उचित समाप्ति और सूचना का अधिकार" : "Right to proper termination and notice",
-      plain: hi
-        ? "लीज़ की समाप्ति नियमों और सूचना के अनुसार होनी चाहिए।"
-        : "The lease must end according to the rules and notice period.",
+      title: { en: "Right to proper termination and notice", hi: "उचित समाप्ति और सूचना का अधिकार" },
+      plain: {
+        en: "The lease must end according to the rules and notice period.",
+        hi: "लीज़ की समाप्ति नियमों और सूचना के अनुसार होनी चाहिए।",
+      },
       linkedLaws: ["tpa-1882-s106"],
     },
     {
       id: "right-state-law",
-      title: hi ? "राज्य के किराया कानून की सुरक्षा" : "Protections under your state's rent law",
-      plain: hi
-        ? "आपके राज्य के किराया नियंत्रण कानून अतिरिक्त सुरक्षा दे सकते हैं — राज्य के अनुसार अलग।"
-        : "Your state's rent-control law may offer additional protections — it varies by state.",
+      title: { en: "Protections under your state's rent law", hi: "राज्य के किराया कानून की सुरक्षा" },
+      plain: {
+        en: "Your state's rent-control law may offer additional protections — it varies by state.",
+        hi: "आपके राज्य के किराया नियंत्रण कानून अतिरिक्त सुरक्षा दे सकते हैं — राज्य के अनुसार अलग।",
+      },
       linkedLaws: ["state-rent-act"],
     },
   ];
@@ -145,44 +149,53 @@ export function buildTenantAnalysis(ctx: {
     "ica-1872-s73",
     "mta-2021-deposit",
     "state-rent-act",
-  ].map((id) => law(id, lang, whyApplies[id]));
+  ].map((id) => law(id, whyApplies[id]));
 
   const uncertainty = [
     {
       id: "consumer-route",
-      plain: hi
-        ? "किरायेदार-मकान मालिक डिपॉज़िट दावे को उपभोक्ता आयोग 'सेवा' माने या नहीं — विभिन्न राज्यों में भिन्न है।"
-        : "Whether a consumer forum treats a landlord–tenant deposit claim as a 'service' differs across states.",
-      changesAnswer: hi
-        ? "अगर माना जाए, तो उपभोक्ता आयोग भी एक रास्ता बन सकता है।"
-        : "If accepted, the consumer forum could also be an option.",
-      resolve: hi
-        ? "पहले विधिक सहायता क्लिनिक से पूछें कि आपके राज्य में क्या चलता है।"
-        : "Ask a legal aid clinic what works in your state first.",
+      plain: {
+        en: "Whether a consumer forum treats a landlord–tenant deposit claim as a 'service' differs across states.",
+        hi: "किरायेदार-मकान मालिक डिपॉज़िट दावे को उपभोक्ता आयोग 'सेवा' माने या नहीं — विभिन्न राज्यों में भिन्न है।",
+      },
+      changesAnswer: {
+        en: "If accepted, the consumer forum could also be an option.",
+        hi: "अगर माना जाए, तो उपभोक्ता आयोग भी एक रास्ता बन सकता है।",
+      },
+      resolve: {
+        en: "Ask a legal aid clinic what works in your state first.",
+        hi: "पहले विधिक सहायता क्लिनिक से पूछें कि आपके राज्य में क्या चलता है।",
+      },
     },
     {
       id: "repairs-proof",
-      plain: hi
-        ? "मकान मालिक 'मरम्मत' का दावा करता है — क्या वह उसे साबित कर सकता है, यही मुद्दा है।"
-        : "The landlord claims 'repairs' — whether they can prove it is the question.",
-      changesAnswer: hi
-        ? "सिद्ध मरम्मत की राशि ही कटौती योग्य हो सकती है।"
-        : "Only proven repair costs may be deductible.",
-      resolve: hi
-        ? "आइटमाइज़्ड हिसाब और रसीदें माँगें; अपने फोटो रखें।"
-        : "Ask for an itemized bill; keep your photos.",
+      plain: {
+        en: "The landlord claims 'repairs' — whether they can prove it is the question.",
+        hi: "मकान मालिक 'मरम्मत' का दावा करता है — क्या वह उसे साबित कर सकता है, यही मुद्दा है।",
+      },
+      changesAnswer: {
+        en: "Only proven repair costs may be deductible.",
+        hi: "सिद्ध मरम्मत की राशि ही कटौती योग्य हो सकती है।",
+      },
+      resolve: {
+        en: "Ask for an itemized bill; keep your photos.",
+        hi: "आइटमाइज़्ड हिसाब और रसीदें माँगें; अपने फोटो रखें।",
+      },
     },
     {
       id: "state-law",
-      plain: hi
-        ? "कौन-सा राज्य कानून लागू होता है, संपत्ति के स्थान और किराए पर निर्भर करता है।"
-        : "Which state law applies depends on the property's location and rent.",
-      changesAnswer: hi
-        ? "अलग-अलग राज्यों में डिपॉज़िट नियम अलग-अलग होते हैं।"
-        : "Deposit rules differ between states.",
-      resolve: hi
-        ? "राज्य विधिक सेवा प्राधिकरण से पुष्टि करें।"
-        : "Confirm with the State Legal Services Authority.",
+      plain: {
+        en: "Which state law applies depends on the property's location and rent.",
+        hi: "कौन-सा राज्य कानून लागू होता है, संपत्ति के स्थान और किराए पर निर्भर करता है।",
+      },
+      changesAnswer: {
+        en: "Deposit rules differ between states.",
+        hi: "अलग-अलग राज्यों में डिपॉज़िट नियम अलग-अलग होते हैं।",
+      },
+      resolve: {
+        en: "Confirm with the State Legal Services Authority.",
+        hi: "राज्य विधिक सेवा प्राधिकरण से पुष्टि करें।",
+      },
     },
   ];
 
@@ -228,54 +241,60 @@ export function buildTenantAnalysis(ctx: {
     {
       id: "demand",
       order: 1,
-      title: hi ? "लिखित माँग भेजें" : "Send a written demand",
-      plain: hi
-        ? `ईमेल + व्हाट्सएप में ${money} की वापसी की तारीख़बद्ध माँग, 15 दिन की समय-सीमा के साथ।`
-        : `A dated email + WhatsApp demand for the refund of ${money}, with a 15-day deadline.`,
-      why: hi
-        ? "साफ़ लिखित माँग अक्सर डिपॉज़िट विवाद सुलझा देती है और रिकॉर्ड बनाती है।"
-        : "A clean written demand usually resolves deposit disputes and creates the record.",
+      title: { en: "Send a written demand", hi: "लिखित माँग भेजें" },
+      plain: {
+        en: `A dated email + WhatsApp demand for the refund of ${money}, with a 15-day deadline.`,
+        hi: `ईमेल + व्हाट्सएप में ${money} की वापसी की तारीख़बद्ध माँग, 15 दिन की समय-सीमा के साथ।`,
+      },
+      why: {
+        en: "A clean written demand usually resolves deposit disputes and creates the record.",
+        hi: "साफ़ लिखित माँग अक्सर डिपॉज़िट विवाद सुलझा देती है और रिकॉर्ड बनाती है।",
+      },
       effort: "quick" as const,
       urgent: true,
     },
     {
       id: "itemized",
       order: 2,
-      title: hi ? "कटौतियों का आइटमाइज़्ड हिसाब माँगें" : "Ask for an itemized list of deductions",
-      plain: hi
-        ? "हर कटौती के लिए रसीद/सबूत माँगें; बिना सबूत की कटौती पर सवाल उठाएँ।"
-        : "Demand receipts/proof for every deduction; dispute anything unsubstantiated.",
-      why: hi ? "केवल सिद्ध कटौतियाँ ही वैध होती हैं।" : "Only proven deductions are valid.",
+      title: { en: "Ask for an itemized list of deductions", hi: "कटौतियों का आइटमाइज़्ड हिसाब माँगें" },
+      plain: {
+        en: "Demand receipts/proof for every deduction; dispute anything unsubstantiated.",
+        hi: "हर कटौती के लिए रसीद/सबूत माँगें; बिना सबूत की कटौती पर सवाल उठाएँ।",
+      },
+      why: { en: "Only proven deductions are valid.", hi: "केवल सिद्ध कटौतियाँ ही वैध होती हैं।" },
       effort: "quick" as const,
     },
     {
       id: "notice",
       order: 3,
-      title: hi ? "औपचारिक कानूनी नोटिस भेजें" : "Send a formal legal notice",
-      plain: hi
-        ? "अनदेखा करने पर डॉक्यूमेंट बिल्डर से नोटिस तैयार कर भेजें।"
-        : "If ignored, draft and send the notice from the document builder.",
-      why: hi ? "औपचारिक नोटिस अक्सर समाधान का अंतिम मौक़ा होता है।" : "A formal notice is often the final nudge.",
+      title: { en: "Send a formal legal notice", hi: "औपचारिक कानूनी नोटिस भेजें" },
+      plain: {
+        en: "If ignored, draft and send the notice from the document builder.",
+        hi: "अनदेखा करने पर डॉक्यूमेंट बिल्डर से नोटिस तैयार कर भेजें।",
+      },
+      why: { en: "A formal notice is often the final nudge.", hi: "औपचारिक नोटिस अक्सर समाधान का अंतिम मौक़ा होता है।" },
       effort: "moderate" as const,
     },
     {
       id: "forum",
       order: 4,
-      title: hi ? "कानूनी रास्ते पर विचार करें" : "Consider the legal route",
-      plain: hi
-        ? "राज्य के नियमों के अनुसार उपयुक्त प्राधिकारी — पहले विधिक सहायता से पूछें।"
-        : "The appropriate authority per your state — ask legal aid first.",
-      why: hi ? "राज्य के अनुसार रास्ता अलग होता है।" : "The route varies by state.",
+      title: { en: "Consider the legal route", hi: "कानूनी रास्ते पर विचार करें" },
+      plain: {
+        en: "The appropriate authority per your state — ask legal aid first.",
+        hi: "राज्य के नियमों के अनुसार उपयुक्त प्राधिकारी — पहले विधिक सहायता से पूछें।",
+      },
+      why: { en: "The route varies by state.", hi: "राज्य के अनुसार रास्ता अलग होता है।" },
       effort: "long" as const,
     },
     {
       id: "legal-aid",
       order: 5,
-      title: hi ? "विधिक सहायता लें" : "Get legal aid",
-      plain: hi
-        ? "राज्य विधिक सेवा प्राधिकरण (15100) मुफ़्त मदद देता है।"
-        : "The State Legal Services Authority (15100) offers free help.",
-      why: hi ? "सही रास्ते के लिए विशेषज्ञ सलाह।" : "Expert advice on the right route.",
+      title: { en: "Get legal aid", hi: "विधिक सहायता लें" },
+      plain: {
+        en: "The State Legal Services Authority (15100) offers free help.",
+        hi: "राज्य विधिक सेवा प्राधिकरण (15100) मुफ़्त मदद देता है।",
+      },
+      why: { en: "Expert advice on the right route.", hi: "सही रास्ते के लिए विशेषज्ञ सलाह।" },
       effort: "moderate" as const,
     },
   ];
@@ -286,10 +305,11 @@ export function buildTenantAnalysis(ctx: {
     id,
     language: lang,
     domain: "tenant",
-    caseSummary: hi
-      ? `आपने बताया: ${summarize(intake.description)}`
-      : `You told us: ${summarize(intake.description)}`,
-    facts: factLines(intake, lang),
+    caseSummary: {
+      en: `You told us: ${summarize(intake.description)}`,
+      hi: `आपने बताया: ${summarize(intake.description)}`,
+    },
+    facts: factLines(intake),
     issues,
     rights,
     laws,

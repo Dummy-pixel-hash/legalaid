@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PencilLine } from "lucide-react";
 import { useI18n } from "@/lib/i18n/provider";
 import type { CaseAnalysis } from "@/lib/types/domain";
+import { localize } from "@/lib/types/domain";
 import { SectionMarker } from "@/components/shared/SectionMarker";
 
 export function UnderstandingBlock({
@@ -13,7 +14,7 @@ export function UnderstandingBlock({
   analysis: CaseAnalysis;
   caseId: string;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <section>
       <div className="flex items-start justify-between gap-4">
@@ -30,20 +31,20 @@ export function UnderstandingBlock({
         </Link>
       </div>
       <p className="mt-4 text-base leading-relaxed text-ink">
-        {analysis.caseSummary}
+        {localize(analysis.caseSummary, lang)}
       </p>
       {analysis.facts.length > 0 && (
         <ul className="mt-4 space-y-1.5">
           {analysis.facts.map((f) => (
             <li
-              key={f}
+              key={localize(f, lang)}
               className="flex items-start gap-2 text-sm text-ink-70"
             >
               <span
                 aria-hidden
                 className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent-strong"
               />
-              {f}
+              {localize(f, lang)}
             </li>
           ))}
         </ul>

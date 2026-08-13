@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, use } from "react";
+import { use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,18 +29,12 @@ export default function AnalysisPage({
 function AnalysisClient({ caseId }: { caseId: string }) {
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { record, analysis, ensureLanguage, reanalyze } = useCase(caseId, lang);
+  const { record, analysis, reanalyze } = useCase(caseId, lang);
 
-  // Wait for the store to hydrate the case before rendering.
+  // Wait for the store to hydrate the case before rendering. The analysis is
+  // canonical (bilingual); useCase already ensures the letter draft for the
+  // active language, so no re-analysis on toggle.
   const ready = record !== undefined;
-
-  useEffect(() => {
-    if (!ready) return;
-    if (record.status === "analyzing") return;
-    if (record.baseAnalysis && record.baseAnalysis.language !== lang) {
-      void ensureLanguage(caseId, lang);
-    }
-  }, [ready, record, lang, caseId, ensureLanguage]);
 
   if (!ready) return null;
 

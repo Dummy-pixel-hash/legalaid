@@ -14,7 +14,6 @@ import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
-  lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
   const src = getLocalSource(id);
@@ -22,9 +21,9 @@ function law(
     id,
     act: src.act,
     section: src.section,
-    title: src.title[lang],
-    plainExplanation: src.plain[lang],
-    whyApplies: whyApplies[lang],
+    title: src.title,
+    plainExplanation: src.plain,
+    whyApplies,
     source: src.source,
   };
 }
@@ -51,65 +50,68 @@ export function buildLabourAnalysis(ctx: {
   const issues = [
     {
       id: "unpaid-wages",
-      label: hi ? "कई महीनों से वेतन का भुगतान नहीं" : "Wages unpaid for months",
+      label: { en: "Wages unpaid for months", hi: "कई महीनों से वेतन का भुगतान नहीं" },
       kind: "possible-issue" as const,
-      detail: hi
-        ? `काम के बदले वेतन समय पर और पूरा मिलना कानूनी अधिकार है।${amtClause}${partyClause}`
-        : `Receiving wages on time and in full for work done is a legal right.${amtClause}${partyClause}`,
+      detail: {
+        en: `Receiving wages on time and in full for work done is a legal right.${amtClause}${partyClause}`,
+        hi: `काम के बदले वेतन समय पर और पूरा मिलना कानूनी अधिकार है।${amtClause}${partyClause}`,
+      },
     },
     {
       id: "pressure-resign",
-      label: hi
-        ? "बकाया चुकाए बिना इस्तीफ़ा देने का दबाव"
-        : "Pressure to resign without paying dues",
+      label: { en: "Pressure to resign without paying dues", hi: "बकाया चुकाए बिना इस्तीफ़ा देने का दबाव" },
       kind: "ai-interpretation" as const,
-      detail: hi
-        ? "बकाया वेतन से बचने के लिए इस्तीफ़े का दबाव ज़बरदस्ती समाप्ति के समान हो सकता है — यह हमारी व्याख्या है; यह तथ्यों पर निर्भर करेगा।"
-        : "Pressuring you to resign to avoid dues may amount to forced termination — this is our interpretation; it depends on the facts.",
+      detail: {
+        en: "Pressuring you to resign to avoid dues may amount to forced termination — this is our interpretation; it depends on the facts.",
+        hi: "बकाया वेतन से बचने के लिए इस्तीफ़े का दबाव ज़बरदस्ती समाप्ति के समान हो सकता है — यह हमारी व्याख्या है; यह तथ्यों पर निर्भर करेगा।",
+      },
     },
     {
       id: "no-appointment-letter",
-      label: hi
-        ? "कोई लिखित नियुक्ति पत्र नहीं"
-        : "No written appointment letter",
+      label: { en: "No written appointment letter", hi: "कोई लिखित नियुक्ति पत्र नहीं" },
       kind: "fact" as const,
-      detail: hi
-        ? "लिखित पत्र न होने से सबूत कमज़ोर होता है, पर वेतन का अधिकार खत्म नहीं होता।"
-        : "A missing letter weakens proof, but does not remove the right to wages.",
+      detail: {
+        en: "A missing letter weakens proof, but does not remove the right to wages.",
+        hi: "लिखित पत्र न होने से सबूत कमज़ोर होता है, पर वेतन का अधिकार खत्म नहीं होता।",
+      },
     },
   ];
 
   const rights = [
     {
       id: "right-wages",
-      title: hi ? "समय पर पूरा वेतन पाने का अधिकार" : "Right to full wages on time",
-      plain: hi
-        ? "मासिक वेतन अगले महीने की 7 तारीख़ से पहले, बिना अनुचित कटौती के मिलना चाहिए।"
-        : "Monthly wages must be paid before the 7th of the following month, without improper deductions.",
+      title: { en: "Right to full wages on time", hi: "समय पर पूरा वेतन पाने का अधिकार" },
+      plain: {
+        en: "Monthly wages must be paid before the 7th of the following month, without improper deductions.",
+        hi: "मासिक वेतन अगले महीने की 7 तारीख़ से पहले, बिना अनुचित कटौती के मिलना चाहिए।",
+      },
       linkedLaws: ["cow-2019-s17", "pwa-1936-s5"],
     },
     {
       id: "right-minimum-wage",
-      title: hi ? "न्यूनतम मज़दूरी का अधिकार" : "Right to at least the minimum wage",
-      plain: hi
-        ? "राज्य के अधिसूचित न्यूनतम वेतन से कम नहीं मिल सकता।"
-        : "You cannot be paid less than the state's notified minimum wage.",
+      title: { en: "Right to at least the minimum wage", hi: "न्यूनतम मज़दूरी का अधिकार" },
+      plain: {
+        en: "You cannot be paid less than the state's notified minimum wage.",
+        hi: "राज्य के अधिसूचित न्यूनतम वेतन से कम नहीं मिल सकता।",
+      },
       linkedLaws: ["mwa-1948-s12"],
     },
     {
       id: "right-recovery",
-      title: hi ? "बकाया वसूलने का अधिकार" : "Right to recover what is owed",
-      plain: hi
-        ? "बिना वेतन वसूलने के लिए तेज़, सरल रास्ते मौजूद हैं — पूरे मुकदमे की ज़रूरत नहीं।"
-        : "There are faster, simpler routes to recover unpaid wages — no need for a full lawsuit.",
+      title: { en: "Right to recover what is owed", hi: "बकाया वसूलने का अधिकार" },
+      plain: {
+        en: "There are faster, simpler routes to recover unpaid wages — no need for a full lawsuit.",
+        hi: "बिना वेतन वसूलने के लिए तेज़, सरल रास्ते मौजूद हैं — पूरे मुकदमे की ज़रूरत नहीं।",
+      },
       linkedLaws: ["ida-1947-s33c2"],
     },
     {
       id: "right-retrenchment",
-      title: hi ? "गलत छंटनी से सुरक्षा (यदि लागू)" : "Protection against wrongful retrenchment (if applicable)",
-      plain: hi
-        ? "एक वर्ष से अधिक सेवा के बाद छंटनी के लिए सूचना और मुआवज़ा अनिवार्य है।"
-        : "After a year of continuous service, retrenchment requires notice and compensation.",
+      title: { en: "Protection against wrongful retrenchment (if applicable)", hi: "गलत छंटनी से सुरक्षा (यदि लागू)" },
+      plain: {
+        en: "After a year of continuous service, retrenchment requires notice and compensation.",
+        hi: "एक वर्ष से अधिक सेवा के बाद छंटनी के लिए सूचना और मुआवज़ा अनिवार्य है।",
+      },
       linkedLaws: ["ida-1947-s25f"],
     },
   ];
@@ -148,44 +150,53 @@ export function buildLabourAnalysis(ctx: {
     "ida-1947-s33c2",
     "ida-1947-s25f",
     "pga-1972-s4",
-  ].map((id) => law(id, lang, whyApplies[id]));
+  ].map((id) => law(id, whyApplies[id]));
 
   const uncertainty = [
     {
       id: "code-vs-act",
-      plain: hi
-        ? "आपके राज्य में Code on Wages लागू है या पुराना अधिनियम — इससे कानूनी संदर्भ बदलता है, अधिकार नहीं।"
-        : "Whether your state runs the Code on Wages or the older Act changes the citation, not the right.",
-      changesAnswer: hi
-        ? "किसी एक कानून के अंतर्गत शिकायत करनी होगी; दोनों का उद्देश्य एक है।"
-        : "The claim goes under one law or the other; both protect the same right.",
-      resolve: hi
-        ? "श्रम आयुक्त कार्यालय या विधिक सहायता क्लिनिक बता सकता है।"
-        : "The Labour Commissioner's office or a legal aid clinic can tell you.",
+      plain: {
+        en: "Whether your state runs the Code on Wages or the older Act changes the citation, not the right.",
+        hi: "आपके राज्य में Code on Wages लागू है या पुराना अधिनियम — इससे कानूनी संदर्भ बदलता है, अधिकार नहीं।",
+      },
+      changesAnswer: {
+        en: "The claim goes under one law or the other; both protect the same right.",
+        hi: "किसी एक कानून के अंतर्गत शिकायत करनी होगी; दोनों का उद्देश्य एक है।",
+      },
+      resolve: {
+        en: "The Labour Commissioner's office or a legal aid clinic can tell you.",
+        hi: "श्रम आयुक्त कार्यालय या विधिक सहायता क्लिनिक बता सकता है।",
+      },
     },
     {
       id: "employment-status",
-      plain: hi
-        ? "आपका रोज़गार 'अनुसूचित' श्रेणी में आता है या नहीं, यह न्यूनतम मज़दूरी के दावे को प्रभावित करता है।"
-        : "Whether your employment is in a 'scheduled' category affects a minimum-wage claim.",
-      changesAnswer: hi
-        ? "अगर श्रेणी में आता है, तो न्यूनतम मज़दूरी का दावा भी जुड़ सकता है।"
-        : "If scheduled, a minimum-wage claim can also be added.",
-      resolve: hi
-        ? "हरियाणा/अपने राज्य की न्यूनतम मज़दूरी अधिसूचना जाँचें।"
-        : "Check the minimum-wage notification of your state.",
+      plain: {
+        en: "Whether your employment is in a 'scheduled' category affects a minimum-wage claim.",
+        hi: "आपका रोज़गार 'अनुसूचित' श्रेणी में आता है या नहीं, यह न्यूनतम मज़दूरी के दावे को प्रभावित करता है।",
+      },
+      changesAnswer: {
+        en: "If scheduled, a minimum-wage claim can also be added.",
+        hi: "अगर श्रेणी में आता है, तो न्यूनतम मज़दूरी का दावा भी जुड़ सकता है।",
+      },
+      resolve: {
+        en: "Check the minimum-wage notification of your state.",
+        hi: "हरियाणा/अपने राज्य की न्यूनतम मज़दूरी अधिसूचना जाँचें।",
+      },
     },
     {
       id: "constructive-termination",
-      plain: hi
-        ? "इस्तीफ़े का दबाव 'जबरन समाप्ति' माना जाता है या नहीं, तथ्यों पर निर्भर करता है।"
-        : "Whether the resignation pressure counts as forced termination is fact-heavy.",
-      changesAnswer: hi
-        ? "अगर माना जाए, तो छंटनी की सुरक्षाएँ भी लागू हो सकती हैं।"
-        : "If it counts, retrenchment protections may also apply.",
-      resolve: hi
-        ? "दबाव के सबूत (संदेश, गवाह) सुरक्षित रखें।"
-        : "Preserve evidence of the pressure (messages, witnesses).",
+      plain: {
+        en: "Whether the resignation pressure counts as forced termination is fact-heavy.",
+        hi: "इस्तीफ़े का दबाव 'जबरन समाप्ति' माना जाता है या नहीं, तथ्यों पर निर्भर करता है।",
+      },
+      changesAnswer: {
+        en: "If it counts, retrenchment protections may also apply.",
+        hi: "अगर माना जाए, तो छंटनी की सुरक्षाएँ भी लागू हो सकती हैं।",
+      },
+      resolve: {
+        en: "Preserve evidence of the pressure (messages, witnesses).",
+        hi: "दबाव के सबूत (संदेश, गवाह) सुरक्षित रखें।",
+      },
     },
   ];
 
@@ -231,65 +242,69 @@ export function buildLabourAnalysis(ctx: {
     {
       id: "preserve",
       order: 1,
-      title: hi ? "अभी सब कुछ सुरक्षित करें" : "Preserve everything now",
-      plain: hi
-        ? "व्हाट्सएप, बैंक स्टेटमेंट, स्लिप — सबके स्क्रीनशॉट/प्रति बना लें।"
-        : "Screenshot/back up WhatsApp, bank statements, and slips.",
-      why: hi ? "सबूत समय के साथ गायब हो जाते हैं।" : "Evidence disappears with time.",
+      title: { en: "Preserve everything now", hi: "अभी सब कुछ सुरक्षित करें" },
+      plain: {
+        en: "Screenshot/back up WhatsApp, bank statements, and slips.",
+        hi: "व्हाट्सएप, बैंक स्टेटमेंट, स्लिप — सबके स्क्रीनशॉट/प्रति बना लें।",
+      },
+      why: { en: "Evidence disappears with time.", hi: "सबूत समय के साथ गायब हो जाते हैं।" },
       effort: "quick" as const,
       urgent: true,
     },
     {
       id: "demand",
       order: 2,
-      title: hi ? "लिखित माँग भेजें" : "Send a written demand",
-      plain: hi
-        ? `${money} के भुगतान के लिए ईमेल + व्हाट्सएप + हस्ताक्षरित पत्र, 15 दिन की समय-सीमा के साथ।`
-        : `Email + WhatsApp + signed letter demanding ${money}, with a 15-day deadline.`,
-      why: hi
-        ? "लिखित माँग रिकॉर्ड बनाती है और अक्सर भुगतान खोल देती है।"
-        : "A written demand creates a record and often unlocks payment.",
+      title: { en: "Send a written demand", hi: "लिखित माँग भेजें" },
+      plain: {
+        en: `Email + WhatsApp + signed letter demanding ${money}, with a 15-day deadline.`,
+        hi: `${money} के भुगतान के लिए ईमेल + व्हाट्सएप + हस्ताक्षरित पत्र, 15 दिन की समय-सीमा के साथ।`,
+      },
+      why: { en: "A written demand creates a record and often unlocks payment.", hi: "लिखित माँग रिकॉर्ड बनाती है और अक्सर भुगतान खोल देती है।" },
       effort: "quick" as const,
       urgent: true,
     },
     {
       id: "commissioner",
       order: 3,
-      title: hi ? "श्रम आयुक्त के पास शिकायत" : "Report to the Labour Commissioner",
-      plain: hi
-        ? "मुफ़्त समाधान प्रक्रिया — नियोक्ता आम तौर पर जवाब देते हैं।"
-        : "A free conciliation route — employers usually respond.",
-      why: hi ? "बिना वकील, तेज़ पहला कदम।" : "A fast first step without a lawyer.",
+      title: { en: "Report to the Labour Commissioner", hi: "श्रम आयुक्त के पास शिकायत" },
+      plain: {
+        en: "A free conciliation route — employers usually respond.",
+        hi: "मुफ़्त समाधान प्रक्रिया — नियोक्ता आम तौर पर जवाब देते हैं।",
+      },
+      why: { en: "A fast first step without a lawyer.", hi: "बिना वकील, तेज़ पहला कदम।" },
       effort: "moderate" as const,
     },
     {
       id: "recovery",
       order: 4,
-      title: hi ? "वसूली का कानूनी रास्ता" : "Legal recovery route",
-      plain: hi
-        ? "लागू होने वाले कानून के अनुसार वेतन प्राधिकारी या औद्योगिक विवाद अधिनियम §33C(2) के अंतर्गत दावा।"
-        : "A claim before the wage authority or under ID Act §33C(2), per the applicable law.",
-      why: hi ? "पूरे मुकदमे से तेज़ और सरल।" : "Faster and simpler than a full suit.",
+      title: { en: "Legal recovery route", hi: "वसूली का कानूनी रास्ता" },
+      plain: {
+        en: "A claim before the wage authority or under ID Act §33C(2), per the applicable law.",
+        hi: "लागू होने वाले कानून के अनुसार वेतन प्राधिकारी या औद्योगिक विवाद अधिनियम §33C(2) के अंतर्गत दावा।",
+      },
+      why: { en: "Faster and simpler than a full suit.", hi: "पूरे मुकदमे से तेज़ और सरल।" },
       effort: "moderate" as const,
     },
     {
       id: "retrenchment",
       order: 5,
-      title: hi ? "गलत तरीके से निकाला जाए तो चुनौती दें" : "If dismissed improperly, challenge it",
-      plain: hi
-        ? "बिना सूचना/मुआवज़े की छंटनी अमान्य हो सकती है (केवल एक वर्ष से अधिक सेवा पर)।"
-        : "Dismissal without notice/compensation can be invalid (only with a year+ of service).",
-      why: hi ? "यह कदम केवल नौकरी से निकाले जाने पर।" : "Only relevant if you are dismissed.",
+      title: { en: "If dismissed improperly, challenge it", hi: "गलत तरीके से निकाला जाए तो चुनौती दें" },
+      plain: {
+        en: "Dismissal without notice/compensation can be invalid (only with a year+ of service).",
+        hi: "बिना सूचना/मुआवज़े की छंटनी अमान्य हो सकती है (केवल एक वर्ष से अधिक सेवा पर)।",
+      },
+      why: { en: "Only relevant if you are dismissed.", hi: "यह कदम केवल नौकरी से निकाले जाने पर।" },
       effort: "long" as const,
     },
     {
       id: "legal-aid",
       order: 6,
-      title: hi ? "विधिक सहायता लें" : "Get legal aid",
-      plain: hi
-        ? "राज्य विधिक सेवा प्राधिकरण (15100) मुफ़्त मदद देता है।"
-        : "The State Legal Services Authority (15100) offers free help.",
-      why: hi ? "मुफ़्त विशेषज्ञ सहायता।" : "Free expert assistance.",
+      title: { en: "Get legal aid", hi: "विधिक सहायता लें" },
+      plain: {
+        en: "The State Legal Services Authority (15100) offers free help.",
+        hi: "राज्य विधिक सेवा प्राधिकरण (15100) मुफ़्त मदद देता है।",
+      },
+      why: { en: "Free expert assistance.", hi: "मुफ़्त विशेषज्ञ सहायता।" },
       effort: "moderate" as const,
     },
   ];
@@ -300,10 +315,11 @@ export function buildLabourAnalysis(ctx: {
     id,
     language: lang,
     domain: "labour",
-    caseSummary: hi
-      ? `आपने बताया: ${summarize(intake.description)}`
-      : `You told us: ${summarize(intake.description)}`,
-    facts: factLines(intake, lang),
+    caseSummary: {
+      en: `You told us: ${summarize(intake.description)}`,
+      hi: `आपने बताया: ${summarize(intake.description)}`,
+    },
+    facts: factLines(intake),
     issues,
     rights,
     laws,

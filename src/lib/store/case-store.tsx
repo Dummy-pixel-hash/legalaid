@@ -37,10 +37,10 @@ interface CaseRecord {
 	isDemo: boolean;
 	baseAnalysis: CaseAnalysis | null;
 	overrides: CaseOverrides;
-	/** Completed analyses per language, so language toggles reuse a previously
-	 * analyzed language instead of re-running the model. The analysis carries
-	 * the document draft (document section), so no separate document cache. */
-	analysisCache: Partial<Record<Language, CaseAnalysis>>;
+	/** The analysis is canonical (bilingual content) — one generation serves
+	 * both languages. The letter is language-specific, so drafts are kept per
+	 * language and generated on demand when toggling. */
+	documentDrafts: Partial<Record<Language, DocumentData>>;
 	/** Canonical evidence checklist (bilingual), generated once per case and
 	 * stamped into every language's analysis, so the checklist is identical
 	 * across language toggles (status overrides are id-keyed and carry over). */
@@ -89,7 +89,7 @@ type PersistedRecord = Pick<
 	| "isDemo"
 	| "baseAnalysis"
 	| "overrides"
-	| "analysisCache"
+	| "documentDrafts"
 	| "evidenceCache"
 	| "createdAt"
 >;
@@ -111,7 +111,15 @@ function loadPersisted(): Record<string, CaseRecord> {
 					...(rec.overrides ?? emptyOverrides()),
 					customEvidence: rec.overrides?.customEvidence ?? [],
 				},
-				analysisCache: rec.analysisCache ?? {},
+				// Older persisted records carried per-language analyses (and no
+				// documentDrafts); keep baseAnalysis as the canonical analysis
+				// (its text fields may be single-language strings — localize
+				// passes them through) and seed the draft from its document.
+				documentDrafts:
+					rec.documentDrafts ??
+					(rec.baseAnalysis
+						? { [rec.baseAnalysis.language]: rec.baseAnalysis.document }
+						: {}),
 				evidenceCache: rec.evidenceCache ?? null,
 			};
 		}
@@ -133,7 +141,7 @@ function persist(records: Record<string, CaseRecord>) {
 					isDemo: rec.isDemo,
 					baseAnalysis: rec.baseAnalysis,
 					overrides: rec.overrides,
-					analysisCache: rec.analysisCache,
+					documentDrafts: rec.documentDrafts,
 					evidenceCache: rec.evidenceCache,
 					createdAt: rec.createdAt,
 				};
@@ -161,7 +169,9 @@ interface CaseStoreValue {
 		lang: Language,
 	) => Promise<{ id: string }>;
 	reanalyze: (id: string, intake: IntakeData, lang: Language) => Promise<void>;
-	ensureLanguage: (id: string, lang: Language) => Promise<void>;
+	/** Ensure the letter draft exists for the active language (the analysis is
+	 * canonical; only the letter is language-specific). */
+	ensureDocumentDraft: (id: string, lang: Language) => Promise<void>;
 	updateEvidence: (
 		id: string,
 		evidenceId: string,
@@ -211,14 +221,13 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 					isDemo: true,
 					baseAnalysis: demo.analysis(lang),
 					overrides: emptyOverrides(),
-					// Demo content is deterministic per language — seed both so
-					// toggling is instant with no model call.
-					analysisCache: {
-						en: demo.analysis("en"),
-						hi: demo.analysis("hi"),
+					// Demo content is deterministic: the analysis is canonical
+					// (bilingual), and both letter drafts are seeded so toggling
+					// is instant with no model call.
+					documentDrafts: {
+						en: demo.analysis("en").document,
+						hi: demo.analysis("hi").document,
 					},
-					// Demo content is deterministic — the evidence checklist is
-					// identical in both languages, seeded as the canonical set.
 					evidenceCache: demo.analysis("en").evidence,
 					status: "ready",
 					stage: null,
@@ -252,25 +261,18 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 					(p) => patchRecord(id, { stage: p.stage, pct: p.pct }),
 					{ fast },
 				);
-				// The evidence checklist is canonical per case: the first analysis
-				// establishes it (bilingual), and every later language analysis
-				// reuses it so the checklist is identical across languages.
-				const prev = recordsRef.current[id];
-				const evidence = prev?.evidenceCache ?? analysis.evidence;
-				const stamped =
-					evidence === analysis.evidence
-						? analysis
-						: { ...analysis, evidence };
-				const prevCache = prev?.analysisCache ?? {};
-				patchRecord(id, {
-					baseAnalysis: stamped,
-					intake,
-					analysisCache: { ...prevCache, [lang]: stamped },
-					evidenceCache: evidence,
-					status: "ready",
-					stage: null,
-					pct: 100,
-				});
+			const prev = recordsRef.current[id];
+			patchRecord(id, {
+				baseAnalysis: analysis,
+				intake,
+				documentDrafts: {
+					...(prev?.documentDrafts ?? {}),
+					[lang]: analysis.document,
+				},
+				status: "ready",
+				stage: null,
+				pct: 100,
+			});
 			} catch (err) {
 				console.error("Analysis failed", err);
 				patchRecord(id, { status: "error" });
@@ -288,7 +290,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 				isDemo: false,
 				baseAnalysis: null,
 				overrides: emptyOverrides(),
-				analysisCache: {},
+				documentDrafts: {},
 				evidenceCache: null,
 				status: "analyzing",
 				stage: "reading",
@@ -304,11 +306,11 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 
 	const reanalyze = useCallback(
 		async (id: string, intake: IntakeData, lang: Language) => {
-			// Intake changed → cached per-language analyses/documents are stale.
+			// Intake changed → the canonical analysis and letter drafts are stale.
 			patchRecord(id, {
 				intake,
 				overrides: emptyOverrides(),
-				analysisCache: {},
+				documentDrafts: {},
 				evidenceCache: null,
 			});
 			const rec = recordsRef.current[id];
@@ -317,26 +319,32 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 		[patchRecord, runAnalysis],
 	);
 
-	const ensureLanguage = useCallback(
+	const ensureDocumentDraft = useCallback(
 		async (id: string, lang: Language) => {
 			const rec = recordsRef.current[id];
-			if (!rec || !rec.baseAnalysis) return;
-			if (rec.baseAnalysis.language === lang) return;
-			if (rec.status === "analyzing") return; // already regenerating
-			// Reuse a previously analyzed language instead of re-running the model.
-			const cached = rec.analysisCache?.[lang];
-			if (cached) {
-				patchRecord(id, {
-					baseAnalysis: cached,
-					status: "ready",
-					stage: null,
-					pct: 100,
+			if (!rec?.baseAnalysis) return;
+			if (rec.documentDrafts?.[lang]) return; // already drafted
+			if (rec.status === "analyzing") return; // analysis still running
+			if (rec.baseAnalysis.domain === "other") return; // generic fallback has no per-language letter
+			const provider = getProvider();
+			try {
+				const draft = await provider.generateDocument({
+					analysis: rec.baseAnalysis,
+					intake: rec.intake,
+					lang,
+					edits: {},
 				});
-				return;
+				patchRecord(id, {
+					documentDrafts: {
+						...(rec.documentDrafts ?? {}),
+						[lang]: draft,
+					},
+				});
+			} catch (err) {
+				console.error("Document draft generation failed", err);
 			}
-			await runAnalysis(id, rec.intake, lang, rec.isDemo, true); // fast: language-only
 		},
-		[runAnalysis, patchRecord],
+		[patchRecord],
 	);
 
 	const updateEvidence = useCallback(
@@ -423,7 +431,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 			ensureCase,
 			createFromIntake,
 			reanalyze,
-			ensureLanguage,
+			ensureDocumentDraft,
 			updateEvidence,
 			addCustomEvidence,
 			updateCustomEvidence,
@@ -435,7 +443,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 			ensureCase,
 			createFromIntake,
 			reanalyze,
-			ensureLanguage,
+			ensureDocumentDraft,
 			updateEvidence,
 			addCustomEvidence,
 			updateCustomEvidence,
@@ -463,17 +471,22 @@ export function useCase(id: string, lang: Language) {
 	const record = store.records[id];
 
 	// Derive from the live records state (not a ref) so the analysis re-renders
-	// when the record lands; applyOverrides leaves document edits out.
+	// when the record lands. The canonical analysis is bilingual; the document
+	// is stamped with the active language's draft (falling back to the base).
 	const analysis = useMemo(() => {
 		const rec = store.records[id];
 		if (!rec?.baseAnalysis) return null;
-		return applyOverrides(rec.baseAnalysis, rec.overrides);
-	}, [store.records, id]);
+		const withDoc = {
+			...rec.baseAnalysis,
+			document: rec.documentDrafts?.[lang] ?? rec.baseAnalysis.document,
+		};
+		return applyOverrides(withDoc, rec.overrides);
+	}, [store.records, id, lang]);
 
 	useEffect(() => {
 		const rec = store.ensureCase(id, lang);
-		if (rec?.baseAnalysis && rec.baseAnalysis.language !== lang) {
-			void store.ensureLanguage(id, lang);
+		if (rec?.baseAnalysis) {
+			void store.ensureDocumentDraft(id, lang);
 		}
 	}, [id, lang, store]);
 

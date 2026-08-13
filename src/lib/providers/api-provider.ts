@@ -220,20 +220,20 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		const lawIdsRaw = Array.isArray(m.lawIds)
 			? (m.lawIds as ModelSections)
 			: [];
-		const whyMap = new Map<string, string>();
+		const whyMap = new Map<string, ReturnType<typeof bi>>();
 		const laws: LawReference[] = [];
 		for (const entry of lawIdsRaw) {
 			const lid = str(entry.id);
 			if (!validIds.has(lid)) continue; // never invent — drop non-candidates
 			const src = getLocalSource(lid);
-			whyMap.set(lid, str(entry.whyApplies));
+			whyMap.set(lid, bi(entry.whyApplies, ""));
 			laws.push({
 				id: lid,
 				act: src.act,
 				section: src.section,
-				title: src.title[lang],
-				plainExplanation: src.plain[lang],
-				whyApplies: whyMap.get(lid) ?? "",
+				title: src.title,
+				plainExplanation: src.plain,
+				whyApplies: whyMap.get(lid) ?? { en: "", hi: "" },
 				source: src.source,
 			});
 		}
@@ -243,7 +243,7 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		const issuesRaw = Array.isArray(m.issues) ? (m.issues as ModelIssues) : [];
 		const issues = issuesRaw.map((i) => ({
 			id: str(i.id, "issue"),
-			label: str(i.label, "Issue"),
+			label: bi(i.label, "Issue"),
 			kind: ([
 				"fact",
 				"possible-issue",
@@ -252,14 +252,14 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 			].includes(str(i.kind))
 				? str(i.kind)
 				: "possible-issue") as Issue["kind"],
-			detail: str(i.detail),
+			detail: bi(i.detail, ""),
 		}));
 
 		const rightsRaw = Array.isArray(m.rights) ? (m.rights as ModelRights) : [];
 		const rights = rightsRaw.map((r) => ({
 			id: str(r.id, "right"),
-			title: str(r.title, "Right"),
-			plain: str(r.plain),
+			title: bi(r.title, "Right"),
+			plain: bi(r.plain, ""),
 			linkedLaws: (Array.isArray(r.linkedLaws) ? r.linkedLaws : []).filter(
 				(lid): lid is string => typeof lid === "string" && validIds.has(lid),
 			),
@@ -270,9 +270,9 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 			: [];
 		const uncertainty: Uncertainty[] = uncertaintyRaw.map((u) => ({
 			id: str(u.id, "uncertainty"),
-			plain: str(u.plain),
-			changesAnswer: str(u.changesAnswer),
-			resolve: str(u.resolve),
+			plain: bi(u.plain, ""),
+			changesAnswer: bi(u.changesAnswer, ""),
+			resolve: bi(u.resolve, ""),
 		}));
 
 		const evidenceRaw = Array.isArray(m.evidence)
@@ -292,9 +292,9 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		const steps: Step[] = stepsRaw.map((s, i) => ({
 			id: str(s.id, `step-${i + 1}`),
 			order: num(s.order, i + 1),
-			title: str(s.title, "Next step"),
-			plain: str(s.plain),
-			why: str(s.why),
+			title: bi(s.title, "Next step"),
+			plain: bi(s.plain, ""),
+			why: bi(s.why, ""),
 			effort: (["quick", "moderate", "long"].includes(str(s.effort))
 				? str(s.effort)
 				: "moderate") as Step["effort"],
@@ -314,8 +314,8 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 			id,
 			language: lang,
 			domain,
-			caseSummary: str(m.caseSummary, `You told us: ${intake.description}`),
-			facts: factLines(intake, lang),
+			caseSummary: bi(m.caseSummary, `You told us: ${intake.description}`),
+			facts: factLines(intake),
 			issues,
 			rights,
 			laws,

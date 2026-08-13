@@ -12,6 +12,7 @@ import {
 } from "../src/lib/providers/legal-source";
 import { DEMO_CASES } from "../src/lib/mock/demo-cases";
 import { LEGAL_SOURCES } from "../src/lib/legal/sources";
+import { localize } from "../src/lib/types/domain";
 
 let failures = 0;
 function check(cond: boolean, label: string) {
@@ -52,7 +53,7 @@ async function main() {
       const a = demo.analysis(lang);
       check(a.id === id, `${id} [${lang}] id`);
       check(a.language === lang, `${id} [${lang}] language`);
-      check(a.caseSummary.length > 20, `${id} [${lang}] summary`);
+      check(localize(a.caseSummary, lang).length > 20, `${id} [${lang}] summary`);
       check(a.issues.length > 0, `${id} [${lang}] issues`);
       check(a.rights.length > 0, `${id} [${lang}] rights`);
       check(a.laws.length > 0, `${id} [${lang}] laws`);
@@ -67,6 +68,20 @@ async function main() {
         check(Boolean(src), `${id} [${lang}] law ${l.id} in registry`);
       }
     }
+    // Canonical invariant: the en and hi analyses carry the SAME content
+    // (ids, structure) — only the text is localized per language.
+    const enA = demo.analysis("en");
+    const hiA = demo.analysis("hi");
+    const idsOf = (a: typeof enA) =>
+      JSON.stringify({
+        issues: a.issues.map((i) => i.id),
+        rights: a.rights.map((r) => r.id),
+        laws: a.laws.map((l) => l.id),
+        uncertainty: a.uncertainty.map((u) => u.id),
+        evidence: a.evidence.map((e) => e.id),
+        steps: a.nextSteps.map((s) => s.id),
+      });
+    check(idsOf(enA) === idsOf(hiA), `${id} identical content across languages`);
   }
 
   // 3. Provider flow with user intake (fact injection + detection)
@@ -87,7 +102,7 @@ async function main() {
     (p) => stages.push(p.stage),
   );
   check(analysis.domain === "tenant", "analysis domain tenant");
-  check(analysis.facts.some((f) => f.includes("₹30,000")), "amount injected into facts");
+  check(analysis.facts.some((f) => localize(f, "hi").includes("₹30,000")), "amount injected into facts");
   check(stages.length === 7, `all 7 progress stages emitted (got ${stages.length})`);
   check(analysis.document.sections.length >= 4, "document has structured sections");
 

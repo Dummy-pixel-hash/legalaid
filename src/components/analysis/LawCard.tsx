@@ -3,10 +3,11 @@
 import { ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n/provider";
 import type { LawReference } from "@/lib/types/domain";
+import { localize } from "@/lib/types/domain";
 import { SourceTag } from "./SourceTag";
 
 export function LawCard({ law }: { law: LawReference }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <li>
       <details className="group/law">
@@ -17,7 +18,7 @@ export function LawCard({ law }: { law: LawReference }) {
                 {law.act} {law.section}
               </p>
               <h4 className="mt-0.5 text-[13px] font-medium text-ink-70">
-                {law.title}
+                {localize(law.title, lang)}
               </h4>
             </div>
             <span className="flex items-center gap-2">
@@ -30,7 +31,7 @@ export function LawCard({ law }: { law: LawReference }) {
           </div>
 
           <p className="mt-2.5 text-[14.5px] leading-relaxed text-ink-70">
-            {law.plainExplanation}
+            {localize(law.plainExplanation, lang)}
           </p>
         </summary>
 
@@ -39,7 +40,7 @@ export function LawCard({ law }: { law: LawReference }) {
             <span className="font-semibold text-ink-70">
               {t("whyAppliesLabel")}:
             </span>{" "}
-            {law.whyApplies}
+            {localize(law.whyApplies, lang)}
           </p>
 
           <p className="mt-1.5 text-xs text-ink-50">

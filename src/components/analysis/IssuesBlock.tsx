@@ -2,11 +2,12 @@
 
 import { useI18n } from "@/lib/i18n/provider";
 import type { CaseAnalysis } from "@/lib/types/domain";
+import { localize } from "@/lib/types/domain";
 import { SectionMarker } from "@/components/shared/SectionMarker";
 import { ConfidenceBadge } from "./ConfidenceBadge";
 
 export function IssuesBlock({ analysis }: { analysis: CaseAnalysis }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   if (analysis.issues.length === 0) return null;
   return (
     <section>
@@ -20,12 +21,12 @@ export function IssuesBlock({ analysis }: { analysis: CaseAnalysis }) {
           <li key={issue.id}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="text-[16px] font-semibold leading-snug text-ink">
-                {issue.label}
+                {localize(issue.label, lang)}
               </h3>
               <ConfidenceBadge kind={issue.kind} />
             </div>
             <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-70">
-              {issue.detail}
+              {localize(issue.detail, lang)}
             </p>
           </li>
         ))}

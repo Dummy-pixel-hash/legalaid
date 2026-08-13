@@ -40,31 +40,32 @@ export interface LawReference {
   id: string; // key into lib/legal/sources.ts
   act: string;
   section: string;
-  title: string; // short human title
-  plainExplanation: string;
-  whyApplies: string;
+  /** Bilingual — the canonical analysis carries both languages. */
+  title: Partial<BilingualText>; // short human title
+  plainExplanation: Partial<BilingualText>;
+  whyApplies: Partial<BilingualText>;
   source: SourceRef;
 }
 
 export interface Issue {
   id: string;
-  label: string;
+  label: Partial<BilingualText>;
   kind: ConfidenceKind;
-  detail: string;
+  detail: Partial<BilingualText>;
 }
 
 export interface Right {
   id: string;
-  title: string;
-  plain: string;
+  title: Partial<BilingualText>;
+  plain: Partial<BilingualText>;
   linkedLaws: string[]; // law ids
 }
 
 export interface Uncertainty {
   id: string;
-  plain: string;
-  changesAnswer: string;
-  resolve: string;
+  plain: Partial<BilingualText>;
+  changesAnswer: Partial<BilingualText>;
+  resolve: Partial<BilingualText>;
 }
 
 export type EvidenceStatus = "have" | "dont-have" | "need-to-find" | "unset";
@@ -75,9 +76,14 @@ export interface BilingualText {
   hi: string;
 }
 
-/** Pick the text for the active language, falling back across the other. */
-export function localize(bt: Partial<BilingualText> | undefined, lang: Language): string {
-  if (!bt) return "";
+/** Pick the text for the active language, falling back across the other.
+ * Plain strings pass through (older persisted analyses are single-language). */
+export function localize(
+  bt: Partial<BilingualText> | string | undefined,
+  lang: Language,
+): string {
+  if (bt == null) return "";
+  if (typeof bt === "string") return bt;
   return bt[lang] ?? bt.en ?? bt.hi ?? "";
 }
 
@@ -94,9 +100,9 @@ export interface EvidenceItem {
 export interface Step {
   id: string;
   order: number;
-  title: string;
-  plain: string;
-  why: string;
+  title: Partial<BilingualText>;
+  plain: Partial<BilingualText>;
+  why: Partial<BilingualText>;
   effort: "quick" | "moderate" | "long";
   urgent?: boolean;
 }
@@ -128,10 +134,12 @@ export interface DocumentData {
 
 export interface CaseAnalysis {
   id: string;
+  /** The language the analysis was first generated in; the content fields are
+   * bilingual, so the UI renders the active language regardless. */
   language: Language;
   domain: Domain | "other";
-  caseSummary: string; // restated understanding (FACT)
-  facts: string[];
+  caseSummary: Partial<BilingualText>; // restated understanding (FACT)
+  facts: BilingualText[];
   issues: Issue[];
   rights: Right[];
   laws: LawReference[];

@@ -2,7 +2,7 @@
  * Shared helpers for mock analysis content.
  */
 
-import type { Domain, IntakeData, Language } from "@/lib/types/domain";
+import type { BilingualText, Domain, IntakeData, Language } from "@/lib/types/domain";
 import { DISCLAIMERS } from "@/lib/legal/disclaimers";
 
 export const DOMAIN_KEYWORDS: Record<Domain, { en: string[]; hi: string[] }> = {
@@ -87,40 +87,35 @@ export function summarize(description: string, max = 420): string {
   return `${clean.slice(0, max).trim()}…`;
 }
 
-export function factLines(
-  intake: IntakeData,
-  lang: Language,
-): string[] {
-  const facts: string[] = [];
+export function factLines(intake: IntakeData): BilingualText[] {
+  const facts: BilingualText[] = [];
   const amt = formatMoney(intake.amount);
   if (amt) {
-    facts.push(
-      lang === "hi"
-        ? `शामिल राशि: लगभग ${amt}`
-        : `Amount involved: approximately ${amt}`,
-    );
+    facts.push({
+      en: `Amount involved: approximately ${amt}`,
+      hi: `शामिल राशि: लगभग ${amt}`,
+    });
   }
   if (intake.state) {
-    facts.push(
-      lang === "hi"
-        ? `स्थान: ${intake.state}`
-        : `Location: ${intake.state}`,
-    );
+    facts.push({
+      en: `Location: ${intake.state}`,
+      hi: `स्थान: ${intake.state}`,
+    });
   }
   if (intake.otherParty) {
-    facts.push(
-      lang === "hi"
-        ? `दूसरा पक्ष: ${intake.otherParty}`
-        : `Other party: ${intake.otherParty}`,
-    );
+    facts.push({
+      en: `Other party: ${intake.otherParty}`,
+      hi: `दूसरा पक्ष: ${intake.otherParty}`,
+    });
   }
   if (intake.dates && intake.dates.length > 0) {
     const dates = intake.dates
       .map((d) => (d.date ? `${d.label}: ${d.date}` : d.label))
       .join(", ");
-    facts.push(
-      lang === "hi" ? `महत्वपूर्ण तारीख़ें: ${dates}` : `Key dates: ${dates}`,
-    );
+    facts.push({
+      en: `Key dates: ${dates}`,
+      hi: `महत्वपूर्ण तारीख़ें: ${dates}`,
+    });
   }
   return facts;
 }

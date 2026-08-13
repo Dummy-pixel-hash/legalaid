@@ -58,14 +58,31 @@ RULES — follow strictly:
 Respond with ONLY a single valid JSON object — no markdown fences, no extra text, no reasoning in the response.`;
 
 /** Field descriptions mirror the wording of the original single SCHEMA. */
+/** JSON Schema for a string that must be provided in BOTH languages — the
+ * analysis is canonical per case, so every text field carries en + hi. */
+function biStr(description: string) {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      en: { type: "string", description: `${description} — in English` },
+      hi: {
+        type: "string",
+        description: `${description} — in Hindi (or natural Hinglish)`,
+      },
+    },
+    required: ["en", "hi"],
+    description: `${description} — in BOTH English and Hindi`,
+  };
+}
+
 const CORE_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    caseSummary: {
-      type: "string",
-      description: "a 1-3 sentence plain restatement of what the user told you",
-    },
+    caseSummary: biStr(
+      "a 1-3 sentence plain restatement of what the user told you",
+    ),
     issues: {
       type: "array",
       items: {
@@ -73,17 +90,14 @@ const CORE_SCHEMA = {
         additionalProperties: false,
         properties: {
           id: { type: "string", description: "short-slug" },
-          label: { type: "string", description: "short title" },
+          label: biStr("short title"),
           kind: {
             type: "string",
             enum: ["fact", "possible-issue", "legal-info", "ai-interpretation"],
             description:
               'fact = what the user stated or is established; possible-issue = a plausible issue, not a ruling; legal-info = general cited law; ai-interpretation = your own reading',
           },
-          detail: {
-            type: "string",
-            description: "2-3 sentences, plain, tied to their facts",
-          },
+          detail: biStr("2-3 sentences, plain, tied to their facts"),
         },
         required: ["id", "label", "kind", "detail"],
       },
@@ -95,8 +109,8 @@ const CORE_SCHEMA = {
         additionalProperties: false,
         properties: {
           id: { type: "string", description: "short-slug" },
-          title: { type: "string", description: "short title" },
-          plain: { type: "string", description: "1-2 sentences plain" },
+          title: biStr("short title"),
+          plain: biStr("1-2 sentences plain"),
           linkedLaws: {
             type: "array",
             items: { type: "string" },
@@ -116,10 +130,9 @@ const CORE_SCHEMA = {
             type: "string",
             description: "one of the provided source ids",
           },
-          whyApplies: {
-            type: "string",
-            description: "1-2 sentences why it applies to this situation",
-          },
+          whyApplies: biStr(
+            "1-2 sentences why it applies to this situation",
+          ),
         },
         required: ["id", "whyApplies"],
       },
@@ -139,12 +152,9 @@ const RISK_SCHEMA = {
         additionalProperties: false,
         properties: {
           id: { type: "string", description: "short-slug" },
-          plain: { type: "string", description: "what is uncertain" },
-          changesAnswer: {
-            type: "string",
-            description: "what would change the answer",
-          },
-          resolve: { type: "string", description: "how to find out" },
+          plain: biStr("what is uncertain"),
+          changesAnswer: biStr("what would change the answer"),
+          resolve: biStr("how to find out"),
         },
         required: ["id", "plain", "changesAnswer", "resolve"],
       },
@@ -202,9 +212,9 @@ const STEPS_SCHEMA = {
         properties: {
           id: { type: "string", description: "short-slug" },
           order: { type: "integer", description: "1" },
-          title: { type: "string", description: "short title" },
-          plain: { type: "string", description: "what to do" },
-          why: { type: "string", description: "why this step" },
+          title: biStr("short title"),
+          plain: biStr("what to do"),
+          why: biStr("why this step"),
           effort: {
             type: "string",
             enum: ["quick", "moderate", "long"],
@@ -370,6 +380,8 @@ export function buildSectionPrompts(opts: {
             lang,
             keys: '"caseSummary", "issues", "rights", "lawIds"',
             sources: lawSources,
+            extra:
+              "BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (e.g. caseSummary.en + caseSummary.hi, issues[].label.en + issues[].label.hi, issues[].detail.en + issues[].detail.hi, rights[].title/plain, lawIds[].whyApplies). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
           }),
         },
       ],
@@ -388,7 +400,7 @@ export function buildSectionPrompts(opts: {
             lang,
             keys: '"uncertainty", "evidence"',
             extra:
-              "EVIDENCE CHECKLIST: this list is the case's canonical evidence checklist, shown in both languages — for EVERY evidence item write the \"label\" and \"why\" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi).\n\nEVIDENCE GUIDANCE — follow strictly:\n- Choose items that would actually prove or disprove the disputed facts; every key issue should have evidence behind it.\n- Prefer concrete records the user can realistically get: receipts, messages/emails, bank or UPI statements, photos, notices, agreements, ID or work papers.\n- \"label\" is a short noun phrase naming the item; \"why\" is one sentence on what it proves in THIS case.\n- Keep \"id\" short and descriptive (e.g. \"rent-receipts\", \"moveout-photos\"), never numbered or generic.\n- 4-7 focused items — no padding.",
+              "EVIDENCE CHECKLIST: this list is the case's canonical evidence checklist, shown in both languages — for EVERY evidence item write the \"label\" and \"why\" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi).\n\nBILINGUAL OUTPUT: the uncertainty fields (plain, changesAnswer, resolve) must also be in BOTH English and Hindi.\n\nEVIDENCE GUIDANCE — follow strictly:\n- Choose items that would actually prove or disprove the disputed facts; every key issue should have evidence behind it.\n- Prefer concrete records the user can realistically get: receipts, messages/emails, bank or UPI statements, photos, notices, agreements, ID or work papers.\n- \"label\" is a short noun phrase naming the item; \"why\" is one sentence on what it proves in THIS case.\n- Keep \"id\" short and descriptive (e.g. \"rent-receipts\", \"moveout-photos\"), never numbered or generic.\n- 4-7 focused items — no padding.",
           }),
         },
       ],
@@ -406,6 +418,8 @@ export function buildSectionPrompts(opts: {
             intake,
             lang,
             keys: '"nextSteps"',
+            extra:
+              "BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (nextSteps[].title.en + .hi, plain.en + .hi, why.en + .hi). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
           }),
         },
       ],

@@ -15,7 +15,6 @@ import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
-  lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
   const src = getLocalSource(id);
@@ -23,9 +22,9 @@ function law(
     id,
     act: src.act,
     section: src.section,
-    title: src.title[lang],
-    plainExplanation: src.plain[lang],
-    whyApplies: whyApplies[lang],
+    title: src.title,
+    plainExplanation: src.plain,
+    whyApplies,
     source: src.source,
   };
 }
@@ -48,59 +47,68 @@ export function buildConsumerAnalysis(ctx: {
   const issues = [
     {
       id: "defect-warranty",
-      label: hi
-        ? "वारंटी में खराब उत्पाद, मरम्मत/बदलने से इनकार"
-        : "Defective product within warranty, refusal to repair or replace",
+      label: {
+        en: "Defective product within warranty, refusal to repair or replace",
+        hi: "वारंटी में खराब उत्पाद, मरम्मत/बदलने से इनकार",
+      },
       kind: "possible-issue" as const,
-      detail: hi
-        ? `उत्पाद वारंटी अवधि में खराब हुआ और विक्रेता/निर्माता मरम्मत या बदलने से इनकार कर रहे हैं।${amtClause}${partyClause}`
-        : `The product failed within the warranty period and the seller/manufacturer is refusing to repair or replace it.${amtClause}${partyClause}`,
+      detail: {
+        en: `The product failed within the warranty period and the seller/manufacturer is refusing to repair or replace it.${amtClause}${partyClause}`,
+        hi: `उत्पाद वारंटी अवधि में खराब हुआ और विक्रेता/निर्माता मरम्मत या बदलने से इनकार कर रहे हैं।${amtClause}${partyClause}`,
+      },
     },
     {
       id: "misleading-warranty",
-      label: hi
-        ? "भ्रामक वारंटी शर्तें (निर्माण तिथि से गिनना)"
-        : "Misleading warranty terms (counted from manufacture date)",
+      label: {
+        en: "Misleading warranty terms (counted from manufacture date)",
+        hi: "भ्रामक वारंटी शर्तें (निर्माण तिथि से गिनना)",
+      },
       kind: "ai-interpretation" as const,
-      detail: hi
-        ? "वारंटी को निर्माण तिथि से गिनना, जबकि खरीदार ने बाद में खरीदा, भ्रामक हो सकता है। यह हमारी व्याख्या है — अंतिम राय आयोग की होगी।"
-        : "Counting the warranty from the manufacture date, when the buyer purchased later, may be misleading. This is our interpretation — a commission would decide.",
+      detail: {
+        en: "Counting the warranty from the manufacture date, when the buyer purchased later, may be misleading. This is our interpretation — a commission would decide.",
+        hi: "वारंटी को निर्माण तिथि से गिनना, जबकि खरीदार ने बाद में खरीदा, भ्रामक हो सकता है। यह हमारी व्याख्या है — अंतिम राय आयोग की होगी।",
+      },
     },
     {
       id: "food-loss",
-      label: hi
-        ? "खराब होने से हुआ खाने/सामान का नुकसान"
-        : "Loss of stored food/goods due to the defect",
+      label: {
+        en: "Loss of stored food/goods due to the defect",
+        hi: "खराब होने से हुआ खाने/सामान का नुकसान",
+      },
       kind: "possible-issue" as const,
-      detail: hi
-        ? "खराबी से हुआ नुकसान मुआवज़े का आधार बन सकता है, लेकिन इसे साबित करना ज़रूरी है। राशि छोटी होने पर यह आयोग के विवेक पर निर्भर करेगा।"
-        : "Loss caused by the defect can support a compensation claim, but it must be proved. If the amount is small, it is at the commission's discretion.",
+      detail: {
+        en: "Loss caused by the defect can support a compensation claim, but it must be proved. If the amount is small, it is at the commission's discretion.",
+        hi: "खराबी से हुआ नुकसान मुआवज़े का आधार बन सकता है, लेकिन इसे साबित करना ज़रूरी है। राशि छोटी होने पर यह आयोग के विवेक पर निर्भर करेगा।",
+      },
     },
   ];
 
   const rights = [
     {
       id: "right-repair",
-      title: hi ? "मरम्मत, बदलने या रिफ़ंड का अधिकार" : "Right to repair, replacement, or refund",
-      plain: hi
-        ? "दोष के आधार पर आप उत्पाद की मरम्मत, बदलने या कीमत वापस माँग सकते हैं।"
-        : "Depending on the defect, you may ask for repair, replacement, or a refund of the price.",
+      title: { en: "Right to repair, replacement, or refund", hi: "मरम्मत, बदलने या रिफ़ंड का अधिकार" },
+      plain: {
+        en: "Depending on the defect, you may ask for repair, replacement, or a refund of the price.",
+        hi: "दोष के आधार पर आप उत्पाद की मरम्मत, बदलने या कीमत वापस माँग सकते हैं।",
+      },
       linkedLaws: ["cpa-2019-s39"],
     },
     {
       id: "right-complaint",
-      title: hi ? "जिला उपभोक्ता आयोग में शिकायत का अधिकार" : "Right to file before the District Commission",
-      plain: hi
-        ? "आप अपने निवास, कार्य या विक्रेता के स्थान पर जिला उपभोक्ता आयोग में शिकायत दर्ज कर सकते हैं — बिना वकील के भी।"
-        : "You can file a complaint at the District Consumer Commission where you live, work, or the seller operates — without a lawyer.",
+      title: { en: "Right to file before the District Commission", hi: "जिला उपभोक्ता आयोग में शिकायत का अधिकार" },
+      plain: {
+        en: "You can file a complaint at the District Consumer Commission where you live, work, or the seller operates — without a lawyer.",
+        hi: "आप अपने निवास, कार्य या विक्रेता के स्थान पर जिला उपभोक्ता आयोग में शिकायत दर्ज कर सकते हैं — बिना वकील के भी।",
+      },
       linkedLaws: ["cpa-2019-s35"],
     },
     {
       id: "right-unfair",
-      title: hi ? "अनुचित व्यवहार के विरुद्ध अधिकार" : "Protection against unfair trade practice",
-      plain: hi
-        ? "झूठे वादे या भ्रामक वारंटी अनुचित व्यापार व्यवहार हो सकते हैं, जिनके ख़िलाफ़ शिकायत की जा सकती है।"
-        : "False promises or misleading warranty terms can amount to an unfair trade practice you can complain about.",
+      title: { en: "Protection against unfair trade practice", hi: "अनुचित व्यवहार के विरुद्ध अधिकार" },
+      plain: {
+        en: "False promises or misleading warranty terms can amount to an unfair trade practice you can complain about.",
+        hi: "झूठे वादे या भ्रामक वारंटी अनुचित व्यापार व्यवहार हो सकते हैं, जिनके ख़िलाफ़ शिकायत की जा सकती है।",
+      },
       linkedLaws: ["cpa-2019-s2-42"],
     },
   ];
@@ -139,44 +147,53 @@ export function buildConsumerAnalysis(ctx: {
     "cpa-2019-s35",
     "cpa-2019-s39",
     "ecom-rules-2020-r6",
-  ].map((id) => law(id, lang, whyApplies[id]));
+  ].map((id) => law(id, whyApplies[id]));
 
   const uncertainty = [
     {
       id: "marketplace-liability",
-      plain: hi
-        ? "मार्केटप्लेस की ज़िम्मेदारी इस बात पर निर्भर करती है कि वह सिर्फ़ मंच है या स्वयं विक्रेता भी।"
-        : "Whether the marketplace is liable depends on whether it is only a platform or also the seller.",
-      changesAnswer: hi
-        ? "अगर मार्केटप्लेस स्वयं विक्रेता नहीं है, तो मुख्य दावा विक्रेता/निर्माता के विरुद्ध होगा।"
-        : "If the marketplace is not the seller, the main claim lies against the seller/manufacturer.",
-      resolve: hi
-        ? "ऑर्डर की रसीद में 'विक्रेता' का नाम देखें; किसी विधिक सहायता क्लिनिक से पुष्टि करें।"
-        : "Check the 'sold by' name on your order receipt; confirm with a legal aid clinic.",
+      plain: {
+        en: "Whether the marketplace is liable depends on whether it is only a platform or also the seller.",
+        hi: "मार्केटप्लेस की ज़िम्मेदारी इस बात पर निर्भर करती है कि वह सिर्फ़ मंच है या स्वयं विक्रेता भी।",
+      },
+      changesAnswer: {
+        en: "If the marketplace is not the seller, the main claim lies against the seller/manufacturer.",
+        hi: "अगर मार्केटप्लेस स्वयं विक्रेता नहीं है, तो मुख्य दावा विक्रेता/निर्माता के विरुद्ध होगा।",
+      },
+      resolve: {
+        en: "Check the 'sold by' name on your order receipt; confirm with a legal aid clinic.",
+        hi: "ऑर्डर की रसीद में 'विक्रेता' का नाम देखें; किसी विधिक सहायता क्लिनिक से पुष्टि करें।",
+      },
     },
     {
       id: "warranty-period",
-      plain: hi
-        ? "वारंटी की शुरुआत (खरीद बनाम निर्माण तिथि) विवाद का केंद्र है।"
-        : "When the warranty starts (purchase vs. manufacture date) is the central dispute.",
-      changesAnswer: hi
-        ? "अगर आयोग माने कि वारंटी खरीद से गिनी जाएगी, तो दावा वारंटी के भीतर है।"
-        : "If the commission reads the warranty from purchase, the claim is within warranty.",
-      resolve: hi
-        ? "वारंटी कार्ड, रसीद और बिक्री विज्ञापन की प्रतियाँ रखें।"
-        : "Keep the warranty card, receipt, and the product listing/ads.",
+      plain: {
+        en: "When the warranty starts (purchase vs. manufacture date) is the central dispute.",
+        hi: "वारंटी की शुरुआत (खरीद बनाम निर्माण तिथि) विवाद का केंद्र है।",
+      },
+      changesAnswer: {
+        en: "If the commission reads the warranty from purchase, the claim is within warranty.",
+        hi: "अगर आयोग माने कि वारंटी खरीद से गिनी जाएगी, तो दावा वारंटी के भीतर है।",
+      },
+      resolve: {
+        en: "Keep the warranty card, receipt, and the product listing/ads.",
+        hi: "वारंटी कार्ड, रसीद और बिक्री विज्ञापन की प्रतियाँ रखें।",
+      },
     },
     {
       id: "food-loss",
-      plain: hi
-        ? "खराब खाने का नुकसान वसूलना हमेशा संभव नहीं होता।"
-        : "Recovering the value of spoiled food is not always possible.",
-      changesAnswer: hi
-        ? "सबूत (फोटो, रसीदें) और राशि के आधार पर आयोग मुआवज़ा दे सकता है या नहीं।"
-        : "Depending on proof (photos, bills) and the amount, the commission may or may not award it.",
-      resolve: hi
-        ? "नुकसान के फोटो और खरीद रसीदें तुरंत सुरक्षित करें।"
-        : "Immediately preserve photos of the loss and purchase bills.",
+      plain: {
+        en: "Recovering the value of spoiled food is not always possible.",
+        hi: "खराब खाने का नुकसान वसूलना हमेशा संभव नहीं होता।",
+      },
+      changesAnswer: {
+        en: "Depending on proof (photos, bills) and the amount, the commission may or may not award it.",
+        hi: "सबूत (फोटो, रसीदें) और राशि के आधार पर आयोग मुआवज़ा दे सकता है या नहीं।",
+      },
+      resolve: {
+        en: "Immediately preserve photos of the loss and purchase bills.",
+        hi: "नुकसान के फोटो और खरीद रसीदें तुरंत सुरक्षित करें।",
+      },
     },
   ];
 
@@ -220,59 +237,58 @@ export function buildConsumerAnalysis(ctx: {
     {
       id: "gather",
       order: 1,
-      title: hi ? "इन्वॉइस और सर्विस रिपोर्ट जुटाएँ" : "Gather the invoice and service reports",
-      plain: hi
-        ? "खरीद और दोष का सबूत इकट्ठा करें। स्क्रीनशॉट भी चलते हैं।"
-        : "Collect proof of purchase and of the defect. Screenshots count.",
-      why: hi
-        ? "सबूत के बिना कोई भी दावा कमज़ोर होता है।"
-        : "Without proof, any claim is weak.",
+      title: { en: "Gather the invoice and service reports", hi: "इन्वॉइस और सर्विस रिपोर्ट जुटाएँ" },
+      plain: {
+        en: "Collect proof of purchase and of the defect. Screenshots count.",
+        hi: "खरीद और दोष का सबूत इकट्ठा करें। स्क्रीनशॉट भी चलते हैं।",
+      },
+      why: { en: "Without proof, any claim is weak.", hi: "सबूत के बिना कोई भी दावा कमज़ोर होता है।" },
       effort: "quick" as const,
       urgent: true,
     },
     {
       id: "demand",
       order: 2,
-      title: hi ? "विक्रेता और ब्रांड को लिखित माँग भेजें" : "Send a written demand to seller and brand",
-      plain: hi
-        ? "ईमेल + लिखित पत्र: मरम्मत/बदलने/रिफ़ंड के लिए 15 दिन दें।"
-        : "Email + letter: give 15 days for repair/replacement/refund.",
-      why: hi
-        ? "लिखित माँग अक्सर समस्या सुलझा देती है और रिकॉर्ड बनाती है।"
-        : "A written demand often resolves it and creates a record.",
+      title: { en: "Send a written demand to seller and brand", hi: "विक्रेता और ब्रांड को लिखित माँग भेजें" },
+      plain: {
+        en: "Email + letter: give 15 days for repair/replacement/refund.",
+        hi: "ईमेल + लिखित पत्र: मरम्मत/बदलने/रिफ़ंड के लिए 15 दिन दें।",
+      },
+      why: { en: "A written demand often resolves it and creates a record.", hi: "लिखित माँग अक्सर समस्या सुलझा देती है और रिकॉर्ड बनाती है।" },
       effort: "quick" as const,
       urgent: true,
     },
     {
       id: "nch",
       order: 3,
-      title: hi ? "राष्ट्रीय उपभोक्ता हेल्पलाइन (1915) पर शिकायत" : "Complain to the National Consumer Helpline (1915)",
-      plain: hi
-        ? "मुफ़्त पहला कदम — कंपनियाँ हेल्पलाइन शिकायतों का जवाब देती हैं।"
-        : "A free first step — companies often respond to helpline complaints.",
-      why: hi ? "तेज़, मुफ़्त, और कई बार पर्याप्त।" : "Fast, free, and often enough.",
+      title: { en: "Complain to the National Consumer Helpline (1915)", hi: "राष्ट्रीय उपभोक्ता हेल्पलाइन (1915) पर शिकायत" },
+      plain: {
+        en: "A free first step — companies often respond to helpline complaints.",
+        hi: "मुफ़्त पहला कदम — कंपनियाँ हेल्पलाइन शिकायतों का जवाब देती हैं।",
+      },
+      why: { en: "Fast, free, and often enough.", hi: "तेज़, मुफ़्त, और कई बार पर्याप्त।" },
       effort: "quick" as const,
     },
     {
       id: "commission",
       order: 4,
-      title: hi ? "जिला उपभोक्ता आयोग में शिकायत" : "File a complaint with the District Commission",
-      plain: hi
-        ? "हल न होने पर आयोग में शिकायत — छोटी फीस, बिना वकील संभव।"
-        : "If unresolved, file before the District Commission — small fee, possible without a lawyer.",
-      why: hi
-        ? "यह आयोग मरम्मत/रिफ़ंड/मुआवज़े का आदेश दे सकता है।"
-        : "The commission can order repair/refund/compensation.",
+      title: { en: "File a complaint with the District Commission", hi: "जिला उपभोक्ता आयोग में शिकायत" },
+      plain: {
+        en: "If unresolved, file before the District Commission — small fee, possible without a lawyer.",
+        hi: "हल न होने पर आयोग में शिकायत — छोटी फीस, बिना वकील संभव।",
+      },
+      why: { en: "The commission can order repair/refund/compensation.", hi: "यह आयोग मरम्मत/रिफ़ंड/मुआवज़े का आदेश दे सकता है।" },
       effort: "moderate" as const,
     },
     {
       id: "legal-aid",
       order: 5,
-      title: hi ? "ज़रूरत पड़े तो विधिक सहायता लें" : "Get legal aid if needed",
-      plain: hi
-        ? "राज्य विधिक सेवा प्राधिकरण (15100) से मुफ़्त मदद मिल सकती है।"
-        : "The State Legal Services Authority (15100) can help for free.",
-      why: hi ? "विशेषज्ञ मार्गदर्शन से फ़ाइलिंग आसान होती है।" : "Expert guidance makes filing easier.",
+      title: { en: "Get legal aid if needed", hi: "ज़रूरत पड़े तो विधिक सहायता लें" },
+      plain: {
+        en: "The State Legal Services Authority (15100) can help for free.",
+        hi: "राज्य विधिक सेवा प्राधिकरण (15100) से मुफ़्त मदद मिल सकती है।",
+      },
+      why: { en: "Expert guidance makes filing easier.", hi: "विशेषज्ञ मार्गदर्शन से फ़ाइलिंग आसान होती है।" },
       effort: "moderate" as const,
     },
   ];
@@ -283,10 +299,11 @@ export function buildConsumerAnalysis(ctx: {
     id,
     language: lang,
     domain: "consumer",
-    caseSummary: hi
-      ? `आपने बताया: ${summarize(intake.description)}`
-      : `You told us: ${summarize(intake.description)}`,
-    facts: factLines(intake, lang),
+    caseSummary: {
+      en: `You told us: ${summarize(intake.description)}`,
+      hi: `आपने बताया: ${summarize(intake.description)}`,
+    },
+    facts: factLines(intake),
     issues,
     rights,
     laws,

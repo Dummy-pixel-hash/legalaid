@@ -10,9 +10,10 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingAnalysis } from "@/components/analysis/LoadingAnalysis";
 import type { Step } from "@/lib/types/domain";
+import { localize } from "@/lib/types/domain";
 
 function StepItem({ step }: { step: Step }) {
-	const { t } = useI18n();
+	const { t, lang } = useI18n();
 	const effortLabel =
 		step.effort === "quick"
 			? t("effortQuick")
@@ -26,7 +27,9 @@ function StepItem({ step }: { step: Step }) {
 			</span>
 			<div className="min-w-0 flex-1">
 				<div className="flex flex-wrap items-center gap-2">
-					<h3 className="text-sm font-semibold text-ink">{step.title}</h3>
+					<h3 className="text-sm font-semibold text-ink">
+						{localize(step.title, lang)}
+					</h3>
 					{step.urgent && (
 						<span className="inline-flex items-center gap-1 rounded-sm bg-status-caution-bg px-1.5 py-0.5 text-[11px] font-medium text-status-caution">
 							<Flag className="h-3 w-3" aria-hidden />
@@ -39,11 +42,11 @@ function StepItem({ step }: { step: Step }) {
 					</span>
 				</div>
 				<p className="mt-1.5 text-sm leading-relaxed text-ink-70">
-					{step.plain}
+					{localize(step.plain, lang)}
 				</p>
 				<p className="mt-2 text-xs leading-relaxed text-ink-50">
 					<span className="font-semibold text-ink-70">{t("whyLabel")}: </span>
-					{step.why}
+					{localize(step.why, lang)}
 				</p>
 			</div>
 		</li>

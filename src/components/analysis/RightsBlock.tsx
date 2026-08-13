@@ -2,10 +2,11 @@
 
 import { useI18n } from "@/lib/i18n/provider";
 import type { CaseAnalysis } from "@/lib/types/domain";
+import { localize } from "@/lib/types/domain";
 import { SectionMarker } from "@/components/shared/SectionMarker";
 
 export function RightsBlock({ analysis }: { analysis: CaseAnalysis }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   if (analysis.rights.length === 0) return null;
   return (
     <section>
@@ -18,10 +19,10 @@ export function RightsBlock({ analysis }: { analysis: CaseAnalysis }) {
         {analysis.rights.map((right) => (
           <li key={right.id}>
             <h3 className="text-[16px] font-semibold leading-snug text-ink">
-              {right.title}
+              {localize(right.title, lang)}
             </h3>
             <p className="mt-1 text-[14.5px] leading-relaxed text-ink-70">
-              {right.plain}
+              {localize(right.plain, lang)}
             </p>
             {right.linkedLaws.length > 0 && (
               <p className="mt-2 text-xs text-accent-strong">
