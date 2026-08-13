@@ -391,10 +391,24 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		}
 		// The server resolves its own authoritative candidate set by domain;
 		// the client only sends intake + lang (see security review fix #1).
+		// The analysis context grounds the draft in the model's own findings
+		// (issues, chosen laws, next steps), matching the analyze pipeline.
+		const context = {
+			caseSummary: analysis.caseSummary,
+			issues: analysis.issues,
+			rights: analysis.rights,
+			lawIds: analysis.laws.map((l) => ({
+				id: l.id,
+				whyApplies: l.whyApplies,
+			})),
+			uncertainty: analysis.uncertainty,
+			evidence: analysis.evidence,
+			nextSteps: analysis.nextSteps,
+		};
 		const res = await fetch("/api/document", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ intake, lang }),
+			body: JSON.stringify({ intake, lang, context }),
 			signal: AbortSignal.timeout(300_000),
 		});
 		if (!res.ok) {
@@ -405,10 +419,15 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		if (!data || typeof data.content !== "object" || data.content === null) {
 			throw new Error("model returned no valid document");
 		}
-		const base = this.coerceDocument(
-			data.content as Record<string, unknown>,
-			lang,
-		);
+		// The context-grounded path returns the draft wrapped under a
+		// "document" key (same shape as the analyze stream); the legacy plain
+		// path returns the flat object. Unwrap before coercing.
+		const content = data.content as Record<string, unknown>;
+		const docRaw =
+			content.document && typeof content.document === "object"
+				? (content.document as Record<string, unknown>)
+				: content;
+		const base = this.coerceDocument(docRaw, lang);
 		// User edits always win over the model's fresh draft.
 		return { ...base, ...(edits ?? {}) };
 	}

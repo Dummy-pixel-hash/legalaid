@@ -2,9 +2,10 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, Eye, FileDown, PencilLine, Save } from "lucide-react";
+import { Check, Copy, Eye, FileDown, Loader2, PencilLine, RefreshCw, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n/provider";
+import { getProvider } from "@/lib/providers";
 import { useCase } from "@/lib/store/case-store";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
@@ -30,6 +31,8 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	const [editing, setEditing] = useState(true);
 	const [savedFlash, setSavedFlash] = useState(false);
 	const [copiedFlash, setCopiedFlash] = useState(false);
+	const [regenerating, setRegenerating] = useState(false);
+	const [regenError, setRegenError] = useState(false);
 
 	if (!record) return null;
 	if (record.status === "analyzing") {
@@ -85,6 +88,29 @@ function DocumentClient({ caseId }: { caseId: string }) {
 		window.setTimeout(() => window.print(), 50);
 	};
 
+	// Regenerate the letter through the provider seam (grounded in the current
+	// analysis). The fresh draft replaces the previous draft entirely — edits
+	// are not carried over, so a stale/partial draft can't clobber the new one.
+	const handleRegen = async () => {
+		if (regenerating || !record || !analysis) return;
+		setRegenerating(true);
+		setRegenError(false);
+		try {
+			const fresh = await getProvider().generateDocument({
+				analysis,
+				intake: record.intake,
+				lang,
+				edits: {},
+			});
+			updateDocument(caseId, fresh);
+		} catch (err) {
+			console.error("Document regeneration failed", err);
+			setRegenError(true);
+		} finally {
+			setRegenerating(false);
+		}
+	};
+
 	return (
 		<div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
 			<div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-8">
@@ -107,7 +133,25 @@ function DocumentClient({ caseId }: { caseId: string }) {
 								<Eye className="h-4 w-4" aria-hidden />
 								{t("preview")}
 							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => void handleRegen()}
+								disabled={regenerating}
+							>
+								{regenerating ? (
+									<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+								) : (
+									<RefreshCw className="h-4 w-4" aria-hidden />
+								)}
+								{regenerating ? t("documentRegenerating") : t("documentRegen")}
+							</Button>
 						</div>
+						{regenError && (
+							<p className="mt-1 text-[11px] font-medium text-status-danger">
+								{t("documentRegenError")}
+							</p>
+						)}
 						<div className="mt-1 flex flex-wrap items-center gap-1 border-t border-line pt-2 lg:flex-col lg:items-stretch lg:gap-1">
 							<Button variant="ghost" size="sm" onClick={handleCopy}>
 								{copiedFlash ? (

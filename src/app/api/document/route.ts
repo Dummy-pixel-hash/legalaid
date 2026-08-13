@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { Language } from "@/lib/types/domain";
-import { chatCompletion, extractJson, type ChatMessage } from "@/lib/model/chat";
-import { buildDocumentPrompt } from "@/lib/model/prompt";
+import { chatCompletion, extractJson, escapeControlCharsInStrings, type ChatMessage } from "@/lib/model/chat";
+import { buildDocumentPrompt, buildDocumentSection } from "@/lib/model/prompt";
+import { runSection } from "@/lib/model/section";
 import { detectDomain } from "@/lib/providers/content/shared";
 import { candidateSources } from "@/lib/providers/candidates";
 import { BadRequestError, guardIntakePayload, LIMITS } from "@/lib/api/guard";
@@ -38,16 +39,22 @@ async function modelDocument(base: ChatMessage[]): Promise<unknown> {
 					},
 				]
 			: base;
-    const raw = await chatCompletion({
-      messages,
-      maxTokens: a.maxTokens,
-      temperature: a.temperature,
-    });
-    try {
-      return JSON.parse(extractJson(raw));
-    } catch {
-      // truncated / malformed — retry with a correction hint
-    }
+		const raw = await chatCompletion({
+			messages,
+			maxTokens: a.maxTokens,
+			temperature: a.temperature,
+		});
+		const parsed = extractJson(raw);
+		try {
+			return JSON.parse(parsed);
+		} catch {
+			try {
+				// llama.cpp's grammar permits raw control chars in strings.
+				return JSON.parse(escapeControlCharsInStrings(parsed));
+			} catch {
+				// truncated / malformed — retry with a correction hint
+			}
+		}
 	}
 	throw new Error("model returned invalid JSON after retries");
 }
@@ -87,6 +94,19 @@ export async function POST(req: Request) {
 	}
 
 	try {
+		// Regeneration with full analysis context: same grounded prompt the
+		// analyze pipeline uses, grammar-constrained with retry.
+		const context = (body as { context?: unknown })?.context;
+		if (context && typeof context === "object") {
+			const spec = buildDocumentSection({
+				intake,
+				lang,
+				lawSources,
+				context: context as Record<string, unknown>,
+			});
+			const { content } = await runSection(spec);
+			return NextResponse.json({ content });
+		}
 		const base = buildDocumentPrompt({
 			intake,
 			lang,

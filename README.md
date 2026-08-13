@@ -34,6 +34,28 @@ pnpm start      # serve the build
 pnpm tsx scripts/smoke.ts   # pipeline smoke tests
 ```
 
+### Environment variables
+
+Set these in `.env.local` (see `.gitignore` — env files are never committed):
+
+| Variable | Used by | Required |
+| --- | --- | --- |
+| `AI_API_KEY` | model backend (`/api/analyze`, `/api/document`) | yes, for real analysis |
+| `GROQ_API_KEY` | speech-to-text (`/api/transcribe`, Groq Whisper large-v3) | only for voice input |
+
+`AI_ENDPOINT` / `AI_ENDPOINT_REGISTRY` / `AI_MODEL` / `AI_ENABLE_THINKING`
+additionally tune the model backend (see `src/lib/model/chat.ts`).
+
+### Voice input (speech-to-text)
+
+On the intake page, the mic button records your description in your own words
+and transcribes it into the situation text — in English or Hindi (the current
+UI language is sent as a Whisper language hint). Recording happens in the
+browser (`MediaRecorder`); the audio clip is uploaded to `POST /api/transcribe`,
+which forwards it to Groq's `whisper-large-v3` model. The Groq key never
+reaches the client. Requires a browser with `MediaRecorder` + microphone
+permission, and `GROQ_API_KEY` set on the server.
+
 ## Architecture in brief
 
 - **Next.js 15 (App Router) + TypeScript + Tailwind v4 + shadcn/ui.** Client-only MVP; all state lives in a context store persisted to `localStorage`.

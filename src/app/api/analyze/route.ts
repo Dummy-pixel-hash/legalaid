@@ -1,74 +1,13 @@
 import { NextResponse } from "next/server";
 import type { Language } from "@/lib/types/domain";
-import { chatCompletionJson, type ChatMessage } from "@/lib/model/chat";
-import {
-	buildDocumentSection,
-	buildSectionPrompts,
-	type SectionSpec,
-} from "@/lib/model/prompt";
+import { buildDocumentSection, buildSectionPrompts } from "@/lib/model/prompt";
+import { runSection } from "@/lib/model/section";
 import { detectDomain } from "@/lib/providers/content/shared";
 import { candidateSources } from "@/lib/providers/candidates";
 import { BadRequestError, guardIntakePayload, LIMITS } from "@/lib/api/guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-/** Grammar-constrained output is valid JSON by construction, but the model can
- * still stall inside the grammar and exhaust its token budget (llama.cpp then
- * 500s with a peg-native mismatch), or emit a grammar-conforming but hollow
- * object. Treat both as section failures so the retry covers them. */
-function isEmptySectionContent(v: unknown): boolean {
-	if (v === null || v === undefined) return true;
-	if (typeof v === "string") return v.trim() === "";
-	if (Array.isArray(v)) return v.every(isEmptySectionContent);
-	if (typeof v === "object") {
-		const entries = Object.values(v);
-		return entries.length === 0 || entries.every(isEmptySectionContent);
-	}
-	return false; // numbers / booleans count as content
-}
-
-/** One section, up to 2 attempts: first at default temperature, then with a
- * repair hint at a slightly higher temperature (same pattern the pre-stream
- * route used). The failure is transient, so a fresh constrained generation
- * usually succeeds. */
-async function runSection(spec: {
-	section: SectionSpec["section"];
-	messages: ChatMessage[];
-	name: string;
-	schema: object;
-	maxTokens: number;
-}): Promise<{ section: SectionSpec["section"]; content: unknown }> {
-	const attempts: Array<{ temperature: number; hint?: string }> = [
-		{ temperature: 0.2 },
-		{
-			temperature: 0.3,
-			hint: "Your previous response did not match the required JSON schema or was empty. Reply with ONLY one valid JSON object matching the schema exactly, with real content for every field — no extra fields, no prose, no markdown fences.",
-		},
-	];
-	let lastErr: unknown = new Error("section failed");
-	for (const a of attempts) {
-		try {
-			const messages = a.hint
-				? [...spec.messages, { role: "user" as const, content: a.hint }]
-				: spec.messages;
-			const content = await chatCompletionJson({
-				messages,
-				maxTokens: spec.maxTokens,
-				temperature: a.temperature,
-				name: spec.name,
-				schema: spec.schema,
-			});
-			if (isEmptySectionContent(content)) {
-				throw new Error("section produced empty content");
-			}
-			return { section: spec.section, content };
-		} catch (err) {
-			lastErr = err;
-		}
-	}
-	throw lastErr;
-}
 
 export async function POST(req: Request) {
 	// Coarse body-size cap before any parsing.

@@ -153,6 +153,9 @@ export async function chatCompletion(opts: {
       messages: opts.messages,
       max_tokens: opts.maxTokens ?? 4096,
       temperature: opts.temperature ?? 0.2,
+      // The fine-tuned model degenerates into repetition loops that burn the
+      // token budget mid-string; a mild penalty keeps generation on track.
+      repeat_penalty: 1.1,
       response_format: { type: "json_object" },
       // Reasoning models burn their budget on chain-of-thought unless told not
       // to. llama.cpp's Qwen3 template honors this via chat_template_kwargs.
@@ -194,6 +197,8 @@ export async function chatCompletionJson(opts: {
       messages: opts.messages,
       max_tokens: opts.maxTokens ?? 4096,
       temperature: opts.temperature ?? 0.2,
+      // Suppress repetition loops (the fine-tune occasionally degenerates).
+      repeat_penalty: 1.1,
       response_format: {
         type: "json_schema",
         json_schema: { name: opts.name, schema: opts.schema, strict: true },
