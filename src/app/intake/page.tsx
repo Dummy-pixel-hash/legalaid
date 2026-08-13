@@ -215,7 +215,7 @@ function IntakeClient() {
 								<div className="sm:col-span-2">
 									<Label htmlFor="d-domain" className="text-xs text-ink-70">
 										{t("domainField")}{" "}
-										<span className="text-ink-30">({t("optional")})</span>
+										<span className="text-ink-50">({t("optional")})</span>
 									</Label>
 									<Select
 										value={domain ?? "none"}
@@ -243,7 +243,7 @@ function IntakeClient() {
 								<div>
 									<Label htmlFor="d-state" className="text-xs text-ink-70">
 										{t("stateField")}{" "}
-										<span className="text-ink-30">({t("optional")})</span>
+										<span className="text-ink-50">({t("optional")})</span>
 									</Label>
 									<Input
 										id="d-state"
@@ -258,7 +258,7 @@ function IntakeClient() {
 								<div>
 									<Label htmlFor="d-amount" className="text-xs text-ink-70">
 										{t("amountField")}{" "}
-										<span className="text-ink-30">({t("optional")})</span>
+										<span className="text-ink-50">({t("optional")})</span>
 									</Label>
 									<Input
 										id="d-amount"
@@ -274,7 +274,7 @@ function IntakeClient() {
 								<div>
 									<Label htmlFor="d-party" className="text-xs text-ink-70">
 										{t("otherPartyField")}{" "}
-										<span className="text-ink-30">({t("optional")})</span>
+										<span className="text-ink-50">({t("optional")})</span>
 									</Label>
 									<Input
 										id="d-party"
@@ -289,7 +289,7 @@ function IntakeClient() {
 								<div>
 									<Label htmlFor="d-date" className="text-xs text-ink-70">
 										{t("dateField")}{" "}
-										<span className="text-ink-30">({t("optional")})</span>
+										<span className="text-ink-50">({t("optional")})</span>
 									</Label>
 									<Input
 										id="d-date"

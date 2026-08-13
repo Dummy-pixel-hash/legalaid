@@ -140,17 +140,21 @@ export function ClarifyingQuestions({
 	};
 
 	return (
-		<div aria-live="polite">
-			<p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-				{t("clarifyingProgress", {
-					current: index + 1,
-					total: questions.length,
-				})}
-			</p>
-			<h2 className="mt-2 text-xl font-semibold text-ink">
-				{question.prompt[lang]}
-			</h2>
-			<p className="mt-1 text-sm text-ink-70">{t("clarifyingHint")}</p>
+		<div>
+			{/* Live region covers only the changing prompt — not the input, so
+			    keystrokes and focus don't trigger repeated announcements. */}
+			<div aria-live="polite">
+				<p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
+					{t("clarifyingProgress", {
+						current: index + 1,
+						total: questions.length,
+					})}
+				</p>
+				<h2 className="mt-2 text-xl font-semibold text-ink">
+					{question.prompt[lang]}
+				</h2>
+				<p className="mt-1 text-sm text-ink-70">{t("clarifyingHint")}</p>
+			</div>
 
 			<div className="mt-5 flex flex-col gap-3">
 				{question.kind === "amount" ? (

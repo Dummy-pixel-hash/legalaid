@@ -77,7 +77,7 @@
   --foreground: #1b2436; /* ink */
   --ink: #1b2436;
   --ink-70: #535c71; /* ink soft */
-  --ink-50: #667084; /* ink faint — ≥4.5 on paper */
+  --ink-50: #5c687d; /* ink faint — ≥4.5 on paper, mat, and surface-muted */
   --ink-30: #b6bcc8; /* paler ink for disabled/hairlines-on-line */
   --line: #ded2ae; /* paper line */
   --paper-line-inactive: #e6dcc0; /* softer hairline within paper surfaces */
@@ -99,7 +99,7 @@
   --status-neutral-bg: #efebdf; /* neutral wash on paper */
   --status-caution: #9a3324; /* seal */
   --status-caution-bg: #f3e2da; /* seal wash */
-  --status-info: #93732a; /* brass */
+  --status-info: #705a1f; /* brass-deep — AA on the brass wash */
   --status-info-bg: #efe6c9; /* brass wash */
   --status-ai: #6c4f1f; /* darker brass for legibility on brass wash */
   --status-ai-bg: #efe6c9; /* brass wash */
@@ -271,5 +271,19 @@
   }
   @page {
     margin: 20mm;
+  }
+}
+
+/* Reduced motion: stop decorative pulse/spin/slide effects while preserving
+   state feedback. Progress percentages, stage copy, and bar widths are DOM
+   state — they keep updating; only the animation/transition stops. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
