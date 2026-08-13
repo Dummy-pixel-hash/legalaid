@@ -10,9 +10,12 @@ export function LawsBlock({ analysis }: { analysis: CaseAnalysis }) {
   if (analysis.laws.length === 0) return null;
   return (
     <section>
-      <SectionMarker number="04" label={t("lawsHeading")} />
+      <SectionMarker
+        label={t("lawsHeading")}
+        className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong"
+      />
       <p className="mt-1 text-sm text-ink-50">{t("lawsHint")}</p>
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-5 space-y-7">
         {analysis.laws.map((law) => (
           <LawCard key={law.id} law={law} />
         ))}

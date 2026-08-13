@@ -15,12 +15,12 @@ export function UnderstandingBlock({
 }) {
   const { t } = useI18n();
   return (
-    <section className="rounded-lg border border-line bg-surface p-5 sm:p-6">
+    <section>
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <SectionMarker number="01" label={t("understandingHeading")} />
-          <p className="mt-1 text-xs text-ink-50">{t("understandingHint")}</p>
-        </div>
+        <SectionMarker
+          label={t("understandingHeading")}
+          className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong"
+        />
         <Link
           href={`/intake?edit=${caseId}`}
           className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-accent-strong hover:bg-accent"
@@ -33,7 +33,7 @@ export function UnderstandingBlock({
         {analysis.caseSummary}
       </p>
       {analysis.facts.length > 0 && (
-        <ul className="mt-4 space-y-1.5 border-t border-line pt-4">
+        <ul className="mt-4 space-y-1.5">
           {analysis.facts.map((f) => (
             <li
               key={f}

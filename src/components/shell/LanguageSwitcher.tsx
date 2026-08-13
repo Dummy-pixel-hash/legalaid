@@ -28,7 +28,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           onClick={() => setLang(opt.value)}
           aria-pressed={lang === opt.value}
           className={cn(
-            "rounded-sm px-3 py-1.5 text-xs font-medium transition-colors",
+            "rounded-sm px-3 py-1.5 min-h-10 text-xs font-medium transition-colors",
             lang === opt.value
               ? "bg-accent text-accent-foreground"
               : "text-ink-70 hover:bg-surface-muted hover:text-ink",

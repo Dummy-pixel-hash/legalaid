@@ -10,19 +10,21 @@ export function IssuesBlock({ analysis }: { analysis: CaseAnalysis }) {
   if (analysis.issues.length === 0) return null;
   return (
     <section>
-      <SectionMarker number="02" label={t("possibleIssuesHeading")} />
+      <SectionMarker
+        label={t("possibleIssuesHeading")}
+        className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong"
+      />
       <p className="mt-1 text-sm text-ink-50">{t("possibleIssuesHint")}</p>
-      <ul className="mt-4 space-y-3">
+      <ul className="mt-5 space-y-6">
         {analysis.issues.map((issue) => (
-          <li
-            key={issue.id}
-            className="rounded-lg border border-line bg-surface p-4"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <h3 className="text-sm font-semibold text-ink">{issue.label}</h3>
+          <li key={issue.id}>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="text-[16px] font-semibold leading-snug text-ink">
+                {issue.label}
+              </h3>
               <ConfidenceBadge kind={issue.kind} />
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-ink-70">
+            <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-70">
               {issue.detail}
             </p>
           </li>

@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Training data (binary) — never scanned or committed
 /dataset
+
+# Impeccable live-mode runtime state
+.impeccable/

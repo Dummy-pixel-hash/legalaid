@@ -83,66 +83,69 @@ function DocumentClient({ caseId }: { caseId: string }) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="print-hide">
-        <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-          05 · {t("stepDocument")}
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          {t("documentTitle")}
-        </h1>
-        <p className="mt-2 text-ink-70">{t("documentSubtitle")}</p>
-      </div>
-
-      {/* Toolbar */}
-      <div className="print-hide sticky top-14 z-30 mt-6 rounded-md border border-line bg-surface p-2 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <Button
-              variant={editing ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setEditing(true)}
-            >
-              <PencilLine className="h-4 w-4" aria-hidden />
-              {t("edit")}
-            </Button>
-            <Button
-              variant={!editing ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setEditing(false)}
-            >
-              <Eye className="h-4 w-4" aria-hidden />
-              {t("preview")}
-            </Button>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-8">
+        <aside className="print-hide order-first lg:order-none lg:col-start-2 lg:row-start-1">
+          <div className="rounded-md border border-line bg-surface p-2 shadow-sm lg:sticky lg:top-16 lg:flex lg:flex-col lg:gap-1">
+            <div className="flex flex-wrap items-center gap-1 lg:flex-col lg:items-stretch">
+              <Button
+                variant={editing ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setEditing(true)}
+              >
+                <PencilLine className="h-4 w-4" aria-hidden />
+                {t("edit")}
+              </Button>
+              <Button
+                variant={!editing ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setEditing(false)}
+              >
+                <Eye className="h-4 w-4" aria-hidden />
+                {t("preview")}
+              </Button>
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-1 border-t border-line pt-2 lg:flex-col lg:items-stretch lg:gap-1">
+              <Button variant="ghost" size="sm" onClick={handleCopy}>
+                {copiedFlash ? (
+                  <Check className="h-4 w-4 text-status-success" aria-hidden />
+                ) : (
+                  <Copy className="h-4 w-4" aria-hidden />
+                )}
+                {copiedFlash ? t("copied") : t("copyText")}
+              </Button>
+              <Button variant="secondary" size="sm" onClick={handleSave}>
+                <Save className="h-4 w-4" aria-hidden />
+                {savedFlash ? t("saved") : t("save")}
+              </Button>
+              <Button
+                variant="seal"
+                size="sm"
+                onClick={handlePdf}
+                className="lg:w-full lg:justify-center"
+              >
+                <FileDown className="h-4 w-4" aria-hidden />
+                {t("downloadPdf")}
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={handleCopy}>
-              {copiedFlash ? (
-                <Check className="h-4 w-4 text-status-success" aria-hidden />
-              ) : (
-                <Copy className="h-4 w-4" aria-hidden />
-              )}
-              {copiedFlash ? t("copied") : t("copyText")}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={handleSave}>
-              <Save className="h-4 w-4" aria-hidden />
-              {savedFlash ? t("saved") : t("save")}
-            </Button>
-            <Button variant="seal" size="sm" onClick={handlePdf}>
-              <FileDown className="h-4 w-4" aria-hidden />
-              {t("downloadPdf")}
-            </Button>
+          <p className="mt-2 px-1 text-[11px] text-ink-50">{t("printHint")}</p>
+        </aside>
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          <header className="mb-[18px] print-hide">
+            <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+              {t("documentTitle")}
+            </h1>
+            <p className="mt-2 text-ink-70">{t("documentSubtitle")}</p>
+          </header>
+          <div className={cn("mt-[22px]", !editing && "pointer-events-none select-none")}>
+            <DocumentSheet
+              doc={doc}
+              editing={editing}
+              onChange={(patch) => updateDocument(caseId, patch)}
+            />
           </div>
         </div>
-        <p className="mt-1.5 px-1 text-[11px] text-ink-50">{t("printHint")}</p>
-      </div>
-
-      <div className={cn("mt-8", !editing && "pointer-events-none select-none")}>
-        <DocumentSheet
-          doc={doc}
-          editing={editing}
-          onChange={(patch) => updateDocument(caseId, patch)}
-        />
       </div>
     </div>
   );

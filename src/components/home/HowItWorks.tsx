@@ -24,9 +24,9 @@ export function HowItWorks() {
     <section className="border-y border-line bg-surface">
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
         <div className="max-w-2xl">
-          <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
+          <h2 className={`${serif} text-[13px] font-semibold tracking-[0.02em] text-accent-strong`}>
             {t("homeHowHeading")}
-          </p>
+          </h2>
           <p className="mt-2 text-ink-70">{t("homeHowHint")}</p>
         </div>
 

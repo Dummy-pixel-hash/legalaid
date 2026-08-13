@@ -16,33 +16,39 @@ export default function LegalInfoPage() {
         {t("legalIntro")}
       </p>
 
-      <div className="mt-8 space-y-6">
-        <section className="rounded-lg border border-line bg-surface p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <BookOpenCheck className="h-4.5 w-4.5 text-accent-strong" aria-hidden />
-            {t("whatWeAreHeading")}
+      <div className="mt-8 divide-y divide-line">
+        <section className="py-7">
+          <h2 className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong">
+            <span className="inline-flex items-center gap-2">
+              <BookOpenCheck className="h-4 w-4 text-accent-strong" aria-hidden />
+              {t("whatWeAreHeading")}
+            </span>
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-70">
+          <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed text-ink-70">
             {t("whatWeAre")}
           </p>
         </section>
 
-        <section className="rounded-lg border border-line bg-surface p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <ShieldAlert className="h-4.5 w-4.5 text-status-caution" aria-hidden />
-            {t("whatWeAreNotHeading")}
+        <section className="py-7">
+          <h2 className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong">
+            <span className="inline-flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 text-seal" aria-hidden />
+              {t("whatWeAreNotHeading")}
+            </span>
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-70">
+          <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed text-ink-70">
             {t("whatWeAreNot")}
           </p>
         </section>
 
-        <section className="rounded-lg border border-line bg-surface p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <BadgeCheck className="h-4.5 w-4.5 text-status-success" aria-hidden />
-            {t("sourcesHeading")}
+        <section className="py-7">
+          <h2 className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong">
+            <span className="inline-flex items-center gap-2">
+              <BadgeCheck className="h-4 w-4 text-accent-strong" aria-hidden />
+              {t("sourcesHeading")}
+            </span>
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-70">
+          <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed text-ink-70">
             {t("sourcesBody")}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -55,26 +61,32 @@ export default function LegalInfoPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-surface p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <Phone className="h-4.5 w-4.5 text-accent-strong" aria-hidden />
-            {t("helpHeading")}
+        <section className="py-7">
+          <h2 className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong">
+            <span className="inline-flex items-center gap-2">
+              <Phone className="h-4 w-4 text-accent-strong" aria-hidden />
+              {t("helpHeading")}
+            </span>
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-70">
+          <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed text-ink-70">
             {t("helpBody")}
           </p>
         </section>
 
-        <section className="rounded-lg border border-line bg-surface p-6">
-          <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-            <Lock className="h-4.5 w-4.5 text-accent-strong" aria-hidden />
-            {t("privacyNoteHeading")}
+        <section className="py-7">
+          <h2 className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong">
+            <span className="inline-flex items-center gap-2">
+              <Lock className="h-4 w-4 text-accent-strong" aria-hidden />
+              {t("privacyNoteHeading")}
+            </span>
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-70">
+          <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed text-ink-70">
             {t("privacyNoteBody")}
           </p>
         </section>
+      </div>
 
+      <div className="mt-8">
         <DisclaimerBanner />
       </div>
     </div>

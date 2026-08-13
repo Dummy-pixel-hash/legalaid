@@ -74,7 +74,7 @@ export function HeroIntake() {
                       <button
                         type="button"
                         onClick={() => setText(lang === "hi" ? s.hi : s.en)}
-                        className="h-[34px] rounded-md border border-line bg-surface px-3.5 text-[13px] font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
+                        className="inline-flex min-h-10 items-center rounded-md border border-line bg-surface px-3.5 py-1.5 text-left text-[13px] leading-tight font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
                       >
                         {lang === "hi" ? s.labelHi : s.labelEn}
                       </button>

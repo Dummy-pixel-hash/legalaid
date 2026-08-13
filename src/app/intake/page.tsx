@@ -123,14 +123,16 @@ function IntakeClient() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-        01 · {t("stepSituation")}
+    <div className="p3-page mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+      <p className="p3-step flex items-baseline gap-1 text-xs font-semibold uppercase tracking-[0.08em] text-accent-strong">
+        <span className="p3-num font-doc text-base" aria-hidden>01</span>
+        <span>· {t("stepSituation")}</span>
       </p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+      <div className="p3-rule" aria-hidden />
+      <h1 className="p3-title mt-4 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
         {t("intakeTitle")}
       </h1>
-      <p className="mt-2 text-ink-70">{t("intakeSubtitle")}</p>
+      <p className="p3-sub mt-2 max-w-[52ch] text-ink-70">{t("intakeSubtitle")}</p>
 
       {params.get("demo") && (
         <p className="mt-4 flex items-center gap-2 rounded-md border border-line bg-surface-muted px-3 py-2 text-xs text-ink-70">
@@ -141,40 +143,40 @@ function IntakeClient() {
 
       {stage === "describe" ? (
         <form
-          className="mt-6 space-y-5"
+          className="v1-sheet mt-6 rounded-lg border border-line bg-surface p-6 sm:p-8"
+          style={{ boxShadow: "0 1px 2px rgba(27,36,54,0.06), 0 8px 24px rgba(27,36,54,0.08)" }}
           onSubmit={(e) => {
             e.preventDefault();
             onContinue();
           }}
         >
-          <div>
-            <Label htmlFor="intake-description" className="text-sm font-medium">
-              {t("describeLabel")}
-            </Label>
-            <Textarea
-              id="intake-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t("describePlaceholder")}
-              className="mt-2 min-h-[140px] text-base leading-relaxed"
-              autoFocus={!prefill.description}
-            />
-            {detected && !domain && (
-              <p className="mt-2 text-xs text-ink-70">
-                {lang === "hi" ? "लगता है यह" : "This looks like a"}{" "}
-                <span className="font-semibold text-accent-strong">
-                  {detected === "consumer"
-                    ? t("domainConsumer")
-                    : detected === "labour"
-                      ? t("domainLabour")
-                      : t("domainTenant")}
-                </span>{" "}
-                {lang === "hi" ? "मामला है।" : "matter."}
-              </p>
-            )}
-          </div>
+          <Label htmlFor="intake-description" className="v1-eyebrow">
+            {t("describeLabel")}
+          </Label>
+          <div className="v1-rule" aria-hidden />
+          <Textarea
+            id="intake-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t("describePlaceholder")}
+            className="v1-textarea text-base leading-relaxed"
+            autoFocus={!prefill.description}
+          />
+          {detected && !domain && (
+            <div className="v1-detect">
+              {lang === "hi" ? "लगता है यह" : "This looks like a"}{" "}
+              <span className="font-semibold text-accent-strong">
+                {detected === "consumer"
+                  ? t("domainConsumer")
+                  : detected === "labour"
+                    ? t("domainLabour")
+                    : t("domainTenant")}
+              </span>{" "}
+              {lang === "hi" ? "मामला है।" : "matter."}
+            </div>
+          )}
 
-          <div>
+          <div className="mt-5">
             <button
               type="button"
               onClick={() => setShowDetails((v) => !v)}
@@ -188,10 +190,11 @@ function IntakeClient() {
               {t("addDetails")}
             </button>
             {showDetails && (
-              <div className="mt-3 grid gap-4 rounded-lg border border-line bg-surface p-4 sm:grid-cols-2">
+              <div className="mt-3 grid gap-4 rounded-md border border-line bg-surface-muted p-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Label htmlFor="d-domain" className="text-xs text-ink-70">
-                    {t("domainField")} <span className="text-ink-30">({t("optional")})</span>
+                    {t("domainField")}{" "}
+                    <span className="text-ink-30">({t("optional")})</span>
                   </Label>
                   <Select
                     value={domain ?? "none"}
@@ -212,57 +215,53 @@ function IntakeClient() {
                 </div>
                 <div>
                   <Label htmlFor="d-state" className="text-xs text-ink-70">
-                    {t("stateField")} <span className="text-ink-30">({t("optional")})</span>
+                    {t("stateField")}{" "}
+                    <span className="text-ink-30">({t("optional")})</span>
                   </Label>
                   <Input
                     id="d-state"
                     value={details.state}
-                    onChange={(e) =>
-                      setDetails((d) => ({ ...d, state: e.target.value }))
-                    }
+                    onChange={(e) => setDetails((d) => ({ ...d, state: e.target.value }))}
                     placeholder={t("statePlaceholder")}
                     className="mt-1.5"
                   />
                 </div>
                 <div>
                   <Label htmlFor="d-amount" className="text-xs text-ink-70">
-                    {t("amountField")} <span className="text-ink-30">({t("optional")})</span>
+                    {t("amountField")}{" "}
+                    <span className="text-ink-30">({t("optional")})</span>
                   </Label>
                   <Input
                     id="d-amount"
                     inputMode="numeric"
                     value={details.amount}
-                    onChange={(e) =>
-                      setDetails((d) => ({ ...d, amount: e.target.value }))
-                    }
+                    onChange={(e) => setDetails((d) => ({ ...d, amount: e.target.value }))}
                     placeholder={t("amountPlaceholder")}
                     className="mt-1.5"
                   />
                 </div>
                 <div>
                   <Label htmlFor="d-party" className="text-xs text-ink-70">
-                    {t("otherPartyField")} <span className="text-ink-30">({t("optional")})</span>
+                    {t("otherPartyField")}{" "}
+                    <span className="text-ink-30">({t("optional")})</span>
                   </Label>
                   <Input
                     id="d-party"
                     value={details.otherParty}
-                    onChange={(e) =>
-                      setDetails((d) => ({ ...d, otherParty: e.target.value }))
-                    }
+                    onChange={(e) => setDetails((d) => ({ ...d, otherParty: e.target.value }))}
                     placeholder={t("otherPartyPlaceholder")}
                     className="mt-1.5"
                   />
                 </div>
                 <div>
                   <Label htmlFor="d-date" className="text-xs text-ink-70">
-                    {t("dateField")} <span className="text-ink-30">({t("optional")})</span>
+                    {t("dateField")}{" "}
+                    <span className="text-ink-30">({t("optional")})</span>
                   </Label>
                   <Input
                     id="d-date"
                     value={details.date}
-                    onChange={(e) =>
-                      setDetails((d) => ({ ...d, date: e.target.value }))
-                    }
+                    onChange={(e) => setDetails((d) => ({ ...d, date: e.target.value }))}
                     placeholder={t("dateFieldHint")}
                     className="mt-1.5"
                   />
@@ -275,7 +274,7 @@ function IntakeClient() {
             type="submit"
             size="lg"
             disabled={!description.trim()}
-            className="w-full sm:w-auto"
+            className="mt-5 w-full sm:w-auto"
           >
             {t("continue")}
             <ChevronRight className="h-4 w-4" aria-hidden />

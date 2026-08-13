@@ -9,24 +9,26 @@ export function RightsBlock({ analysis }: { analysis: CaseAnalysis }) {
   if (analysis.rights.length === 0) return null;
   return (
     <section>
-      <SectionMarker number="03" label={t("rightsHeading")} />
+      <SectionMarker
+        label={t("rightsHeading")}
+        className="font-doc text-[13px] font-semibold tracking-[0.02em] text-accent-strong"
+      />
       <p className="mt-1 text-sm text-ink-50">{t("rightsHint")}</p>
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+      <ul className="mt-5 space-y-6">
         {analysis.rights.map((right) => (
-          <li
-            key={right.id}
-            className="rounded-lg border border-line bg-surface p-4"
-          >
-            <h3 className="text-sm font-semibold text-ink">{right.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-ink-70">
+          <li key={right.id}>
+            <h3 className="text-[16px] font-semibold leading-snug text-ink">
+              {right.title}
+            </h3>
+            <p className="mt-1 text-[14.5px] leading-relaxed text-ink-70">
               {right.plain}
             </p>
             {right.linkedLaws.length > 0 && (
-              <p className="mt-2 text-[11px] text-ink-50">
+              <p className="mt-2 text-xs text-accent-strong">
                 {right.linkedLaws.map((id) => {
                   const law = analysis.laws.find((l) => l.id === id);
                   return law ? (
-                    <span key={id} className="mr-2 inline-block">
+                    <span key={id} className="mr-3 inline-block">
                       {law.act} {law.section}
                     </span>
                   ) : null;

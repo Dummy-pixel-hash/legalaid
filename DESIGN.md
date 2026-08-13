@@ -41,6 +41,12 @@ typography:
     fontWeight: 500
     letterSpacing: "0.08em"
     textTransform: "uppercase"
+  labelSerif:
+    fontFamily: "Source Serif 4, Noto Serif Devanagari, serif"
+    fontSize: "13px"
+    fontWeight: 600
+    letterSpacing: "0.02em"
+    textTransform: "none"
   doc:
     fontFamily: "Source Serif 4, Noto Serif Devanagari, serif"
     fontSize: "14.5px"

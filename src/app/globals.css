@@ -158,6 +158,102 @@
   background: #fbf8f1;
 }
 
+/* Intake situation sheet (signed-sheet variant) */
+.v1-sheet .v1-eyebrow {
+  font-family: var(--font-doc);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+.v1-sheet .v1-rule {
+  display: block;
+  height: 2px;
+  width: 100%;
+  margin: 6px 0 18px;
+  border-radius: 1px;
+  background: var(--ink);
+}
+.v1-sheet .v1-textarea {
+  min-height: 180px;
+}
+.v1-sheet .v1-detect {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-muted);
+  font-size: 12.5px;
+  color: var(--ink-70);
+}
+
+/* Analysis page — ruled sheet grid (promoted variant 2) */
+.lyt2-lead > * {
+  padding-bottom: 4px;
+}
+.lyt2-page div[class] > div {
+  min-width: 0;
+}
+
+/* Intake page — document-voice header (promoted variant 3) */
+.p3-step .p3-num {
+  font-family: var(--font-doc);
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: var(--ink-50);
+}
+.p3-rule {
+  display: block;
+  height: 2px;
+  width: 100%;
+  margin: 10px 0 0;
+  border-radius: 1px;
+  background: var(--ink);
+}
+.p3-title {
+  letter-spacing: -0.01em;
+}
+.p3-sub {
+  color: var(--ink-70);
+}
+
+/* Next steps — ruled checklist (promoted variant 1) */
+.bs1-list {
+  border-left: 1px solid var(--line);
+  padding-left: 0;
+  margin-left: 0;
+  list-style: none;
+}
+.bs1-list > li {
+  border-left: none;
+  border-radius: 0;
+  border-top: none;
+  border-right: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding-left: 18px;
+  margin-left: 12px;
+}
+.bs1-list > li > span:first-child {
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-doc);
+  font-size: 18px;
+  font-weight: 600;
+  width: 28px;
+  height: 28px;
+}
+.bs1-list > li:first-child {
+  border-top: 1px solid var(--line);
+}
+.bs1-list > li + li {
+  margin-top: 0;
+}
+.bs1-close {
+  background: var(--surface);
+}
+
 /* Print: only the document sheet */
 @media print {
   body {

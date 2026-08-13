@@ -65,21 +65,22 @@ function AnalysisClient({ caseId }: { caseId: string }) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <p className="text-xs font-medium uppercase tracking-[0.08em] text-ink-50">
-        02 · {t("stepAnalysis")}
-      </p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-        {t("analysisTitle")}
-      </h1>
-      <p className="mt-2 text-ink-70">{t("analysisSubtitle")}</p>
+      <header>
+        <h1 className="text-3xl font-semibold tracking-tight text-ink">
+          {t("analysisTitle")}
+        </h1>
+        <p className="mt-3 max-w-[56ch] text-[15.5px] leading-relaxed text-ink-70">
+          {t("analysisSubtitle")}
+        </p>
+      </header>
 
-      <div className="mt-8 space-y-8">
-        <UnderstandingBlock analysis={analysis} caseId={caseId} />
-        <IssuesBlock analysis={analysis} />
-        <RightsBlock analysis={analysis} />
-        <LawsBlock analysis={analysis} />
-        <UncertaintyBlock analysis={analysis} />
-        <DisclaimerBanner text={analysis.disclaimer} />
+      <div className="mt-2 divide-y divide-line">
+        <div className="py-8"><UnderstandingBlock analysis={analysis} caseId={caseId} /></div>
+        <div className="py-8"><IssuesBlock analysis={analysis} /></div>
+        <div className="py-8"><RightsBlock analysis={analysis} /></div>
+        <div className="py-8"><LawsBlock analysis={analysis} /></div>
+        <div className="py-8"><UncertaintyBlock analysis={analysis} /></div>
+        <div className="py-8"><DisclaimerBanner text={analysis.disclaimer} /></div>
       </div>
 
       <div className="mt-10 border-t border-line pt-6">
