@@ -154,6 +154,9 @@ export const hi: Dictionary = {
   confidenceAi: "AI की व्याख्या",
   disclaimerHeading: "कृपया यह पढ़ें",
   nextEvidence: "आगे: अपने सबूत जुटाएँ",
+  devProviderBadge: "डेवलपमेंट प्रीव्यू",
+  devProviderNotice:
+    "यह विश्लेषण डेवलपमेंट प्रोवाइडर द्वारा डेमो डेटा से बनाया गया है, प्रशिक्षित LegalAId मॉडल से नहीं। इसे उत्पाद प्रीव्यू समझें — किसी भी कानूनी दावे की पुष्टि किसी विशेषज्ञ या विश्वसनीय स्रोत से करें।",
 
   evidenceTitle: "सबूत चेकलिस्ट",
   evidenceSubtitle: "झगड़े का फ़ैसला सबूत से होता है। समय से पहले जुटाएँ और रखें — स्क्रीनशॉट भी चलते हैं।",
@@ -165,6 +168,11 @@ export const hi: Dictionary = {
   notePlaceholder: "नोट जोड़ें (कहाँ है, किसके पास है)…",
   evidenceAllReviewed: "आपने अपने सबूत देख लिए हैं।",
   evidenceNext: "आगे: आपकी कार्य-योजना",
+  evidenceAddTitle: "अपना सबूत जोड़ें",
+  evidenceAddLabel: "यह क्या है?",
+  evidenceAddWhy: "यह क्यों ज़रूरी है",
+  evidenceAddButton: "सबूत जोड़ें",
+  evidenceRemove: "हटाएँ",
 
   stepsTitle: "अगले कदम",
   stepsSubtitle: "काम का साफ़ क्रम। ये सामान्य सुझाव हैं — हर स्थिति अलग है।",

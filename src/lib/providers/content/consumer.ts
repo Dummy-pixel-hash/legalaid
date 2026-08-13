@@ -3,28 +3,22 @@
  * Built from the verified source registry; user facts injected where relevant.
  */
 
-import { LEGAL_SOURCES } from "@/lib/legal/sources";
+import { getLocalSource } from "@/lib/providers/legal-source";
 import type {
   CaseAnalysis,
   IntakeData,
   Language,
   LawReference,
 } from "@/lib/types/domain";
-import {
-  disclaimerFor,
-  factLines,
-  formatMoney,
-  summarize,
-  todayLabel,
-} from "./shared";
+import { buildConsumerDocument } from "./document";
+import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
   lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
-  const src = LEGAL_SOURCES.find((s) => s.id === id);
-  if (!src) throw new Error(`Unknown legal source: ${id}`);
+  const src = getLocalSource(id);
   return {
     id,
     act: src.act,
@@ -189,40 +183,37 @@ export function buildConsumerAnalysis(ctx: {
   const evidence = [
     {
       id: "invoice",
-      label: hi ? "ऑर्डर रसीद / इन्वॉइस" : "Order receipt / invoice",
-      why: hi
-        ? "खरीद की तारीख़, कीमत और विक्रेता का नाम साबित करती है।"
-        : "Proves the purchase date, price, and seller.",
+      label: { en: "Order receipt / invoice", hi: "ऑर्डर रसीद / इन्वॉइस" },
+      why: { en: "Proves the purchase date, price, and seller.", hi: "खरीद की तारीख़, कीमत और विक्रेता का नाम साबित करती है।" },
     },
     {
       id: "warranty",
-      label: hi ? "वारंटी कार्ड / शर्तें" : "Warranty card / policy",
-      why: hi ? "वारंटी अवधि और उसकी शर्तें दिखाता है।" : "Shows the warranty period and its terms.",
+      label: { en: "Warranty card / policy", hi: "वारंटी कार्ड / शर्तें" },
+      why: { en: "Shows the warranty period and its terms.", hi: "वारंटी अवधि और उसकी शर्तें दिखाता है।" },
     },
     {
       id: "service-reports",
-      label: hi ? "सर्विस विज़िट रिपोर्ट / तकनीशियन नोट्स" : "Service visit reports / technician notes",
-      why: hi ? "दोष का रिकॉर्ड और उसे ठीक करने की कोशिशें साबित करते हैं।" : "Record the defect and attempts to fix it.",
+      label: { en: "Service visit reports / technician notes", hi: "सर्विस विज़िट रिपोर्ट / तकनीशियन नोट्स" },
+      why: { en: "Record the defect and attempts to fix it.", hi: "दोष का रिकॉर्ड और उसे ठीक करने की कोशिशें साबित करते हैं।" },
     },
     {
       id: "complaints",
-      label: hi ? "विक्रेता/ब्रांड को लिखी शिकायतें" : "Written complaints to seller/brand",
-      why: hi ? "तारीख़ के साथ दिखाता है कि आपने मदद माँगी और जवाब नहीं मिला।" : "Dated record that you asked for help and were refused.",
+      label: { en: "Written complaints to seller/brand", hi: "विक्रेता/ब्रांड को लिखी शिकायतें" },
+      why: { en: "Dated record that you asked for help and were refused.", hi: "तारीख़ के साथ दिखाता है कि आपने मदद माँगी और जवाब नहीं मिला।" },
     },
     {
       id: "photos",
-      label: hi ? "दोष के फोटो/वीडियो" : "Photos/videos of the defect",
-      why: hi ? "खराबी का दृश्य सबूत — समय पर लें, सबसे ज़रूरी।" : "Visual proof of the defect — take these now.",
+      label: { en: "Photos/videos of the defect", hi: "दोष के फोटो/वीडियो" },
+      why: { en: "Visual proof of the defect — take these now.", hi: "खराबी का दृश्य सबूत — समय पर लें, सबसे ज़रूरी।" },
     },
     {
       id: "bank-statement",
-      label: hi ? "बैंक/UPI स्टेटमेंट" : "Bank/UPI statement",
-      why: hi ? "₹18,500 का भुगतान साबित करता है।" : "Proves the payment.",
+      label: { en: "Bank/UPI statement", hi: "बैंक/UPI स्टेटमेंट" },
+      why: { en: "Proves the payment.", hi: "₹18,500 का भुगतान साबित करता है।" },
     },
   ].map((e) => ({
     ...e,
     status: "unset" as const,
-    why: hi ? e.why : e.why,
   }));
 
   const steps = [
@@ -286,55 +277,7 @@ export function buildConsumerAnalysis(ctx: {
     },
   ];
 
-  const money = amt || "₹18,500";
-
-  const document = {
-    type: "legal-notice" as const,
-    title: hi
-      ? "वारंटी में खराब उत्पाद के लिए कानूनी नोटिस — बदलने/रिफ़ंड की माँग"
-      : "LEGAL NOTICE FOR DEFECTIVE PRODUCT WITHIN WARRANTY — REPLACEMENT/REFUND",
-    date: todayLabel(lang),
-    fromParty: hi ? "[आपका नाम और पता]" : "[Your name and address]",
-    toParty: intake.otherParty || (hi ? "[विक्रेता/निर्माता का नाम और पता]" : "[Seller/Manufacturer name and address]"),
-    subject: hi
-      ? `विषय: ${money} में खरीदे गए उत्पाद की मरम्मत/बदलने या रिफ़ंड की माँग`
-      : `SUBJECT: DEMAND FOR REPAIR/REPLACEMENT OR REFUND OF THE PRODUCT PURCHASED FOR ${money}`,
-    sections: [
-      {
-        heading: hi ? "तथ्य" : "FACTS",
-        body: hi
-          ? `${summarize(intake.description)}${partyClause} उत्पाद वारंटी अवधि में खराब हो गया और मरम्मत/बदलने/रिफ़ंड के अनुरोध के बावजूद कोई समाधान नहीं मिला।`
-          : `${summarize(intake.description)}${partyClause} The product failed within the warranty period and, despite requests, no repair/replacement/refund was provided.`,
-      },
-      {
-        heading: hi ? "दोष" : "THE DEFECT",
-        body: hi
-          ? "उत्पाद ने बताई गई गुणवत्ता/मानक पूरे नहीं किए। दोष के रिकॉर्ड (सर्विस रिपोर्ट, फोटो) संलग्न हैं।"
-          : "The product failed to meet the promised quality/standard. Records of the defect (service reports, photographs) are enclosed.",
-      },
-      {
-        heading: hi ? "कानूनी संदर्भ" : "LEGAL REFERENCE",
-        body: hi
-          ? "उपभोक्ता संरक्षण अधिनियम, 2019 (धारा 2(7), 2(42), 35, 39); उपभोक्ता संरक्षण (ई-कॉमर्स) नियम, 2020।"
-          : "Consumer Protection Act, 2019 (Sections 2(7), 2(42), 35, 39); Consumer Protection (E-Commerce) Rules, 2020.",
-      },
-      {
-        heading: hi ? "माँग" : "DEMAND",
-        body: hi
-          ? `इस नोटिस की प्राप्ति के 15 दिनों के भीतर उत्पाद बदलने या ${money} रिफ़ंड करें। विफलता पर उपभोक्ता आयोग में शिकायत दर्ज की जाएगी।`
-          : `Within 15 days of receipt, replace the product or refund ${money}. Failing this, a consumer complaint will be filed before the District Commission.`,
-      },
-    ],
-    legalReferences: [
-      "Consumer Protection Act, 2019 — §§2(7), 2(10), 2(42), 35, 39",
-      "Consumer Protection (E-Commerce) Rules, 2020 — Rules 4, 6",
-    ],
-    remedy: hi
-      ? `उत्पाद का बदलना, या ${money} की राशि का रिफ़ंड, और हुए नुकसान का मुआवज़ा।`
-      : `Replacement of the product, or a refund of ${money}, plus compensation for the loss caused.`,
-    signature: { name: "[Your name]", role: hi ? "[आपका पता और संपर्क]" : "[Your address and contact]" },
-    language: lang,
-  };
+  const document = buildConsumerDocument(intake, lang);
 
   return {
     id,

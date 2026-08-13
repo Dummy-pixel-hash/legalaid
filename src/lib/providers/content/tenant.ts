@@ -2,28 +2,22 @@
  * Tenant domain — mock analysis content (en + hi).
  */
 
-import { LEGAL_SOURCES } from "@/lib/legal/sources";
+import { getLocalSource } from "@/lib/providers/legal-source";
 import type {
   CaseAnalysis,
   IntakeData,
   Language,
   LawReference,
 } from "@/lib/types/domain";
-import {
-  disclaimerFor,
-  factLines,
-  formatMoney,
-  summarize,
-  todayLabel,
-} from "./shared";
+import { buildTenantDocument } from "./document";
+import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
   lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
-  const src = LEGAL_SOURCES.find((s) => s.id === id);
-  if (!src) throw new Error(`Unknown legal source: ${id}`);
+  const src = getLocalSource(id);
   return {
     id,
     act: src.act,
@@ -195,33 +189,33 @@ export function buildTenantAnalysis(ctx: {
   const evidence = [
     {
       id: "receipts",
-      label: hi ? "किराए की रसीदें" : "Rent receipts",
-      why: hi ? "किरायेदारी और डिपॉज़िट साबित करती हैं।" : "Prove the tenancy and the deposit.",
+      label: { en: "Rent receipts", hi: "किराए की रसीदें" },
+      why: { en: "Prove the tenancy and the deposit.", hi: "किरायेदारी और डिपॉज़िट साबित करती हैं।" },
     },
     {
       id: "whatsapp",
-      label: hi ? "व्हाट्सएप संदेश (डिपॉज़िट, खाली करना)" : "WhatsApp messages (deposit, move-out)",
-      why: hi ? "शर्तों और सूचना का रिकॉर्ड — स्क्रीनशॉट लें।" : "Record of terms and notice — screenshot now.",
+      label: { en: "WhatsApp messages (deposit, move-out)", hi: "व्हाट्सएप संदेश (डिपॉज़िट, खाली करना)" },
+      why: { en: "Record of terms and notice — screenshot now.", hi: "शर्तों और सूचना का रिकॉर्ड — स्क्रीनशॉट लें।" },
     },
     {
       id: "transfers",
-      label: hi ? "डिपॉज़िट के बैंक/UPI ट्रांसफर" : "Bank/UPI transfers of the deposit",
-      why: hi ? "डिपॉज़िट की राशि और तारीख़ साबित करते हैं।" : "Prove the deposit amount and date.",
+      label: { en: "Bank/UPI transfers of the deposit", hi: "डिपॉज़िट के बैंक/UPI ट्रांसफर" },
+      why: { en: "Prove the deposit amount and date.", hi: "डिपॉज़िट की राशि और तारीख़ साबित करते हैं।" },
     },
     {
       id: "moveout-photos",
-      label: hi ? "खाली करते समय फ्लैट की स्थिति के फोटो" : "Move-out photos of the flat's condition",
-      why: hi ? "'कोई नुकसान नहीं' साबित करने के लिए सबसे ज़रूरी।" : "The strongest proof that there was no damage.",
+      label: { en: "Move-out photos of the flat's condition", hi: "खाली करते समय फ्लैट की स्थिति के फोटो" },
+      why: { en: "The strongest proof that there was no damage.", hi: "'कोई नुकसान नहीं' साबित करने के लिए सबसे ज़रूरी।" },
     },
     {
       id: "agreement",
-      label: hi ? "कोई लिखित समझौता" : "Any written agreement",
-      why: hi ? "न होने पर भी ढूँढ़ें — मसौदा या ईमेल भी चलेगा।" : "Look even if missing — a draft or email works.",
+      label: { en: "Any written agreement", hi: "कोई लिखित समझौता" },
+      why: { en: "Look even if missing — a draft or email works.", hi: "न होने पर भी ढूँढ़ें — मसौदा या ईमेल भी चलेगा।" },
     },
     {
       id: "notices",
-      label: hi ? "मिली हुई कोई सूचना" : "Any notices received",
-      why: hi ? "मकान मालिक के दावों का रिकॉर्ड।" : "Records of the landlord's claims.",
+      label: { en: "Any notices received", hi: "मिली हुई कोई सूचना" },
+      why: { en: "Records of the landlord's claims.", hi: "मकान मालिक के दावों का रिकॉर्ड।" },
     },
   ].map((e) => ({
     ...e,
@@ -286,54 +280,7 @@ export function buildTenantAnalysis(ctx: {
     },
   ];
 
-  const document = {
-    type: "legal-notice" as const,
-    title: hi
-      ? "सिक्योरिटी डिपॉज़िट की वापसी के लिए कानूनी नोटिस"
-      : "LEGAL NOTICE FOR REFUND OF SECURITY DEPOSIT",
-    date: todayLabel(lang),
-    fromParty: hi ? "[आपका नाम और पता]" : "[Your name and address]",
-    toParty: intake.otherParty || (hi ? "[मकान मालिक का नाम और पता]" : "[Landlord name and address]"),
-    subject: hi
-      ? `विषय: ${money} सिक्योरिटी डिपॉज़िट की वापसी की माँग`
-      : `SUBJECT: DEMAND FOR REFUND OF SECURITY DEPOSIT OF ${money}`,
-    sections: [
-      {
-        heading: hi ? "किरायेदारी" : "TENANCY",
-        body: hi
-          ? `${summarize(intake.description)}${partyClause} किरायेदारी उचित सूचना के बाद समाप्त हुई।`
-          : `${summarize(intake.description)}${partyClause} The tenancy ended after proper notice.`,
-      },
-      {
-        heading: hi ? "डिपॉज़िट" : "THE DEPOSIT",
-        body: hi
-          ? `${money} की सिक्योरिटी राशि जमा की गई। फ्लैट उसी हालत में लौटाया गया; कोई आइटमाइज़्ड कटौती नहीं दी गई।`
-          : `A security deposit of ${money} was paid. The flat was handed back in the same condition; no itemized deductions were provided.`,
-      },
-      {
-        heading: hi ? "कानूनी संदर्भ" : "LEGAL REFERENCE",
-        body: hi
-          ? "संपत्ति अंतरण अधिनियम, 1882 (§§105, 106, 108, 111); भारतीय अनुबंध अधिनियम, 1872 (§73)। राज्य के किराया कानून लागू हो सकते हैं।"
-          : "Transfer of Property Act, 1882 (§§105, 106, 108, 111); Indian Contract Act, 1872 (§73). State rent law may also apply.",
-      },
-      {
-        heading: hi ? "माँग" : "DEMAND",
-        body: hi
-          ? `इस नोटिस की प्राप्ति के 15 दिनों के भीतर ${money} लौटाएँ और किसी कटौती का आइटमाइज़्ड हिसाब दें। विफलता पर उचित कानूनी कार्यवाही की जाएगी।`
-          : `Within 15 days of receipt, refund ${money} and provide an itemized account of any deductions. Failing this, appropriate legal proceedings will follow.`,
-      },
-    ],
-    legalReferences: [
-      "Transfer of Property Act, 1882 — §§105, 106, 108, 111",
-      "Indian Contract Act, 1872 — §73",
-      "State rent law (verify with legal aid)",
-    ],
-    remedy: hi
-      ? `${money} सिक्योरिटी डिपॉज़िट की वापसी।`
-      : `Refund of the security deposit of ${money}.`,
-    signature: { name: "[Your name]", role: hi ? "[आपका पता और संपर्क]" : "[Your address and contact]" },
-    language: lang,
-  };
+  const document = buildTenantDocument(intake, lang);
 
   return {
     id,

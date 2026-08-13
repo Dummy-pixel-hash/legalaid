@@ -1,5 +1,6 @@
 "use client";
 
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,28 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingAnalysis } from "@/components/analysis/LoadingAnalysis";
 import { EvidenceRow } from "@/components/evidence/EvidenceRow";
 
-export default async function EvidencePage({
+export default function EvidencePage({
   params,
 }: {
   params: Promise<{ caseId: string }>;
 }) {
-  const { caseId } = await params;
+  const { caseId } = use(params);
   return <EvidenceClient caseId={caseId} />;
 }
 
 function EvidenceClient({ caseId }: { caseId: string }) {
   const { t, lang } = useI18n();
   const router = useRouter();
-  const { record, analysis, updateEvidence } = useCase(caseId, lang);
+  const {
+    record,
+    analysis,
+    updateEvidence,
+    addCustomEvidence,
+    updateCustomEvidence,
+    removeCustomEvidence,
+  } = useCase(caseId, lang);
+  const [newLabel, setNewLabel] = useState("");
+  const [newWhy, setNewWhy] = useState("");
 
   if (!record) return null;
   if (record.status === "analyzing") {
@@ -35,6 +45,8 @@ function EvidenceClient({ caseId }: { caseId: string }) {
   if (record.status === "error") return <ErrorState onRetry={() => router.refresh()} />;
   if (!analysis) return <EmptyState />;
 
+  const custom = record.overrides.customEvidence;
+  const customIds = new Set(custom.map((c) => c.id));
   const items = analysis.evidence;
   const have = items.filter((i) => i.status === "have").length;
   const find = items.filter((i) => i.status === "need-to-find").length;
@@ -80,15 +92,93 @@ function EvidenceClient({ caseId }: { caseId: string }) {
       </div>
 
       <ul className="mt-6 space-y-3">
-        {items.map((item) => (
-          <EvidenceRow
-            key={item.id}
-            item={item}
-            onStatus={(status) => updateEvidence(caseId, item.id, { status })}
-            onNote={(note) => updateEvidence(caseId, item.id, { note })}
-          />
-        ))}
+        {items.map((item) =>
+          customIds.has(item.id) ? (
+            <li key={item.id} className="space-y-2">
+              <EvidenceRow
+                item={item}
+                onStatus={(status) =>
+                  updateCustomEvidence(caseId, item.id, { status })
+                }
+                onNote={(note) =>
+                  updateCustomEvidence(caseId, item.id, { note })
+                }
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => removeCustomEvidence(caseId, item.id)}
+                  className="text-xs font-medium text-ink-50 underline underline-offset-2 hover:text-accent-strong"
+                >
+                  {t("evidenceRemove")}
+                </button>
+              </div>
+            </li>
+          ) : (
+            <EvidenceRow
+              key={item.id}
+              item={item}
+              onStatus={(status) => updateEvidence(caseId, item.id, { status })}
+              onNote={(note) => updateEvidence(caseId, item.id, { note })}
+            />
+          ),
+        )}
       </ul>
+
+      <form
+        className="mt-6 rounded-lg border border-dashed border-line bg-surface p-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const label = newLabel.trim();
+          const why = newWhy.trim();
+          if (!label) return;
+          addCustomEvidence(caseId, {
+            id:
+              typeof crypto !== "undefined" && "randomUUID" in crypto
+                ? crypto.randomUUID()
+                : `ev-${Date.now()}`,
+            label: { [lang]: label },
+            why: { [lang]: why },
+            status: "need-to-find",
+            note: "",
+          });
+          setNewLabel("");
+          setNewWhy("");
+        }}
+      >
+        <p className="text-sm font-medium text-ink">{t("evidenceAddTitle")}</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="text-xs font-medium text-ink-50">
+              {t("evidenceAddLabel")}
+            </span>
+            <input
+              type="text"
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder={t("evidenceAddLabel")}
+              className="mt-1 w-full rounded-md border border-line bg-background px-3 py-2 text-xs text-ink placeholder:text-ink-30 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-ink-50">
+              {t("evidenceAddWhy")}
+            </span>
+            <input
+              type="text"
+              value={newWhy}
+              onChange={(e) => setNewWhy(e.target.value)}
+              placeholder={t("evidenceAddWhy")}
+              className="mt-1 w-full rounded-md border border-line bg-background px-3 py-2 text-xs text-ink placeholder:text-ink-30 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20"
+            />
+          </label>
+        </div>
+        <div className="mt-3">
+          <Button type="submit" size="sm">
+            {t("evidenceAddButton")}
+          </Button>
+        </div>
+      </form>
 
       <div className="mt-10 border-t border-line pt-6">
         <Button size="lg" onClick={() => router.push(`/case/${caseId}/next-steps`)}>

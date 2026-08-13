@@ -162,6 +162,9 @@ export const en = {
   confidenceAi: "AI interpretation",
   disclaimerHeading: "Please read this",
   nextEvidence: "Next: gather your evidence",
+  devProviderBadge: "Development preview",
+  devProviderNotice:
+    "This analysis was produced by the development provider using demo data, not the trained LegalAId model. Treat it as a product preview — verify any legal claim with an expert or a verified source.",
 
   // ── Evidence ────────────────────────────────────────────────────
   evidenceTitle: "Evidence checklist",
@@ -175,6 +178,11 @@ export const en = {
   notePlaceholder: "Add a note (where it is, who has it)…",
   evidenceAllReviewed: "You've reviewed your evidence.",
   evidenceNext: "Next: your action plan",
+  evidenceAddTitle: "Add your own evidence",
+  evidenceAddLabel: "What is it?",
+  evidenceAddWhy: "Why it matters",
+  evidenceAddButton: "Add evidence",
+  evidenceRemove: "Remove",
 
   // ── Next steps ──────────────────────────────────────────────────
   stepsTitle: "Next steps",

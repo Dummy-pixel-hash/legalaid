@@ -4,7 +4,8 @@
  */
 
 import type { CaseAnalysis, IntakeData, Language } from "@/lib/types/domain";
-import { disclaimerFor, factLines, summarize, todayLabel } from "./shared";
+import { buildGenericDocument } from "./document";
+import { disclaimerFor, factLines, summarize } from "./shared";
 
 export function buildGenericAnalysis(ctx: {
   intake: IntakeData;
@@ -53,20 +54,20 @@ export function buildGenericAnalysis(ctx: {
     evidence: [
       {
         id: "messages",
-        label: hi ? "संदेश/ईमेल (स्क्रीनशॉट)" : "Messages/emails (screenshots)",
-        why: hi ? "किसी भी मामले में बातचीत का रिकॉर्ड काम आता है।" : "Conversation records help in any case.",
+        label: { en: "Messages/emails (screenshots)", hi: "संदेश/ईमेल (स्क्रीनशॉट)" },
+        why: { en: "Conversation records help in any case.", hi: "किसी भी मामले में बातचीत का रिकॉर्ड काम आता है।" },
         status: "unset" as const,
       },
       {
         id: "payments",
-        label: hi ? "भुगतान/लेन-देन के सबूत" : "Payment/transaction proofs",
-        why: hi ? "राशि और तारीख़ें साबित करते हैं।" : "Prove amounts and dates.",
+        label: { en: "Payment/transaction proofs", hi: "भुगतान/लेन-देन के सबूत" },
+        why: { en: "Prove amounts and dates.", hi: "राशि और तारीख़ें साबित करते हैं।" },
         status: "unset" as const,
       },
       {
         id: "documents",
-        label: hi ? "कोई भी लिखित दस्तावेज़" : "Any written documents",
-        why: hi ? "समझौते, रसीदें, पत्र — सब रखें।" : "Agreements, receipts, letters — keep them all.",
+        label: { en: "Any written documents", hi: "कोई भी लिखित दस्तावेज़" },
+        why: { en: "Agreements, receipts, letters — keep them all.", hi: "समझौते, रसीदें, पत्र — सब रखें।" },
         status: "unset" as const,
       },
     ],
@@ -103,34 +104,7 @@ export function buildGenericAnalysis(ctx: {
         effort: "moderate" as const,
       },
     ],
-    document: {
-      type: "other" as const,
-      title: hi ? "दस्तावेज़" : "DOCUMENT",
-      date: todayLabel(lang),
-      fromParty: "[Your name and address]",
-      toParty: hi ? "[दूसरे पक्ष का नाम और पता]" : "[Other party name and address]",
-      subject: hi
-        ? "विषय: मामले के समाधान के लिए अनुरोध"
-        : "SUBJECT: REQUEST FOR RESOLUTION",
-      sections: [
-        {
-          heading: hi ? "पृष्ठभूमि" : "BACKGROUND",
-          body: hi
-            ? `${summarize(intake.description)} हम इस मामले को सौहार्दपूर्ण ढंग से सुलझाना चाहते हैं।`
-            : `${summarize(intake.description)} We wish to resolve this matter amicably.`,
-        },
-        {
-          heading: hi ? "अनुरोध" : "REQUEST",
-          body: hi
-            ? "कृपया 15 दिनों के भीतर उपर्युक्त मामले का समाधान करें।"
-            : "Please resolve the above matter within 15 days.",
-        },
-      ],
-      legalReferences: [],
-      remedy: hi ? "मामले का समाधान / उचित राहत।" : "Resolution of the matter / appropriate relief.",
-      signature: { name: "[Your name]", role: "[Your address and contact]" },
-      language: lang,
-    },
+    document: buildGenericDocument(intake, lang),
     disclaimer: disclaimerFor(lang),
     generatedAt: new Date().toISOString(),
   };

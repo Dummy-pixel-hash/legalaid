@@ -6,6 +6,7 @@
 
 import type {
   CaseAnalysis,
+  DocumentData,
   Domain,
   IntakeData,
   Language,
@@ -17,6 +18,7 @@ import { buildConsumerAnalysis } from "./content/consumer";
 import { buildLabourAnalysis } from "./content/labour";
 import { buildTenantAnalysis } from "./content/tenant";
 import { buildGenericAnalysis } from "./content/generic";
+import { buildDocumentForDomain } from "./content/document";
 
 const STAGE_DELAY_MS: Record<Progress["stage"], number> = {
   reading: 700,
@@ -32,6 +34,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
   id = "mock";
+  isDevelopment = true;
 
   async analyze(
     intake: IntakeData,
@@ -70,10 +73,14 @@ export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
     return build({ intake, lang, id });
   }
 
-  async generateDocument(): Promise<never> {
-    // The mock analysis already includes the document; regeneration is a no-op
-    // in this provider (kept for interface parity with future providers).
-    throw new Error("Mock provider: use analysis.document");
+  async generateDocument(ctx: {
+    analysis: CaseAnalysis;
+    intake: IntakeData;
+    lang: Language;
+    edits?: Partial<DocumentData>;
+  }): Promise<DocumentData> {
+    const base = buildDocumentForDomain(ctx.analysis.domain, ctx.intake, ctx.lang);
+    return { ...base, ...(ctx.edits ?? {}) };
   }
 
   detectDomain(text: string): Domain | undefined {

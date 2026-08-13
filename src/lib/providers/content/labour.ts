@@ -2,28 +2,22 @@
  * Labour domain — mock analysis content (en + hi).
  */
 
-import { LEGAL_SOURCES } from "@/lib/legal/sources";
+import { getLocalSource } from "@/lib/providers/legal-source";
 import type {
   CaseAnalysis,
   IntakeData,
   Language,
   LawReference,
 } from "@/lib/types/domain";
-import {
-  disclaimerFor,
-  factLines,
-  formatMoney,
-  summarize,
-  todayLabel,
-} from "./shared";
+import { buildLabourDocument } from "./document";
+import { disclaimerFor, factLines, formatMoney, summarize } from "./shared";
 
 function law(
   id: string,
   lang: Language,
   whyApplies: { en: string; hi: string },
 ): LawReference {
-  const src = LEGAL_SOURCES.find((s) => s.id === id);
-  if (!src) throw new Error(`Unknown legal source: ${id}`);
+  const src = getLocalSource(id);
   return {
     id,
     act: src.act,
@@ -198,35 +192,33 @@ export function buildLabourAnalysis(ctx: {
   const evidence = [
     {
       id: "bank-statement",
-      label: hi ? "बैंक स्टेटमेंट (वेतन जमा)" : "Bank statement (salary credits)",
-      why: hi
-        ? "रोज़गार और वेतन रुकने की तारीख़ साबित करता है।"
-        : "Proves the employment and when payments stopped.",
+      label: { en: "Bank statement (salary credits)", hi: "बैंक स्टेटमेंट (वेतन जमा)" },
+      why: { en: "Proves the employment and when payments stopped.", hi: "रोज़गार और वेतन रुकने की तारीख़ साबित करता है।" },
     },
     {
       id: "whatsapp",
-      label: hi ? "व्हाट्सएप हाज़िरी/रोस्टर संदेश" : "WhatsApp attendance/roster messages",
-      why: hi ? "काम करने के सबूत — तुरंत स्क्रीनशॉट लें।" : "Proof of work — screenshot these now.",
+      label: { en: "WhatsApp attendance/roster messages", hi: "व्हाट्सएप हाज़िरी/रोस्टर संदेश" },
+      why: { en: "Proof of work — screenshot these now.", hi: "काम करने के सबूत — तुरंत स्क्रीनशॉट लें।" },
     },
     {
       id: "id-card",
-      label: hi ? "पहचान पत्र / बैज" : "ID card / work badge",
-      why: hi ? "रोज़गार की पहचान।" : "Identifies the employment.",
+      label: { en: "ID card / work badge", hi: "पहचान पत्र / बैज" },
+      why: { en: "Identifies the employment.", hi: "रोज़गार की पहचान।" },
     },
     {
       id: "pay-slips",
-      label: hi ? "पिछले महीनों की सैलरी स्लिप" : "Pay slips for paid months",
-      why: hi ? "वेतन दर और पैटर्न दिखाती हैं।" : "Show the wage rate and pattern.",
+      label: { en: "Pay slips for paid months", hi: "पिछले महीनों की सैलरी स्लिप" },
+      why: { en: "Show the wage rate and pattern.", hi: "वेतन दर और पैटर्न दिखाती हैं।" },
     },
     {
       id: "appointment",
-      label: hi ? "कोई भी नियुक्ति/ऑफ़र पत्र" : "Any appointment/offer letter",
-      why: hi ? "न होने पर भी कोशिश करें — हो सकता है कोई प्रति मिले।" : "Even if missing, look for a copy.",
+      label: { en: "Any appointment/offer letter", hi: "कोई भी नियुक्ति/ऑफ़र पत्र" },
+      why: { en: "Even if missing, look for a copy.", hi: "न होने पर भी कोशिश करें — हो सकता है कोई प्रति मिले।" },
     },
     {
       id: "work-photos",
-      label: hi ? "कार्य स्थल के फोटो + सहकर्मियों के संपर्क" : "Work-site photos + colleagues' contacts",
-      why: hi ? "रोज़गार की पुष्टि के लिए गवाह।" : "Witnesses to corroborate the employment.",
+      label: { en: "Work-site photos + colleagues' contacts", hi: "कार्य स्थल के फोटो + सहकर्मियों के संपर्क" },
+      why: { en: "Witnesses to corroborate the employment.", hi: "रोज़गार की पुष्टि के लिए गवाह।" },
     },
   ].map((e) => ({
     ...e,
@@ -302,55 +294,7 @@ export function buildLabourAnalysis(ctx: {
     },
   ];
 
-  const document = {
-    type: "legal-notice" as const,
-    title: hi
-      ? "अवैतनिक वेतन के भुगतान के लिए कानूनी नोटिस"
-      : "LEGAL NOTICE FOR PAYMENT OF UNPAID WAGES",
-    date: todayLabel(lang),
-    fromParty: hi ? "[आपका नाम और पता]" : "[Your name and address]",
-    toParty: intake.otherParty || (hi ? "[नियोक्ता का नाम और पता]" : "[Employer name and address]"),
-    subject: hi
-      ? `विषय: ${money} अवैतनिक वेतन के भुगतान की माँग`
-      : `SUBJECT: DEMAND FOR PAYMENT OF UNPAID WAGES OF ${money}`,
-    sections: [
-      {
-        heading: hi ? "रोज़गार" : "EMPLOYMENT",
-        body: hi
-          ? `${summarize(intake.description)}${partyClause} मैंने काम किया और काम के बदले वेतन देय हुआ।`
-          : `${summarize(intake.description)}${partyClause} I performed work for which wages became due.`,
-      },
-      {
-        heading: hi ? "अवैतनिक वेतन" : "UNPAID WAGES",
-        body: hi
-          ? `पिछले महीनों का वेतन, कुल ${money}, समय पर भुगतान नहीं किया गया।`
-          : `Wages for the last months, totalling ${money}, have not been paid on time.`,
-      },
-      {
-        heading: hi ? "कानूनी संदर्भ" : "LEGAL REFERENCE",
-        body: hi
-          ? "Code on Wages, 2019 (§17–18); Payment of Wages Act, 1936 (§5); Industrial Disputes Act, 1947 (§33C(2)); Minimum Wages Act, 1948 (§12)।"
-          : "Code on Wages, 2019 (§§17–18); Payment of Wages Act, 1936 (§5); Industrial Disputes Act, 1947 (§33C(2)); Minimum Wages Act, 1948 (§12).",
-      },
-      {
-        heading: hi ? "माँग" : "DEMAND",
-        body: hi
-          ? `इस नोटिस की प्राप्ति के 15 दिनों के भीतर ${money} का भुगतान करें। विफलता पर श्रम आयुक्त/उपयुक्त प्राधिकारी के समक्ष कार्यवाही की जाएगी।`
-          : `Within 15 days of receipt, pay the sum of ${money}. Failing this, proceedings will be initiated before the Labour Commissioner / appropriate authority.`,
-      },
-    ],
-    legalReferences: [
-      "Code on Wages, 2019 — §§17, 18",
-      "Payment of Wages Act, 1936 — §5 (where applicable)",
-      "Industrial Disputes Act, 1947 — §33C(2)",
-      "Minimum Wages Act, 1948 — §12",
-    ],
-    remedy: hi
-      ? `${money} अवैतनिक वेतन का भुगतान।`
-      : `Payment of unpaid wages of ${money}.`,
-    signature: { name: "[Your name]", role: hi ? "[आपका पता और संपर्क]" : "[Your address and contact]" },
-    language: lang,
-  };
+  const document = buildLabourDocument(intake, lang);
 
   return {
     id,

@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Clock, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,12 +50,12 @@ function StepItem({ step }: { step: Step }) {
 	);
 }
 
-export default async function NextStepsPage({
+export default function NextStepsPage({
 	params,
 }: {
 	params: Promise<{ caseId: string }>;
 }) {
-	const { caseId } = await params;
+	const { caseId } = use(params);
 	return <NextStepsClient caseId={caseId} />;
 }
 

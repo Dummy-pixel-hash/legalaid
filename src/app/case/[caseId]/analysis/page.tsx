@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,13 +15,14 @@ import { RightsBlock } from "@/components/analysis/RightsBlock";
 import { LawsBlock } from "@/components/analysis/LawsBlock";
 import { UncertaintyBlock } from "@/components/analysis/UncertaintyBlock";
 import { DisclaimerBanner } from "@/components/analysis/DisclaimerBanner";
+import { DevelopmentProviderNotice } from "@/components/analysis/DevelopmentProviderNotice";
 
-export default async function AnalysisPage({
+export default function AnalysisPage({
   params,
 }: {
   params: Promise<{ caseId: string }>;
 }) {
-  const { caseId } = await params;
+  const { caseId } = use(params);
   return <AnalysisClient caseId={caseId} />;
 }
 
@@ -73,6 +74,10 @@ function AnalysisClient({ caseId }: { caseId: string }) {
           {t("analysisSubtitle")}
         </p>
       </header>
+
+      <div className="mt-6">
+        <DevelopmentProviderNotice />
+      </div>
 
       <div className="mt-2 divide-y divide-line">
         <div className="py-8"><UnderstandingBlock analysis={analysis} caseId={caseId} /></div>

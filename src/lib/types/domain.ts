@@ -69,10 +69,24 @@ export interface Uncertainty {
 
 export type EvidenceStatus = "have" | "dont-have" | "need-to-find" | "unset";
 
+/** Text provided in both supported languages (en + hi). */
+export interface BilingualText {
+  en: string;
+  hi: string;
+}
+
+/** Pick the text for the active language, falling back across the other. */
+export function localize(bt: Partial<BilingualText> | undefined, lang: Language): string {
+  if (!bt) return "";
+  return bt[lang] ?? bt.en ?? bt.hi ?? "";
+}
+
 export interface EvidenceItem {
   id: string;
-  label: string;
-  why: string;
+  /** Bilingual so the checklist is identical across language toggles; the UI
+   * renders the active language (see localize). */
+  label: Partial<BilingualText>;
+  why: Partial<BilingualText>;
   status: EvidenceStatus;
   note?: string;
 }

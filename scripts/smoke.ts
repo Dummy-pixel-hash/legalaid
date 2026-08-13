@@ -5,6 +5,11 @@
  */
 
 import { MockLegalAnalysisProvider } from "../src/lib/providers/mock-provider";
+import { getProvider } from "../src/lib/providers";
+import {
+  LocalLegalSourceProvider,
+  getLegalSourceProvider,
+} from "../src/lib/providers/legal-source";
 import { DEMO_CASES } from "../src/lib/mock/demo-cases";
 import { LEGAL_SOURCES } from "../src/lib/legal/sources";
 
@@ -86,7 +91,46 @@ async function main() {
   check(stages.length === 7, `all 7 progress stages emitted (got ${stages.length})`);
   check(analysis.document.sections.length >= 4, "document has structured sections");
 
-  // 4. Unknown domain → generic fallback, no invented laws
+  // 4. Legal-source provider abstraction (spec §13)
+  console.log("\nLegal-source provider:");
+  const legal = new LocalLegalSourceProvider();
+  const known = await legal.getSource("cpa-2019-s2-7");
+  check(known !== null && Boolean(known?.section), "getSource resolves known id");
+  check(known?.section === "§2(7)", "resolved source has a section");
+  check((await legal.getSource("no-such-id")) === null, "unknown id → null");
+  const viaSection = await legal.getSection("cpa-2019-s2-7");
+  check(
+    viaSection !== null && viaSection.id === known?.id,
+    "getSection returns the same record for a known id",
+  );
+  check((await legal.search({ text: "consumer" })).length >= 1, 'search("consumer") ≥ 1');
+  check((await legal.search({ text: "" })).length === 0, 'search("") = 0');
+  check((await legal.search({ text: "no-such-word-xyz" })).length === 0, "unknown search = 0");
+  check(
+    getLegalSourceProvider() === getLegalSourceProvider(),
+    "getLegalSourceProvider is a memoized singleton",
+  );
+
+  // 5. Provider flag — development stand-in is honest about it
+  console.log("\nProvider flag:");
+  check(getProvider().isDevelopment === true, "active provider reports isDevelopment");
+
+  // 6. Document generation through the provider seam (regenerates per language, honors edits)
+  console.log("\nDocument generation:");
+  const genDoc = await provider.generateDocument({ analysis, intake, lang: "hi" });
+  check(genDoc.language === "hi", "regenerates document for requested language");
+  check(genDoc.sections.length >= 4, "regenerated document has sections");
+  check(Boolean(genDoc.title) && Boolean(genDoc.subject), "regenerated document has title + subject");
+  const edited = await provider.generateDocument({
+    analysis,
+    intake,
+    lang: "en",
+    edits: { toParty: "Acme Corp" },
+  });
+  check(edited.toParty === "Acme Corp", "user edits applied on top of generated draft");
+  check(edited.language === "en", "english regeneration");
+
+  // 7. Unknown domain → generic fallback, no invented laws
   console.log("\nGeneric fallback:");
   const unknown = await provider.analyze(
     { description: "meri gaadi kharaab ho gayi aur koi madad nahi kar raha" },

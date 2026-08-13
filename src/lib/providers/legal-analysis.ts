@@ -15,6 +15,8 @@ import type {
 
 export interface LegalAnalysisProvider {
   id: string;
+  /** True when this provider is a development/demo stand-in, not the trained model. */
+  readonly isDevelopment: boolean;
   /** Full analysis for an intake. onProgress drives the staged loading UI. */
   analyze(
     intake: IntakeData,
@@ -22,9 +24,15 @@ export interface LegalAnalysisProvider {
     onProgress?: (p: Progress) => void,
     opts?: { fast?: boolean },
   ): Promise<CaseAnalysis>;
-  /** Return the document for an analysis, optionally regenerated for a language. */
+  /** Return the document for an analysis, regenerated for a language and intake,
+   * with user edits applied on top. */
   generateDocument(
-    ctx: { analysis: CaseAnalysis; lang: Language; edits?: Partial<DocumentData> },
+    ctx: {
+      analysis: CaseAnalysis;
+      intake: IntakeData;
+      lang: Language;
+      edits?: Partial<DocumentData>;
+    },
   ): Promise<DocumentData>;
   /** Best-effort domain detection from free text (en/hi/mixed). */
   detectDomain(text: string): Domain | undefined;
