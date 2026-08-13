@@ -28,7 +28,9 @@ const STORAGE_KEY = "laid.cases.v1";
 interface CaseOverrides {
 	evidence: Record<string, { status: EvidenceStatus; note?: string }>;
 	customEvidence: EvidenceItem[];
-	document: Partial<DocumentData> | null;
+	/** Document edits (and regenerated drafts) per language, so editing or
+	 * regenerating the letter in one language never leaks into the other. */
+	document: Partial<Record<Language, Partial<DocumentData>>>;
 }
 
 interface CaseRecord {
@@ -52,7 +54,7 @@ interface CaseRecord {
 }
 
 function emptyOverrides(): CaseOverrides {
-	return { evidence: {}, customEvidence: [], document: null };
+	return { evidence: {}, customEvidence: [], document: {} };
 }
 
 function applyOverrides(
@@ -77,7 +79,7 @@ function applyOverrides(
 			...overrides.customEvidence,
 		],
 		// Note: document edits are NOT merged here. The document page derives
-		// its document from analysis.document + overrides.document, so
+		// its document from analysis.document + overrides.document[lang], so
 		// analysis.document stays the base draft.
 	};
 }
@@ -93,6 +95,20 @@ type PersistedRecord = Pick<
 	| "evidenceCache"
 	| "createdAt"
 >;
+
+function migrateDocumentOverrides(
+	doc: unknown,
+	lang: Language | undefined,
+): Partial<Record<Language, Partial<DocumentData>>> {
+	if (!doc || typeof doc !== "object") return {};
+	const o = doc as Record<string, unknown>;
+	// Already per-language (keys are only "en"/"hi").
+	if (Object.keys(o).every((k) => k === "en" || k === "hi")) {
+		return o as Partial<Record<Language, Partial<DocumentData>>>;
+	}
+	// Legacy flat override — attribute it to the analysis language.
+	return { [lang ?? "en"]: o as Partial<DocumentData> };
+}
 
 function loadPersisted(): Record<string, CaseRecord> {
 	if (typeof window === "undefined") return {};
@@ -110,6 +126,10 @@ function loadPersisted(): Record<string, CaseRecord> {
 				overrides: {
 					...(rec.overrides ?? emptyOverrides()),
 					customEvidence: rec.overrides?.customEvidence ?? [],
+					document: migrateDocumentOverrides(
+						rec.overrides?.document,
+						rec.baseAnalysis?.language,
+					),
 				},
 				// Older persisted records carried per-language analyses (and no
 				// documentDrafts); keep baseAnalysis as the canonical analysis
@@ -184,7 +204,7 @@ interface CaseStoreValue {
 		patch: Partial<EvidenceItem>,
 	) => void;
 	removeCustomEvidence: (id: string, evidenceId: string) => void;
-	updateDocument: (id: string, patch: Partial<DocumentData>) => void;
+	updateDocument: (id: string, lang: Language, patch: Partial<DocumentData>) => void;
 }
 
 const CaseStoreContext = createContext<CaseStoreValue | null>(null);
@@ -413,12 +433,15 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 	);
 
 	const updateDocument = useCallback(
-		(id: string, patch: Partial<DocumentData>) => {
+		(id: string, lang: Language, patch: Partial<DocumentData>) => {
 			const prev = recordsRef.current[id]?.overrides ?? emptyOverrides();
 			patchRecord(id, {
 				overrides: {
 					...prev,
-					document: { ...(prev.document ?? {}), ...patch },
+					document: {
+						...(prev.document ?? {}),
+						[lang]: { ...(prev.document?.[lang] ?? {}), ...patch },
+					},
 				},
 			});
 		},

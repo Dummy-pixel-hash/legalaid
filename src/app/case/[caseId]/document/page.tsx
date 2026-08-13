@@ -45,12 +45,16 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	if (record.status === "error")
 		return <ErrorState onRetry={() => router.refresh()} />;
 	if (!analysis) return <EmptyState />;
-	// The document ships with the analysis now (4th section); user edits
-	// (overrides.document) always win over the base draft.
-	const doc = { ...analysis.document, ...(record.overrides.document ?? {}) };
+	// The document ships with the analysis now (4th section); per-language
+	// edits/regenerated drafts (overrides.document[lang]) always win over the
+	// active language's base draft, so toggling never leaks a letter across.
+	const doc = {
+		...analysis.document,
+		...(record.overrides.document?.[lang] ?? {}),
+	};
 
 	const handleChange = (patch: Partial<DocumentData>) => {
-		updateDocument(caseId, patch);
+		updateDocument(caseId, lang, patch);
 	};
 
 	const handleSave = () => {
@@ -102,7 +106,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 				lang,
 				edits: {},
 			});
-			updateDocument(caseId, fresh);
+			updateDocument(caseId, lang, fresh);
 		} catch (err) {
 			console.error("Document regeneration failed", err);
 			setRegenError(true);
