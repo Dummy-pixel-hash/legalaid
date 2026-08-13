@@ -388,7 +388,7 @@ export function buildSectionPrompts(opts: {
             lang,
             keys: '"uncertainty", "evidence"',
             extra:
-              "EVIDENCE CHECKLIST: this list is the case's canonical evidence checklist, shown in both languages — for EVERY evidence item write the \"label\" and \"why\" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi). Keep 4-7 focused items with stable short ids.",
+              "EVIDENCE CHECKLIST: this list is the case's canonical evidence checklist, shown in both languages — for EVERY evidence item write the \"label\" and \"why\" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi).\n\nEVIDENCE GUIDANCE — follow strictly:\n- Choose items that would actually prove or disprove the disputed facts; every key issue should have evidence behind it.\n- Prefer concrete records the user can realistically get: receipts, messages/emails, bank or UPI statements, photos, notices, agreements, ID or work papers.\n- \"label\" is a short noun phrase naming the item; \"why\" is one sentence on what it proves in THIS case.\n- Keep \"id\" short and descriptive (e.g. \"rent-receipts\", \"moveout-photos\"), never numbered or generic.\n- 4-7 focused items — no padding.",
           }),
         },
       ],
@@ -442,7 +442,12 @@ export function buildDocumentSection(opts: {
           sources: lawSources,
           extra:
             "ANALYSIS FINDINGS (use these to ground the document — reference the identified issues, the chosen laws, the amounts and the requested remedy):\n" +
-            contextJson,
+            contextJson +
+            "\n\nLETTER GUIDANCE — follow strictly:\n" +
+            "- Structure: open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n" +
+            "- Use ONLY the user's facts and the findings above — never invent facts, names, dates, addresses, or amounts.\n" +
+            "- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n" +
+            "- Use the placeholders for from/to party details the user did not provide.",
         }),
       },
     ],
@@ -462,7 +467,7 @@ export function buildDocumentPrompt(opts: {
       content: `USER'S SITUATION:\n${intakeContext(intake, lang)}\n\nLAW SOURCES AVAILABLE (use ONLY these):\n${sourcesContext(
         lawSources,
         lang,
-      )}\n\nOUTPUT EXACTLY THIS JSON SHAPE:\n${DOC_SCHEMA}\n\nRespond with ONLY the JSON object.`,
+      )}\n\nLETTER GUIDANCE — follow strictly:\n- Open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n- Use ONLY the user's facts — never invent facts, names, dates, addresses, or amounts.\n- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n- Use the placeholders for from/to party details the user did not provide.\n\nOUTPUT EXACTLY THIS JSON SHAPE:\n${DOC_SCHEMA}\n\nRespond with ONLY the JSON object.`,
     },
   ];
 }
