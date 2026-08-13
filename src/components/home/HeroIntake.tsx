@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useI18n } from "@/lib/i18n/provider";
 import { EXAMPLE_SCENARIOS } from "@/lib/mock/demo-cases";
+import { VoiceInput } from "@/components/shared/VoiceInput";
 
 /**
  * The cover page of the file: serif document title, and the intake
@@ -58,12 +59,22 @@ export function HeroIntake() {
 							submit();
 						}}
 					>
-						<label
-							htmlFor="hero-situation"
-							className="text-sm font-medium text-ink"
-						>
-							{t("describeLabel")}
-						</label>
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<label
+								htmlFor="hero-situation"
+								className="text-sm font-medium text-ink"
+							>
+								{t("describeLabel")}
+							</label>
+							<VoiceInput
+								language={lang}
+								onTranscribed={(transcript) =>
+									setText((prev) =>
+										prev.trim() ? `${prev.trim()} ${transcript}` : transcript,
+									)
+								}
+							/>
+						</div>
 						<Textarea
 							id="hero-situation"
 							value={text}
