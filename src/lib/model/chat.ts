@@ -94,6 +94,51 @@ export function extractJson(raw: string): string {
   return s.slice(start, end + 1);
 }
 
+/**
+ * llama.cpp's json_schema grammar permits raw control characters (newlines,
+ * tabs) inside string literals, which strict JSON forbids — some models write
+ * multi-line strings. Escape only control chars that sit INSIDE a string, so
+ * the strict parser accepts the grammar-valid output. Only used as a fallback.
+ */
+export function escapeControlCharsInStrings(s: string): string {
+  let out = "";
+  let inStr = false;
+  let esc = false;
+  for (const ch of s) {
+    if (inStr) {
+      if (esc) {
+        out += ch;
+        esc = false;
+        continue;
+      }
+      if (ch === "\\") {
+        out += ch;
+        esc = true;
+        continue;
+      }
+      if (ch === '"') {
+        out += ch;
+        inStr = false;
+        continue;
+      }
+      const code = ch.charCodeAt(0);
+      if (code < 0x20) {
+        out +=
+          ch === "\n" ? "\\n"
+          : ch === "\r" ? "\\r"
+          : ch === "\t" ? "\\t"
+          : `\\u00${code.toString(16).padStart(2, "0")}`;
+        continue;
+      }
+      out += ch;
+    } else {
+      if (ch === '"') inStr = true;
+      out += ch;
+    }
+  }
+  return out;
+}
+
 export async function chatCompletion(opts: {
   messages: ChatMessage[];
   maxTokens?: number;
@@ -167,7 +212,12 @@ export async function chatCompletionJson(opts: {
   };
   const content = body.choices?.[0]?.message?.content ?? "";
   if (!content) throw new Error("model returned empty content");
-  // Grammar guarantees valid JSON; if parsing still fails, propagate the error
-  // (no fallback here — the route's contingency decides retries).
-  return JSON.parse(extractJson(content));
+  // Grammar guarantees valid JSON, but llama.cpp permits raw control chars in
+  // strings; retry once with those escaped (see escapeControlCharsInStrings).
+  const raw = extractJson(content);
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return JSON.parse(escapeControlCharsInStrings(raw));
+  }
 }

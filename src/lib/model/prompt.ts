@@ -359,7 +359,7 @@ export function buildSectionPrompts(opts: {
     {
       section: "core",
       name: "core",
-      maxTokens: 2048,
+      maxTokens: 3072,
       schema: CORE_SCHEMA,
       messages: [
         { role: "system", content: SYSTEM(lang) },
@@ -377,7 +377,7 @@ export function buildSectionPrompts(opts: {
     {
       section: "risk",
       name: "risk",
-      maxTokens: 1024,
+      maxTokens: 4096,
       schema: RISK_SCHEMA,
       messages: [
         { role: "system", content: SYSTEM(lang) },
@@ -396,7 +396,7 @@ export function buildSectionPrompts(opts: {
     {
       section: "steps",
       name: "steps",
-      maxTokens: 768,
+      maxTokens: 1536,
       schema: STEPS_SCHEMA,
       messages: [
         { role: "system", content: SYSTEM(lang) },
@@ -429,7 +429,7 @@ export function buildDocumentSection(opts: {
   return {
     section: "document",
     name: "document",
-    maxTokens: 1024,
+    maxTokens: 1536,
     schema: DOC_SECTION_SCHEMA,
     messages: [
       { role: "system", content: DOC_SYSTEM(lang) },
