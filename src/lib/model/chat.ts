@@ -1,9 +1,18 @@
 /**
  * Server-side OpenAI-compatible LLM client for the LegalAId model backend.
- * Connects to a llama.cpp / OpenAI-compatible server (no API key).
+ * Connects to a llama.cpp / OpenAI-compatible server.
  *
  * Env (server-side only):
- *   AI_ENDPOINT  — base URL, e.g. http://100.86.95.34:8080
+ *   AI_ENDPOINT  — base URL override, e.g. https://fedora.tail016b3f.ts.net.
+ *                  If AI_ENDPOINT_REGISTRY is set, the live endpoint is
+ *                  resolved from there at cold start (and AI_ENDPOINT is the
+ *                  fallback when the registry is unreachable).
+ *   AI_ENDPOINT_REGISTRY — URL of a small public JSON {"endpoint": "..."} that
+ *                  the model host updates when its public address changes
+ *                  (funnel URL). Lets Vercel follow a moving endpoint without
+ *                  redeploys.
+ *   AI_API_KEY   — bearer token required by the model server (llama.cpp
+ *                  --api-key-file). Sent as Authorization: Bearer.
  *   AI_MODEL     — optional; auto-detected from /v1/models when unset.
  *   AI_ENABLE_THINKING — set to "1" to KEEP the model's chain-of-thought
  *     mode on. Default is OFF: reasoning models (e.g. Qwen3) otherwise spend
@@ -11,16 +20,50 @@
  *     `content`, which breaks our JSON parsing.
  */
 
-const ENDPOINT = process.env.AI_ENDPOINT ?? "http://100.86.95.34:8080";
+const ENDPOINT_FALLBACK = process.env.AI_ENDPOINT ?? "http://100.86.95.34:8080";
+const ENDPOINT_REGISTRY = process.env.AI_ENDPOINT_REGISTRY;
+const API_KEY = process.env.AI_API_KEY;
 const MODEL_ENV = process.env.AI_MODEL;
 const ENABLE_THINKING = process.env.AI_ENABLE_THINKING === "1";
+
+let endpointCache: string | null = null;
+
+/** Resolve the model base URL: registry (live, follows a moving endpoint) →
+ * AI_ENDPOINT env → legacy tailnet default. Cached per process (cold start). */
+async function resolveEndpoint(): Promise<string> {
+  if (endpointCache) return endpointCache;
+  if (ENDPOINT_REGISTRY) {
+    try {
+      const res = await fetch(ENDPOINT_REGISTRY, {
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (res.ok) {
+        const body = (await res.json()) as { endpoint?: unknown };
+        if (typeof body.endpoint === "string" && body.endpoint.trim()) {
+          endpointCache = body.endpoint.trim();
+          return endpointCache;
+        }
+      }
+    } catch {
+      // registry unreachable — fall back to env/default
+    }
+  }
+  endpointCache = ENDPOINT_FALLBACK;
+  return endpointCache;
+}
+
+function authHeaders(): Record<string, string> {
+  return API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {};
+}
 
 let modelCache: string | null = null;
 
 async function resolveModel(): Promise<string> {
   if (MODEL_ENV) return MODEL_ENV;
   if (modelCache) return modelCache;
-  const res = await fetch(`${ENDPOINT}/v1/models`);
+  const res = await fetch(`${await resolveEndpoint()}/v1/models`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`model list failed: ${res.status}`);
   const body = (await res.json()) as { data?: { id: string }[] };
   const first = body.data?.[0]?.id;
@@ -57,9 +100,9 @@ export async function chatCompletion(opts: {
   temperature?: number;
 }): Promise<string> {
   const model = await resolveModel();
-  const res = await fetch(`${ENDPOINT}/v1/chat/completions`, {
+  const res = await fetch(`${await resolveEndpoint()}/v1/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({
       model,
       messages: opts.messages,
@@ -98,9 +141,9 @@ export async function chatCompletionJson(opts: {
   schema: object;
 }): Promise<unknown> {
   const model = await resolveModel();
-  const res = await fetch(`${ENDPOINT}/v1/chat/completions`, {
+  const res = await fetch(`${await resolveEndpoint()}/v1/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({
       model,
       messages: opts.messages,
