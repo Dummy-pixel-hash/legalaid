@@ -43,7 +43,8 @@ RULES — follow strictly:
 2. Change ONLY what the instruction asks for; keep the same field structure and the rest of the text.
 3. Legal references: keep only references already present in the draft. Never add new acts or sections.
 4. The remedy, parties, and signature placeholders stay exactly as they are unless the instruction says otherwise.
-5. Respond with ONLY a single valid JSON object matching the required schema exactly — no markdown fences, no extra text, no reasoning in the response.`;
+5. THE INSTRUCTION DEMANDS A CHANGE: your output MUST differ from the CURRENT DRAFT in the requested aspect. Examples: "make it firmer" → noticeably stronger, more direct wording and demands; "more formal" → formal letter phrasing throughout; "shorten it" → clearly shorter bodies; "translate" → the ENTIRE draft rewritten in the target language. Merely echoing the current draft unchanged is a failure.
+6. Respond with ONLY a single valid JSON object matching the required schema exactly — no markdown fences, no extra text, no reasoning in the response.`;
 
 /** Serialize registry law sources exactly like the analyze pipeline does. */
 function sourcesContext(

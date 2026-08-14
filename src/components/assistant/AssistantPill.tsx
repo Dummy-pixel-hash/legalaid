@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/provider";
 import { useCase } from "@/lib/store/case-store";
 import { AssistantChat } from "./AssistantChat";
 import { useAssistantChat } from "./useAssistantChat";
+import { GRAIN } from "@/lib/visual";
 import type { AssistantPage } from "@/lib/assistant-context";
 
 /**
@@ -107,12 +108,25 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	}
 
 	return (
-		<div
-			ref={panelRef}
-			className="fixed right-4 bottom-5 z-50 flex max-h-[min(70vh,34rem)] w-[min(24rem,calc(100vw-2rem))] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg motion-safe:duration-200 motion-safe:ease-out sm:right-6 sm:bottom-6"
-			role="dialog"
-			aria-label={heading}
-		>
+		<>
+			{/* Heavy blur + grain backdrop: the page behind the AI window is
+			    veiled and blurred; clicking it collapses the window. */}
+			<div
+				aria-hidden
+				onClick={() => setOpen(false)}
+				className="fixed inset-0 z-40 bg-background/60 motion-safe:animate-in motion-safe:fade-in-0 backdrop-blur-xl motion-safe:duration-300 motion-safe:ease-out"
+			/>
+			<div
+				aria-hidden
+				className="pointer-events-none fixed inset-0 z-40 opacity-[0.05] mix-blend-multiply"
+				style={{ backgroundImage: GRAIN, backgroundSize: "160px 160px" }}
+			/>
+			<div
+				ref={panelRef}
+				className="fixed right-4 bottom-5 z-50 flex max-h-[min(72vh,34rem)] min-h-[26rem] w-[min(24rem,calc(100vw-2rem))] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg motion-safe:duration-200 motion-safe:ease-out sm:right-6 sm:bottom-6"
+				role="dialog"
+				aria-label={heading}
+			>
 			<div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
 				<div className="flex min-w-0 items-center gap-2">
 					<MessageCircleQuestion
@@ -159,5 +173,6 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 				language={lang}
 			/>
 		</div>
+		</>
 	);
 }

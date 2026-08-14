@@ -139,6 +139,19 @@ export function DocumentAssistant({
 						))}
 					</ul>
 
+					{revising && (
+						<p
+							className="mt-2 flex items-center gap-1.5 text-xs font-medium text-ink-70"
+							role="status"
+						>
+							<Loader2
+								className="h-3.5 w-3.5 animate-spin text-accent-strong"
+								aria-hidden
+							/>
+							{t("reviseWorking")}
+						</p>
+					)}
+
 					<form
 						className="mt-3 flex items-end gap-2"
 						onSubmit={(e) => {
@@ -241,11 +254,7 @@ export function DocumentAssistant({
 							)}
 
 							<div className="mt-3 flex flex-wrap gap-2">
-								<Button
-									size="sm"
-									onClick={applyProposal}
-									disabled={changeSummary.length === 0}
-								>
+								<Button size="sm" onClick={applyProposal}>
 									<Check className="h-4 w-4" aria-hidden />
 									{t("reviseApply")}
 								</Button>

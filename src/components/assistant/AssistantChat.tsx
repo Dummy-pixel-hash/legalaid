@@ -150,13 +150,19 @@ export function AssistantChat({
 					/>
 					{voice && (
 						<VoiceInput
+							className="shrink-0"
 							language={language}
 							onTranscribed={(text) =>
 								onInput(input.trim() ? `${input.trim()} ${text}` : text)
 							}
 						/>
 					)}
-					<Button type="submit" size="sm" disabled={!input.trim() || busy}>
+					<Button
+						type="submit"
+						size="sm"
+						className="shrink-0"
+						disabled={!input.trim() || busy}
+					>
 						{busy ? (
 							<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
 						) : (

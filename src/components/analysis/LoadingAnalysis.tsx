@@ -2,6 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n/provider";
+import { GRAIN } from "@/lib/visual";
 import type { AnalysisStage } from "@/lib/types/domain";
 
 const STAGE_COPY: Record<
@@ -33,17 +34,10 @@ const BLOCKS: AnalysisStage[] = [
 ];
 
 /**
- * Static film grain — a painted feTurbulence texture (URL-encoded SVG), no
- * animation, so the "heavy blur + grain" stage costs one painted layer, not a
- * live effect.
- */
-const GRAIN =
-	"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
-
-/**
- * The analysis wait becomes a composed full-screen stage: the page beneath is
- * heavy-blurred behind a paper veil with a film-grain texture, so the static
- * screen never reads as a half-finished page or a see-through background.
+ * The analysis wait becomes a composed full-screen stage. The page beneath is
+ * heavy-blurred behind a paper veil; SOFT COLOR FIELDS + film grain are painted
+ * INTO the stage itself, so the blur-and-grain look is visible even when there
+ * is little content behind the overlay (the usual case during first analysis).
  */
 export function LoadingAnalysis({
 	stage,
@@ -67,14 +61,20 @@ export function LoadingAnalysis({
 				aria-hidden
 				className="fixed inset-0 bg-background/70 backdrop-blur-xl"
 			/>
-			{/* Film grain over the veil */}
+			{/* Soft blurred color fields — the blur look even over empty page */}
+			<div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
+				<div className="absolute -top-24 left-[15%] h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+				<div className="absolute top-1/3 -right-20 h-80 w-80 rounded-full bg-accent-strong/15 blur-3xl" />
+				<div className="absolute -bottom-28 left-[8%] h-80 w-80 rounded-full bg-ink/10 blur-3xl" />
+			</div>
+			{/* Film grain over everything */}
 			<div
 				aria-hidden
-				className="fixed inset-0 opacity-[0.06] mix-blend-multiply"
+				className="pointer-events-none fixed inset-0 opacity-[0.06] mix-blend-multiply"
 				style={{ backgroundImage: GRAIN, backgroundSize: "160px 160px" }}
 			/>
 
-			<div className="relative mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
+			<div className="relative mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-14">
 				<p className="flex items-center gap-2 text-sm font-medium text-ink-70">
 					<span className="relative flex h-2.5 w-2.5">
 						<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-strong opacity-40" />
@@ -84,7 +84,7 @@ export function LoadingAnalysis({
 					<span className="text-xs text-ink-50">({progress}%)</span>
 				</p>
 
-				<div className="mt-6 space-y-5">
+				<div className="mt-6 w-full space-y-5">
 					{BLOCKS.map((block, i) => {
 						const isResolved = i < activeIndex;
 						const isActive = i === activeIndex;
