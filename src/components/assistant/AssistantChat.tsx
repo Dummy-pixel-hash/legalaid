@@ -79,13 +79,13 @@ export function AssistantChat({
 						<div
 							key={i}
 							className={cn(
-								"flex",
+								"flex min-w-0",
 								m.role === "user" ? "justify-end" : "justify-start",
 							)}
 						>
 							<div
 								className={cn(
-									"max-w-[85%] whitespace-pre-wrap rounded-md px-3 py-2 text-sm leading-relaxed",
+									"max-w-[85%] min-w-0 break-words whitespace-pre-wrap rounded-md px-3 py-2 text-sm leading-relaxed",
 									m.role === "user"
 										? "bg-ink text-background"
 										: "border border-line bg-surface-muted text-ink",
@@ -115,7 +115,7 @@ export function AssistantChat({
 									type="button"
 									onClick={() => onInput(label)}
 									disabled={busy}
-									className="rounded-md border border-line bg-background px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-accent-strong hover:text-accent-strong disabled:opacity-50"
+									className="rounded-md border border-line bg-background px-3 py-1.5 text-xs font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink disabled:opacity-50"
 								>
 									{label}
 								</button>

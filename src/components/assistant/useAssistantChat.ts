@@ -33,12 +33,8 @@ export function useAssistantChat(opts: {
 }) {
 	const { caseId, page, document } = opts;
 	const { lang } = useI18n();
-	const {
-		record,
-		analysis,
-		appendAssistantMessage,
-		clearAssistantThread,
-	} = useCase(caseId, lang);
+	const { record, analysis, appendAssistantMessage, clearAssistantThread } =
+		useCase(caseId, lang);
 	const [streamingText, setStreamingText] = useState("");
 	const [error, setError] = useState(false);
 	const [input, setInput] = useState("");
@@ -80,15 +76,7 @@ export function useAssistantChat(opts: {
 				setStreamingText("");
 			}
 		},
-		[
-			caseId,
-			page,
-			document,
-			lang,
-			record,
-			analysis,
-			appendAssistantMessage,
-		],
+		[caseId, page, document, lang, record, analysis, appendAssistantMessage],
 	);
 
 	const clear = useCallback(() => {

@@ -25,6 +25,8 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
 	const panelRef = useRef<HTMLDivElement>(null);
+	const pillButtonRef = useRef<HTMLButtonElement>(null);
+	const prevOpenRef = useRef(open);
 
 	// Page-adaptive context: which step is the user on?
 	const page: AssistantPage = pathname?.endsWith("/document")
@@ -72,6 +74,18 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 		};
 	}, [open]);
 
+	// Focus the composer when the window opens; return focus to the pill on
+	// close (skip the initial mount so page load doesn't steal focus).
+	useEffect(() => {
+		if (prevOpenRef.current === open) return;
+		prevOpenRef.current = open;
+		if (open) {
+			document.getElementById("assistant-pill-input")?.focus();
+		} else {
+			pillButtonRef.current?.focus();
+		}
+	}, [open]);
+
 	// Only offer the assistant once this case has a real analysis to be aware of.
 	if (!record?.baseAnalysis || !analysis) return null;
 
@@ -80,9 +94,10 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	if (!open) {
 		return (
 			<button
+				ref={pillButtonRef}
 				type="button"
 				onClick={() => setOpen(true)}
-				className="fixed right-4 bottom-5 z-50 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-background shadow-lg transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-strong sm:right-6 sm:bottom-6"
+				className="fixed right-4 bottom-5 z-50 inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-semibold text-background shadow-md transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-ink/90 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-strong sm:right-6 sm:bottom-6"
 				aria-label={t("assistantPill")}
 			>
 				<MessageCircleQuestion className="h-4 w-4" aria-hidden />
@@ -94,7 +109,7 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	return (
 		<div
 			ref={panelRef}
-			className="fixed right-4 bottom-5 z-50 flex max-h-[min(70vh,34rem)] w-[min(24rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-xl sm:right-6 sm:bottom-6"
+			className="fixed right-4 bottom-5 z-50 flex max-h-[min(70vh,34rem)] w-[min(24rem,calc(100vw-2rem))] animate-in fade-in-0 zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg duration-200 ease-out sm:right-6 sm:bottom-6"
 			role="dialog"
 			aria-label={heading}
 		>

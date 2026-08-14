@@ -258,6 +258,13 @@ export const hi: Dictionary = {
 	reviseDiscard: "छोड़ दें",
 	reviseWorking: "बदलाव तैयार हो रहा है…",
 	reviseError: "दस्तावेज़ में बदलाव नहीं हो सका। फिर कोशिश करें।",
+	reviseApplied: "बदलाव लागू हो गए",
+	reviseUnavailable:
+		"इस तरह के मामले के लिए बदलाव उपलब्ध नहीं है — यहाँ पत्र एक सामान्य ड्राफ़्ट है। इसे सीधे संपादित करें या चैट में सहायक से पूछें।",
+	reviseNoChanges:
+		"कोई बदलाव नहीं मिला — कोई और निर्देश आज़माएँ।",
+	reviseChanged: "क्या बदलेगा:",
+	sectionLabel: "भाग",
 
 	legalTitle: "कानूनी जानकारी",
 	legalIntro:

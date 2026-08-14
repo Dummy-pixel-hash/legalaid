@@ -271,6 +271,13 @@ export const en = {
 	reviseDiscard: "Discard",
 	reviseWorking: "Preparing revision…",
 	reviseError: "Couldn't revise the document. Try again.",
+	reviseApplied: "Changes applied",
+	reviseUnavailable:
+		"Revision isn't available for this kind of case — the letter here is a general draft. Edit it directly or ask the assistant in the chat.",
+	reviseNoChanges:
+		"No changes detected — try a different instruction.",
+	reviseChanged: "What changes:",
+	sectionLabel: "Section",
 
 	// ── Legal info page ─────────────────────────────────────────────
 	legalTitle: "Legal info",

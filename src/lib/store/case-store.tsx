@@ -214,7 +214,11 @@ interface CaseStoreValue {
 		patch: Partial<EvidenceItem>,
 	) => void;
 	removeCustomEvidence: (id: string, evidenceId: string) => void;
-	updateDocument: (id: string, lang: Language, patch: Partial<DocumentData>) => void;
+	updateDocument: (
+		id: string,
+		lang: Language,
+		patch: Partial<DocumentData>,
+	) => void;
 	/** Append a turn to the persisted per-case assistant conversation. */
 	appendAssistantMessage: (id: string, msg: AssistantMessage) => void;
 	/** Reset the per-case assistant conversation. */
@@ -296,18 +300,18 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 					(p) => patchRecord(id, { stage: p.stage, pct: p.pct }),
 					{ fast },
 				);
-			const prev = recordsRef.current[id];
-			patchRecord(id, {
-				baseAnalysis: analysis,
-				intake,
-				documentDrafts: {
-					...(prev?.documentDrafts ?? {}),
-					[lang]: analysis.document,
-				},
-				status: "ready",
-				stage: null,
-				pct: 100,
-			});
+				const prev = recordsRef.current[id];
+				patchRecord(id, {
+					baseAnalysis: analysis,
+					intake,
+					documentDrafts: {
+						...(prev?.documentDrafts ?? {}),
+						[lang]: analysis.document,
+					},
+					status: "ready",
+					stage: null,
+					pct: 100,
+				});
 			} catch (err) {
 				console.error("Analysis failed", err);
 				patchRecord(id, { status: "error" });

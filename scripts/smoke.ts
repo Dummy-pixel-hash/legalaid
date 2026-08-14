@@ -246,13 +246,27 @@ async function main() {
 		currentDraft: analysis.document,
 		instruction: "इसे और सख्त बनाएँ",
 	});
+	const lastSection = revised.sections[revised.sections.length - 1];
 	check(
-		revised.sections[0]?.body.includes("डेमो संशोधन"),
-		"revision round-trip carries a visible change",
+		Boolean(lastSection?.body.includes("कानूनी उपाय")) &&
+			revised.subject.includes("औपचारिक सूचना"),
+		"revision round-trip applies a visible change",
 	);
 	check(
 		revised.title === analysis.document.title,
 		"revision keeps unrelated fields",
+	);
+
+	const untouched = await provider.reviseDocument({
+		analysis,
+		intake,
+		lang: "hi",
+		currentDraft: analysis.document,
+		instruction: "Translate to English", // mock can't translate → no changes
+	});
+	check(
+		JSON.stringify(untouched) === JSON.stringify(analysis.document),
+		"unknown instruction reports no changes (translate path)",
 	);
 
 	console.log(

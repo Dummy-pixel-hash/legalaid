@@ -184,8 +184,12 @@ ${lawBit}`
 			: `Check “Next steps” for what to do next with your case. ${demoNote}`;
 	}
 
-	/** Deterministic demo revision: visibly marks the draft so the round-trip
-	 * (propose → apply/discard) is testable without a backend. */
+	/** Deterministic demo revision: applies a plausible transformation per
+	 * instruction (firmer / formal / condense) so propose → apply is
+	 * demonstrably real in demo mode. Honesty comes from the on-page
+	 * DevelopmentProviderNotice, not from text baked into the letter. Unknown
+	 * instructions (e.g. translate) return the draft unchanged — the UI then
+	 * reports "no changes detected". */
 	async reviseDocument(ctx: {
 		analysis: CaseAnalysis;
 		intake: IntakeData;
@@ -193,17 +197,52 @@ ${lawBit}`
 		currentDraft: DocumentData;
 		instruction: string;
 	}): Promise<DocumentData> {
-		const { currentDraft, lang } = ctx;
-		const note =
-			lang === "hi"
-				? "[डेमो संशोधन — असली बदलाव के लिए मॉडल बैकएंड जोड़ें]"
-				: "[Demo revision — connect the model backend for real changes]";
-		return {
-			...currentDraft,
-			sections: currentDraft.sections.map((s, i) =>
-				i === 0 ? { ...s, body: `${s.body}\n\n${note}` } : s,
-			),
+		const { currentDraft, instruction } = ctx;
+		const hi = currentDraft.language === "hi";
+		const q = instruction.toLowerCase();
+
+		const firmClose = hi
+			? "\n\nमैं उम्मीद करता/करती हूँ कि यह मामला ऊपर बताई अवधि में सुलझ जाएगा। ऐसा न होने पर मैं बिना और सूचना के सभी उपलब्ध कानूनी उपाय अपनाऊँगा/अपनाऊँगी।"
+			: "\n\nI expect this matter to be settled within the period stated above. If it is not, I will pursue all available legal remedies without further notice.";
+
+		const formalOpen = hi
+			? "यह पत्र आपको औपचारिक रूप से सूचित करता है कि "
+			: "This letter formally notifies you that ";
+
+		const condense = (body: string): string => {
+			const sentences = body.split(/(?<=[.!?।])\s+/).filter(Boolean);
+			if (sentences.length <= 2) return body;
+			return `${sentences.slice(0, 2).join(" ")} …`;
 		};
+
+		let sections = currentDraft.sections;
+		let subject = currentDraft.subject;
+
+		if (q.includes("firmer") || q.includes("सख्त") || q.includes("firm")) {
+			// Firm close on the last section + a formal-notice subject marker.
+			sections = sections.map((s, i) =>
+				i === sections.length - 1 ? { ...s, body: `${s.body}${firmClose}` } : s,
+			);
+			if (!subject.toLowerCase().includes("formal")) {
+				subject = hi ? `${subject} — औपचारिक सूचना` : `${subject} — formal notice`;
+			}
+		} else if (q.includes("formal") || q.includes("औपचारिक")) {
+			// Formal opening on the first section.
+			sections = sections.map((s, i) =>
+				i === 0 && s.body.length > 0
+					? { ...s, body: `${formalOpen}${s.body}` }
+					: s,
+			);
+		} else if (q.includes("condense") || q.includes("short") || q.includes("छोटा")) {
+			sections = sections.map((s) => ({ ...s, body: condense(s.body) }));
+			subject = hi ? `संक्षिप्त: ${subject}` : `Brief: ${subject}`;
+		} else {
+			// Translate + anything else: the mock can't do real work — return
+			// the draft unchanged so the UI reports "no changes detected".
+			return currentDraft;
+		}
+
+		return { ...currentDraft, subject, sections };
 	}
 
 	detectDomain(text: string): Domain | undefined {
