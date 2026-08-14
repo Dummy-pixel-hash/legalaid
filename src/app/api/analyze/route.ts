@@ -48,14 +48,20 @@ export async function POST(req: Request) {
 	const encoder = new TextEncoder();
 	const stream = new ReadableStream<Uint8Array>({
 		async start(controller) {
-			// Phase 1: core/risk/steps run concurrently on the 4 llama.cpp slots.
+			// Phase 1: core/risk/steps are issued concurrently. Whether they
+			// actually run in parallel depends on the model server's slot count
+			// (llama.cpp --parallel N); on a single-slot server the requests
+			// queue, so total time is the sum of the sections, not the max.
 			// runSection retries once per section (transient grammar-stall 500s);
 			// a section that still fails must not drop the others. Each section
 			// is enqueued the moment it completes so the client renders
 			// progressively.
 			// Phase 2: the document section runs AFTER they settle, with the
 			// completed analysis as context — the letter is grounded in the
-			// full findings, not just the intake.
+			// full findings, not just the intake. The alternate-language letter
+			// is pre-warmed in the background by the case store (see runAnalysis),
+			// so toggling the letter's language is instant instead of a second
+			// slow on-demand generation.
 			let pending = sections.length + 1;
 			let failures = 0;
 			const maybeFinish = () => {
@@ -68,33 +74,39 @@ export async function POST(req: Request) {
 
 			const context: Record<string, unknown> = {};
 
-			await Promise.allSettled(
-				sections.map(async (spec) => {
-					try {
-						const { section, content } = await runSection(spec);
-						Object.assign(context, content);
-						controller.enqueue(
-							encoder.encode(
-								`data: ${JSON.stringify({ section, content })}\n\n`,
-							),
-						);
-					} catch (err) {
-						failures++;
-						const msg =
-							err instanceof Error ? err.message : String(err);
-						controller.enqueue(
-							encoder.encode(
-								`data: ${JSON.stringify({
-									section: spec.section,
-									error: msg,
-								})}\n\n`,
-							),
-						);
-					} finally {
-						pending--;
-					}
-				}),
-			);
+			// Issue every section as its own promise so Promise.allSettled drives
+			// them (concurrency is then the server's business — see note above).
+			const sectionPromises: Promise<void>[] = [];
+			for (const spec of sections) {
+				sectionPromises.push(
+					(async () => {
+						try {
+							const { section, content } = await runSection(spec);
+							Object.assign(context, content);
+							controller.enqueue(
+								encoder.encode(
+									`data: ${JSON.stringify({ section, content })}\n\n`,
+								),
+							);
+						} catch (err) {
+							failures++;
+							const msg =
+								err instanceof Error ? err.message : String(err);
+							controller.enqueue(
+								encoder.encode(
+									`data: ${JSON.stringify({
+										section: spec.section,
+										error: msg,
+									})}\n\n`,
+								),
+							);
+						} finally {
+							pending--;
+						}
+					})(),
+				);
+			}
+			await Promise.allSettled(sectionPromises);
 
 			try {
 				const docSpec = buildDocumentSection({

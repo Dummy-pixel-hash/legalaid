@@ -206,6 +206,9 @@ export const hi: Dictionary = {
 	documentRegen: "पत्र दोबारा बनाएँ",
 	documentRegenerating: "बना रहे हैं…",
 	documentRegenError: "पत्र दोबारा नहीं बन सका। फिर कोशिश करें।",
+	documentPreparing: "{lang} का पत्र तैयार हो रहा है…",
+	languageEn: "English",
+	languageHi: "हिंदी",
 	documentTypeLegalNotice: "कानूनी नोटिस",
 	documentTypeConsumerComplaint: "उपभोक्ता शिकायत",
 	documentTypeLabourComplaint: "श्रम शिकायत",
@@ -261,8 +264,7 @@ export const hi: Dictionary = {
 	reviseApplied: "बदलाव लागू हो गए",
 	reviseUnavailable:
 		"इस तरह के मामले के लिए बदलाव उपलब्ध नहीं है — यहाँ पत्र एक सामान्य ड्राफ़्ट है। इसे सीधे संपादित करें या चैट में सहायक से पूछें।",
-	reviseNoChanges:
-		"कोई बदलाव नहीं मिला — कोई और निर्देश आज़माएँ।",
+	reviseNoChanges: "कोई बदलाव नहीं मिला — कोई और निर्देश आज़माएँ।",
 	reviseChanged: "क्या बदलेगा:",
 	sectionLabel: "भाग",
 

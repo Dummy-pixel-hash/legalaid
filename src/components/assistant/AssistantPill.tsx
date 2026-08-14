@@ -109,7 +109,7 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	return (
 		<div
 			ref={panelRef}
-			className="fixed right-4 bottom-5 z-50 flex max-h-[min(70vh,34rem)] w-[min(24rem,calc(100vw-2rem))] animate-in fade-in-0 zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg duration-200 ease-out sm:right-6 sm:bottom-6"
+			className="fixed right-4 bottom-5 z-50 flex max-h-[min(70vh,34rem)] w-[min(24rem,calc(100vw-2rem))] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg motion-safe:duration-200 motion-safe:ease-out sm:right-6 sm:bottom-6"
 			role="dialog"
 			aria-label={heading}
 		>

@@ -217,6 +217,9 @@ export const en = {
 	documentRegen: "Regenerate letter",
 	documentRegenerating: "Regenerating…",
 	documentRegenError: "Couldn't regenerate the letter. Try again.",
+	documentPreparing: "Preparing the {lang} letter…",
+	languageEn: "English",
+	languageHi: "हिंदी",
 	documentTypeLegalNotice: "Legal notice",
 	documentTypeConsumerComplaint: "Consumer complaint",
 	documentTypeLabourComplaint: "Labour complaint",
@@ -274,8 +277,7 @@ export const en = {
 	reviseApplied: "Changes applied",
 	reviseUnavailable:
 		"Revision isn't available for this kind of case — the letter here is a general draft. Edit it directly or ask the assistant in the chat.",
-	reviseNoChanges:
-		"No changes detected — try a different instruction.",
+	reviseNoChanges: "No changes detected — try a different instruction.",
 	reviseChanged: "What changes:",
 	sectionLabel: "Section",
 

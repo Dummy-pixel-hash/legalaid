@@ -46,6 +46,19 @@ Set these in `.env.local` (see `.gitignore` — env files are never committed):
 `AI_ENDPOINT` / `AI_ENDPOINT_REGISTRY` / `AI_MODEL` / `AI_ENABLE_THINKING`
 additionally tune the model backend (see `src/lib/model/chat.ts`).
 
+> **Why generation can feel slow.** The analysis runs as four grammar-
+> constrained sections (summary/issues/rights · uncertainty/evidence · next
+> steps · document). The first three are issued concurrently, but real
+> parallelism depends on the model server's slot count — run llama.cpp with
+> `--parallel 4` (and enough KV cache) to actually execute them side by side;
+> on a single-slot server the requests queue and total time is the sum of the
+> sections. The letter is generated per language: the second language's draft
+> is pre-warmed in the background right after analysis, so toggling the
+> letter's language on the document page is instant instead of a slow
+> on-demand call. If a single analysis feels too slow, prefer a faster model
+> or more VRAM over smaller outputs — the bilingual content is what makes
+> language switching instant.
+
 ### Voice input (speech-to-text)
 
 On the intake page, the mic button records your description in your own words

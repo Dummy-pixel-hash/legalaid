@@ -37,7 +37,8 @@ export default function DocumentPage({
 function DocumentClient({ caseId }: { caseId: string }) {
 	const { t, lang } = useI18n();
 	const router = useRouter();
-	const { record, analysis, updateDocument } = useCase(caseId, lang);
+	const { record, analysis, updateDocument, ensureDocumentDraft } =
+		useCase(caseId, lang);
 	const [editing, setEditing] = useState(true);
 	const [savedFlash, setSavedFlash] = useState(false);
 	const [copiedFlash, setCopiedFlash] = useState(false);
@@ -58,10 +59,13 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	// The document ships with the analysis now (4th section); per-language
 	// edits/regenerated drafts (overrides.document[lang]) always win over the
 	// active language's base draft, so toggling never leaks a letter across.
+	const draftReady = Boolean(record.documentDrafts?.[lang]);
+	const genericCase = analysis.domain === "other";
 	const doc = {
 		...analysis.document,
 		...(record.overrides.document?.[lang] ?? {}),
 	};
+	const langName = t(lang === "hi" ? "languageHi" : "languageEn");
 
 	const handleChange = (patch: Partial<DocumentData>) => {
 		updateDocument(caseId, lang, patch);
@@ -202,21 +206,42 @@ function DocumentClient({ caseId }: { caseId: string }) {
 						</h1>
 						<p className="mt-2 text-ink-70">{t("documentSubtitle")}</p>
 					</header>
-					<div
-						className={cn(
-							"mt-[22px]",
-							!editing && "pointer-events-none select-none",
-						)}
-					>
-						<DocumentSheet
-							doc={doc}
-							editing={editing}
-							onChange={handleChange}
-						/>
-					</div>
-					<div className="mt-6 print-hide">
-						<DocumentAssistant caseId={caseId} doc={doc} />
-					</div>
+					{draftReady || genericCase ? (
+						<div
+							className={cn(
+								"mt-[22px]",
+								!editing && "pointer-events-none select-none",
+							)}
+						>
+							<DocumentSheet
+								doc={doc}
+								editing={editing}
+								onChange={handleChange}
+							/>
+						</div>
+					) : (
+						<div className="mx-auto mt-[22px] flex w-full max-w-[760px] flex-col items-center justify-center gap-3 rounded-md border border-line bg-surface px-8 py-16 text-center shadow-sm print-hide">
+							<Loader2
+								className="h-5 w-5 animate-spin text-accent-strong"
+								aria-hidden
+							/>
+							<p className="text-sm text-ink-70" role="status">
+								{t("documentPreparing", { lang: langName })}
+							</p>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => void ensureDocumentDraft(caseId, lang)}
+							>
+								{t("retry")}
+							</Button>
+						</div>
+					)}
+					{draftReady || genericCase ? (
+						<div className="mt-6 print-hide">
+							<DocumentAssistant caseId={caseId} doc={doc} />
+						</div>
+					) : null}
 				</div>
 			</div>
 		</div>

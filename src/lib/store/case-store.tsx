@@ -312,6 +312,36 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 					stage: null,
 					pct: 100,
 				});
+				// Pre-warm the OTHER language's letter in the background: the
+				// letter is per-language, and generating it on first toggle cost a
+				// slow on-demand model call (and silently showed the old language
+				// meanwhile). Fired right after analysis while the user reads, so
+				// toggling the letter language is instant in practice.
+				if (analysis.domain !== "other") {
+					const other: Language = lang === "en" ? "hi" : "en";
+					void provider
+						.generateDocument({
+							analysis,
+							intake,
+							lang: other,
+							edits: {},
+						})
+						.then((draft) => {
+							// Skip if the case was re-analyzed while this ran (stale).
+							const cur = recordsRef.current[id];
+							if (cur?.baseAnalysis?.id !== analysis.id) return;
+							patchRecord(id, {
+								documentDrafts: {
+									...(cur.documentDrafts ?? {}),
+									[other]: draft,
+								},
+							});
+						})
+						.catch(() => {
+							// Cold path: the document page regenerates on demand
+							// (ensureDocumentDraft) and shows a preparing state.
+						});
+				}
 			} catch (err) {
 				console.error("Analysis failed", err);
 				patchRecord(id, { status: "error" });

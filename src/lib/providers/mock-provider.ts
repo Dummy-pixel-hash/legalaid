@@ -224,7 +224,9 @@ ${lawBit}`
 				i === sections.length - 1 ? { ...s, body: `${s.body}${firmClose}` } : s,
 			);
 			if (!subject.toLowerCase().includes("formal")) {
-				subject = hi ? `${subject} — औपचारिक सूचना` : `${subject} — formal notice`;
+				subject = hi
+					? `${subject} — औपचारिक सूचना`
+					: `${subject} — formal notice`;
 			}
 		} else if (q.includes("formal") || q.includes("औपचारिक")) {
 			// Formal opening on the first section.
@@ -233,7 +235,11 @@ ${lawBit}`
 					? { ...s, body: `${formalOpen}${s.body}` }
 					: s,
 			);
-		} else if (q.includes("condense") || q.includes("short") || q.includes("छोटा")) {
+		} else if (
+			q.includes("condense") ||
+			q.includes("short") ||
+			q.includes("छोटा")
+		) {
 			sections = sections.map((s) => ({ ...s, body: condense(s.body) }));
 			subject = hi ? `संक्षिप्त: ${subject}` : `Brief: ${subject}`;
 		} else {
