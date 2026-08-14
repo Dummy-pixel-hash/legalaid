@@ -122,40 +122,38 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 				style={{ backgroundImage: GRAIN, backgroundSize: "160px 160px" }}
 			/>
 			<div className="relative flex items-center justify-between gap-2 border-b border-line px-4 py-3">
-					<div className="flex min-w-0 items-center gap-2">
-						<MessageCircleQuestion
-							className="h-4 w-4 shrink-0 text-accent-strong"
-							aria-hidden
-						/>
-						<h2 className="truncate text-sm font-semibold text-ink">
-							{heading}
-						</h2>
-					</div>
-					<div className="flex shrink-0 items-center gap-1">
-						{chat.thread.length > 0 && (
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								onClick={chat.clear}
-								title={t("assistantClear")}
-								aria-label={t("assistantClear")}
-							>
-								<RotateCcw className="h-4 w-4" aria-hidden />
-							</Button>
-						)}
+				<div className="flex min-w-0 items-center gap-2">
+					<MessageCircleQuestion
+						className="h-4 w-4 shrink-0 text-accent-strong"
+						aria-hidden
+					/>
+					<h2 className="truncate text-sm font-semibold text-ink">{heading}</h2>
+				</div>
+				<div className="flex shrink-0 items-center gap-1">
+					{chat.thread.length > 0 && (
 						<Button
 							type="button"
 							variant="ghost"
 							size="icon-sm"
-							onClick={() => setOpen(false)}
-							title={t("assistantClose")}
-							aria-label={t("assistantClose")}
+							onClick={chat.clear}
+							title={t("assistantClear")}
+							aria-label={t("assistantClear")}
 						>
-							<X className="h-4 w-4" aria-hidden />
+							<RotateCcw className="h-4 w-4" aria-hidden />
 						</Button>
-					</div>
+					)}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						onClick={() => setOpen(false)}
+						title={t("assistantClose")}
+						aria-label={t("assistantClose")}
+					>
+						<X className="h-4 w-4" aria-hidden />
+					</Button>
 				</div>
+			</div>
 			<AssistantChat
 				chips={chips}
 				messages={chat.thread}

@@ -17,9 +17,12 @@ import type { DocumentData } from "@/lib/types/domain";
 export function DocumentAssistant({
 	caseId,
 	doc,
+	onApplied,
 }: {
 	caseId: string;
 	doc: DocumentData;
+	/** Called after a revision is applied (the page uses it to draw attention to the sheet). */
+	onApplied?: () => void;
 }) {
 	const { t, lang } = useI18n();
 	const { record, analysis, updateDocument } = useCase(caseId, lang);
@@ -82,6 +85,7 @@ export function DocumentAssistant({
 		updateDocument(caseId, lang, proposal);
 		setProposal(null);
 		setAppliedFlash(true);
+		onApplied?.();
 		window.setTimeout(() => setAppliedFlash(false), 2000);
 	};
 

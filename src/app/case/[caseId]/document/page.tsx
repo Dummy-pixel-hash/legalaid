@@ -46,6 +46,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	const [copiedFlash, setCopiedFlash] = useState(false);
 	const [regenerating, setRegenerating] = useState(false);
 	const [regenError, setRegenError] = useState(false);
+	const [appliedPulse, setAppliedPulse] = useState(false);
 
 	if (!record) return null;
 	if (record.status === "analyzing") {
@@ -213,6 +214,8 @@ function DocumentClient({ caseId }: { caseId: string }) {
 							className={cn(
 								"mt-[22px]",
 								!editing && "pointer-events-none select-none",
+								appliedPulse &&
+									"rounded-md ring-2 ring-accent-strong/50 transition-all",
 							)}
 						>
 							<DocumentSheet
@@ -241,7 +244,14 @@ function DocumentClient({ caseId }: { caseId: string }) {
 					)}
 					{draftReady || genericCase ? (
 						<div className="mt-6 print-hide">
-							<DocumentAssistant caseId={caseId} doc={doc} />
+							<DocumentAssistant
+								caseId={caseId}
+								doc={doc}
+								onApplied={() => {
+									setAppliedPulse(true);
+									window.setTimeout(() => setAppliedPulse(false), 1400);
+								}}
+							/>
 						</div>
 					) : null}
 				</div>

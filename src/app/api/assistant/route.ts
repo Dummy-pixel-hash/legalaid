@@ -174,17 +174,60 @@ async function handleDocument(body: unknown): Promise<Response> {
 		instruction,
 	});
 
+	const spec = {
+		section: "document" as const,
+		name: "document-revision",
+		schema: DOC_SECTION_SCHEMA,
+		messages,
+		maxTokens: 4096,
+	};
+
 	try {
-		const { content } = await runSection({
-			section: "document",
-			name: "document-revision",
-			schema: DOC_SECTION_SCHEMA,
-			messages,
-			maxTokens: 4096,
-		});
+		let { content } = await runSection(spec);
+		// Anti-echo: small local models sometimes respond to a revision request
+		// by echoing the CURRENT DRAFT unchanged. Applying an identical draft
+		// makes "Apply changes" look broken, so detect it and retry once with
+		// a hard nudge before surfacing the proposal.
+		const docRaw =
+			content && typeof content === "object"
+				? ((content as Record<string, unknown>).document ?? content)
+				: {};
+		if (echoesDraft(docRaw as Record<string, unknown>, draft)) {
+			const retried = await runSection({
+				...spec,
+				messages: [
+					...messages,
+					{
+						role: "user",
+						content:
+							"Your previous response was IDENTICAL to the CURRENT DRAFT — that is a failure. You MUST produce a revised draft that clearly differs from the draft in the way the instruction asks: noticeably firmer or more formal wording, shorter text, or a full translation. Do not echo the draft.",
+					},
+				],
+			});
+			content = retried.content;
+		}
 		return NextResponse.json({ content });
 	} catch (err) {
 		console.error("assistant document revision error", err);
 		return NextResponse.json({ error: "model error" }, { status: 502 });
 	}
+}
+
+/** True when the model returned the draft with no meaningful text change. */
+function echoesDraft(
+	out: Record<string, unknown>,
+	draft: Record<string, unknown>,
+): boolean {
+	const key = (d: Record<string, unknown>) =>
+		JSON.stringify({
+			title: d.title ?? "",
+			subject: d.subject ?? "",
+			sections: Array.isArray(d.sections)
+				? d.sections.map((s) => ({
+						h: (s as Record<string, unknown> | null)?.heading ?? "",
+						b: (s as Record<string, unknown> | null)?.body ?? "",
+					}))
+				: [],
+		});
+	return key(out) === key(draft);
 }
