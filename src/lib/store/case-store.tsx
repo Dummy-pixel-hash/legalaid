@@ -23,6 +23,7 @@ import type {
 import type { AssistantMessage } from "@/lib/providers/legal-analysis";
 import { getProvider } from "@/lib/providers";
 import { DEMO_CASES } from "@/lib/mock/demo-cases";
+import { useI18n } from "@/lib/i18n/provider";
 
 const STORAGE_KEY = "laid.cases.v1";
 
@@ -101,6 +102,9 @@ type PersistedRecord = Pick<
 	| "documentDrafts"
 	| "evidenceCache"
 	| "assistantThread"
+	| "status"
+	| "stage"
+	| "pct"
 	| "createdAt"
 >;
 
@@ -128,9 +132,11 @@ function loadPersisted(): Record<string, CaseRecord> {
 		for (const [id, rec] of Object.entries(parsed)) {
 			out[id] = {
 				...rec,
-				status: "ready",
-				stage: null,
-				pct: 100,
+				// Restore the persisted lifecycle state so an interrupted
+				// analysis can be resumed after a reload.
+				status: rec.status ?? "ready",
+				stage: rec.stage ?? null,
+				pct: rec.pct ?? 100,
 				overrides: {
 					...(rec.overrides ?? emptyOverrides()),
 					customEvidence: rec.overrides?.customEvidence ?? [],
@@ -163,19 +169,23 @@ function persist(records: Record<string, CaseRecord>) {
 	try {
 		const slim: Record<string, PersistedRecord> = {};
 		for (const [id, rec] of Object.entries(records)) {
-			if (rec.status === "ready" || rec.status === "error") {
-				slim[id] = {
-					id: rec.id,
-					intake: rec.intake,
-					isDemo: rec.isDemo,
-					baseAnalysis: rec.baseAnalysis,
-					overrides: rec.overrides,
-					documentDrafts: rec.documentDrafts,
-					evidenceCache: rec.evidenceCache,
-					assistantThread: rec.assistantThread,
-					createdAt: rec.createdAt,
-				};
-			}
+			// Persist every record — including in-flight "analyzing" ones, so a
+			// refresh mid-analysis can resume from the saved intake instead of
+			// leaving a blank page for an unrecoverable UUID.
+			slim[id] = {
+				id: rec.id,
+				intake: rec.intake,
+				isDemo: rec.isDemo,
+				baseAnalysis: rec.baseAnalysis,
+				overrides: rec.overrides,
+				documentDrafts: rec.documentDrafts,
+				evidenceCache: rec.evidenceCache,
+				assistantThread: rec.assistantThread,
+				status: rec.status,
+				stage: rec.stage,
+				pct: rec.pct,
+				createdAt: rec.createdAt,
+			};
 		}
 		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
 	} catch {
@@ -230,6 +240,7 @@ const CaseStoreContext = createContext<CaseStoreValue | null>(null);
 export function CaseProvider({ children }: { children: ReactNode }) {
 	const [records, setRecords] =
 		useState<Record<string, CaseRecord>>(loadPersisted);
+	const { lang } = useI18n();
 	const recordsRef = useRef(records);
 	useEffect(() => {
 		// Keep the ref in sync after commit so memoized callbacks can read the
@@ -349,6 +360,22 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 		},
 		[patchRecord],
 	);
+
+	// A reload (or tab restore) can leave records in "analyzing" with their
+	// in-flight promise gone. Resume them from the persisted intake so the
+	// loader replays instead of stranding the user on a blank page for an
+	// unrecoverable UUID.
+	const resumedRef = useRef(false);
+	useEffect(() => {
+		if (resumedRef.current) return;
+		resumedRef.current = true;
+		for (const rec of Object.values(recordsRef.current)) {
+			if (rec.status === "analyzing") {
+				void runAnalysis(rec.id, rec.intake, lang, rec.isDemo, true);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [runAnalysis, lang]);
 
 	const createFromIntake = useCallback(
 		async (intake: IntakeData, lang: Language) => {

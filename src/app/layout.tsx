@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import {
   IBM_Plex_Sans,
   IBM_Plex_Sans_Devanagari,
@@ -10,6 +11,7 @@ import { LanguageProvider } from "@/lib/i18n/provider";
 import { CaseProvider } from "@/lib/store/case-store";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { AppFooter } from "@/components/shell/AppFooter";
+import type { Language } from "@/lib/types/domain";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-ui",
@@ -41,10 +43,18 @@ export const metadata: Metadata = {
     "LegalAId helps you understand a legal problem in plain language — your rights, the applicable law, the evidence to keep, the next steps, and a document you can use. General legal information, not legal advice.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // One language source of truth: the laid.lang cookie is read server-side so
+  // the SSR HTML matches the client's first render (no hydration mismatch).
+  // The client writes it on toggle; ?lang= and stored preferences are applied
+  // post-hydration on first visit.
+  const cookieStore = await cookies();
+  const cookieLang = cookieStore.get("laid.lang")?.value;
+  const initialLang: Language = cookieLang === "hi" ? "hi" : "en";
+
   return (
     <html
-      lang="en"
+      lang={initialLang}
       className={`${plexSans.variable} ${plexDevanagari.variable} ${sourceSerif.variable} ${notoSerifDevanagari.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
@@ -54,7 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <LanguageProvider>
+        <LanguageProvider initialLang={initialLang}>
           <CaseProvider>
             <AppHeader />
             <main id="main-content" className="flex-1">

@@ -15,6 +15,18 @@ import type { Dictionary, TranslationKey } from "./types";
 import type { Language } from "@/lib/types/domain";
 
 const STORAGE_KEY = "laid.lang";
+const COOKIE_KEY = "laid.lang";
+
+/** Read the language cookie — the single server/client-consistent source. */
+function readCookieLang(): Language | null {
+  if (typeof document === "undefined") return null;
+  const pair = document.cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${COOKIE_KEY}=`));
+  const value = pair?.split("=")[1];
+  return value === "hi" || value === "en" ? value : null;
+}
 
 const dictionaries: Record<Language, Dictionary> = { en, hi };
 
@@ -36,9 +48,14 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function detectInitialLanguage(): Language {
+function detectInitialLanguage(initialLang?: Language): Language {
+  // Server-computed cookie value passed from the RSC layout: both server and
+  // client resolve to the same string, so hydration never diverges.
+  if (initialLang) return initialLang;
   if (typeof window === "undefined") return "en";
   try {
+    const cookie = readCookieLang();
+    if (cookie) return cookie;
     const url = new URL(window.location.href);
     const param = url.searchParams.get("lang");
     if (param === "hi" || param === "en") return param;
@@ -51,13 +68,25 @@ function detectInitialLanguage(): Language {
   return "en";
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Language>(detectInitialLanguage);
+export function LanguageProvider({
+  children,
+  initialLang,
+}: {
+  children: ReactNode;
+  /** Server-computed language (from the laid.lang cookie) so SSR matches hydration. */
+  initialLang?: Language;
+}) {
+  const [lang, setLangState] = useState<Language>(() =>
+    detectInitialLanguage(initialLang),
+  );
 
   const setLang = useCallback((next: Language) => {
     setLangState(next);
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
+      // Mirror into a cookie so the server renders the same language on the
+      // next request — no flash, no hydration mismatch.
+      document.cookie = `${COOKIE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
     } catch {
       // storage unavailable — session only
     }
@@ -70,6 +99,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       lang === "hi" ? "var(--font-ui-hi)" : "var(--font-ui)",
     );
   }, [lang]);
+
+  // First visit without a cookie yet: the server rendered English (no cookie
+  // to read). Apply any stored/param/locale preference post-hydration — after
+  // this the cookie exists and SSR renders the chosen language directly.
+  useEffect(() => {
+    if (readCookieLang()) return;
+    const detected = detectInitialLanguage();
+    if (detected !== lang) setLang(detected);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const t = useCallback(
     (key: TranslationKey, vars?: Interpolations) => {

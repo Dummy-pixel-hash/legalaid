@@ -88,7 +88,7 @@ export function CaseStepper({ caseId }: { caseId: string }) {
 				<div className="flex items-center justify-between gap-3">
 					<Link
 						href={
-							current === 0
+							current === 0 || STEPS[current - 1].path === ""
 								? `/intake?edit=${caseId}`
 								: `/case/${caseId}${STEPS[current - 1].path}`
 						}

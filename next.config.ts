@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // non-allowlisted origins, which breaks hydration/interactivity off localhost.
   allowedDevOrigins: [
     "100.86.95.34",
+    "192.168.29.137",
     "localhost",
     "127.0.0.1",
     "::1",
