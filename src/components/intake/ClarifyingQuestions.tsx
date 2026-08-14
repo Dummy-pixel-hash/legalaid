@@ -5,6 +5,7 @@ import { ArrowRight, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n/provider";
+import { VoiceInput } from "@/components/shared/VoiceInput";
 import type { Domain, IntakeData } from "@/lib/types/domain";
 
 export interface ClarifyingQuestion {
@@ -158,31 +159,48 @@ export function ClarifyingQuestions({
 
 			<div className="mt-5 flex flex-col gap-3">
 				{question.kind === "amount" ? (
-					<div className="relative">
-						<span
-							aria-hidden
-							className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-50"
-						>
-							₹
-						</span>
+					<div className="flex items-center gap-2">
+						<div className="relative flex-1">
+							<span
+								aria-hidden
+								className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-50"
+							>
+								₹
+							</span>
+							<Input
+								autoFocus
+								inputMode="numeric"
+								value={value}
+								onChange={(e) => setValue(e.target.value)}
+								placeholder={question.placeholder[lang]}
+								onKeyDown={(e) => e.key === "Enter" && save()}
+								className="pl-8"
+							/>
+						</div>
+						<VoiceInput
+							language={lang}
+							onTranscribed={(text) =>
+								setValue((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))
+							}
+						/>
+					</div>
+				) : (
+					<div className="flex items-center gap-2">
 						<Input
 							autoFocus
-							inputMode="numeric"
 							value={value}
 							onChange={(e) => setValue(e.target.value)}
 							placeholder={question.placeholder[lang]}
 							onKeyDown={(e) => e.key === "Enter" && save()}
-							className="pl-8"
+							className="flex-1"
+						/>
+						<VoiceInput
+							language={lang}
+							onTranscribed={(text) =>
+								setValue((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))
+							}
 						/>
 					</div>
-				) : (
-					<Input
-						autoFocus
-						value={value}
-						onChange={(e) => setValue(e.target.value)}
-						placeholder={question.placeholder[lang]}
-						onKeyDown={(e) => e.key === "Enter" && save()}
-					/>
 				)}
 				<div className="flex items-center gap-3">
 					<Button onClick={save} disabled={!value.trim()}>
