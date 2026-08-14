@@ -98,7 +98,7 @@ export function LoadingAnalysis({
 									isResolved
 										? "opacity-40"
 										: isActive
-											? "opacity-100"
+											? "opacity-100 loader-tile-active"
 											: "opacity-25"
 								}`}
 							>

@@ -198,6 +198,22 @@
   min-width: 0;
 }
 
+/* Analysis loader — the active sheet keeps working even while progress sits
+   between stage events: a slow, calm breathing so the wait never looks
+   frozen. The global reduced-motion rule still freezes it. */
+@keyframes loader-sheet-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+.loader-tile-active {
+  animation: loader-sheet-breathe 2.6s ease-in-out infinite;
+}
+
 /* Intake page — document-voice header (promoted variant 3) */
 .p3-step .p3-num {
   font-family: var(--font-doc);
