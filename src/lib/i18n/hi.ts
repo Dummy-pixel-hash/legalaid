@@ -225,6 +225,9 @@ export const hi: Dictionary = {
 
 	// ── Assistant ────────────────────────────────────────────────────
 	assistantHeading: "अपने मामले के बारे में सवाल?",
+	assistantPill: "अपने मामले के बारे में पूछें",
+	assistantClose: "सहायक बंद करें",
+	assistantClear: "फिर से शुरू करें",
 	assistantDocHeading: "अपने दस्तावेज़ के बारे में पूछें",
 	assistantSubtitle:
 		"अपने मामले और विश्लेषण के बारे में आगे के सवाल पूछें। LegalAId सिर्फ़ आपके मामले के आधार पर जवाब देता है।",

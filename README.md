@@ -58,15 +58,22 @@ permission, and `GROQ_API_KEY` set on the server.
 
 ### Case assistant (Q&A + document revisions)
 
-Every case page ends with a contextual assistant — "Questions about your
-case?" — that answers follow-up questions grounded in *that case* (intake,
-analysis, evidence state, next steps, and the current letter draft on the
-document page). Answers stream in and are constrained to the law sources the
-analysis already established (the server resolves sources; none are ever
-invented). On the document page the assistant also **revises the letter**: pick
-a preset (firmer, more formal, translate, shorten) or type an instruction, and
-the assistant proposes a revised draft you can **Apply** or **Discard** — an
-AI-collaborative editing loop on top of the existing edits-wins draft model.
+On every case page, a **pill button** (bottom-right) expands into the
+case-aware assistant window and collapses back when you click away. It answers
+follow-up questions grounded in *that case* (intake, analysis, evidence state,
+next steps, and the current letter draft on the document page) and has a
+voice-input mic for composing. Answers stream in and are constrained to the
+law sources the analysis already established (the server resolves sources;
+none are ever invented).
+
+The conversation is **persisted per case** in the case store (localStorage) —
+it survives navigating between case pages and page reloads. The suggestion
+chips adapt to the current step, and on the document page the letter draft is
+included as context. On the document page the assistant also **revises the
+letter**: pick a preset (firmer, more formal, translate, shorten) or type an
+instruction, and the assistant proposes a revised draft you can **Apply** or
+**Discard** — an AI-collaborative editing loop on top of the existing
+edits-wins draft model.
 
 Backend: `POST /api/assistant` (mode `chat` streams SSE deltas; mode
 `document` returns a grammar-constrained draft). The mock provider returns

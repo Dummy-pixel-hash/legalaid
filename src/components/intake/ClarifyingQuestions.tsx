@@ -180,7 +180,9 @@ export function ClarifyingQuestions({
 						<VoiceInput
 							language={lang}
 							onTranscribed={(text) =>
-								setValue((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))
+								setValue((prev) =>
+									prev.trim() ? `${prev.trim()} ${text}` : text,
+								)
 							}
 						/>
 					</div>
@@ -197,7 +199,9 @@ export function ClarifyingQuestions({
 						<VoiceInput
 							language={lang}
 							onTranscribed={(text) =>
-								setValue((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text))
+								setValue((prev) =>
+									prev.trim() ? `${prev.trim()} ${text}` : text,
+								)
 							}
 						/>
 					</div>

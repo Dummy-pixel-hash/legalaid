@@ -236,6 +236,9 @@ export const en = {
 
 	// ── Assistant ────────────────────────────────────────────────────
 	assistantHeading: "Questions about your case?",
+	assistantPill: "Ask about your case",
+	assistantClose: "Close assistant",
+	assistantClear: "Start over",
 	assistantDocHeading: "Ask about your document",
 	assistantSubtitle:
 		"Ask follow-up questions about your case and analysis. LegalAId answers from your case alone.",

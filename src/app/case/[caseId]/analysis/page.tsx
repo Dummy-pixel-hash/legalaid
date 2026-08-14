@@ -16,7 +16,6 @@ import { LawsBlock } from "@/components/analysis/LawsBlock";
 import { UncertaintyBlock } from "@/components/analysis/UncertaintyBlock";
 import { DisclaimerBanner } from "@/components/analysis/DisclaimerBanner";
 import { DevelopmentProviderNotice } from "@/components/analysis/DevelopmentProviderNotice";
-import { CaseAssistant } from "@/components/assistant/CaseAssistant";
 
 export default function AnalysisPage({
 	params,
@@ -93,19 +92,6 @@ function AnalysisClient({ caseId }: { caseId: string }) {
 				<div className="py-8">
 					<DisclaimerBanner text={analysis.disclaimer} />
 				</div>
-			</div>
-
-			<div className="mt-10">
-				<CaseAssistant
-					caseId={caseId}
-					page="analysis"
-					chips={[
-						t("assistantChipLaw"),
-						t("assistantChipMissing"),
-						t("assistantChipHindi"),
-						t("assistantChipFirst"),
-					]}
-				/>
 			</div>
 
 			<div className="mt-10 border-t border-line pt-6">

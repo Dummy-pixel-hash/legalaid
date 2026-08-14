@@ -20,10 +20,14 @@ import type {
 	Language,
 	Progress,
 } from "@/lib/types/domain";
+import type { AssistantMessage } from "@/lib/providers/legal-analysis";
 import { getProvider } from "@/lib/providers";
 import { DEMO_CASES } from "@/lib/mock/demo-cases";
 
 const STORAGE_KEY = "laid.cases.v1";
+
+/** Assistant conversation cap per case — history stays bounded in storage. */
+const THREAD_LIMIT = 50;
 
 interface CaseOverrides {
 	evidence: Record<string, { status: EvidenceStatus; note?: string }>;
@@ -47,6 +51,9 @@ interface CaseRecord {
 	 * stamped into every language's analysis, so the checklist is identical
 	 * across language toggles (status overrides are id-keyed and carry over). */
 	evidenceCache: EvidenceItem[] | null;
+	/** The case-aware assistant's conversation, persisted so it survives
+	 * navigation between case pages (one thread per case). Capped on append. */
+	assistantThread: AssistantMessage[];
 	status: AnalysisStatus;
 	stage: Progress["stage"] | null;
 	pct: number;
@@ -93,6 +100,7 @@ type PersistedRecord = Pick<
 	| "overrides"
 	| "documentDrafts"
 	| "evidenceCache"
+	| "assistantThread"
 	| "createdAt"
 >;
 
@@ -141,6 +149,7 @@ function loadPersisted(): Record<string, CaseRecord> {
 						? { [rec.baseAnalysis.language]: rec.baseAnalysis.document }
 						: {}),
 				evidenceCache: rec.evidenceCache ?? null,
+				assistantThread: rec.assistantThread ?? [],
 			};
 		}
 		return out;
@@ -163,6 +172,7 @@ function persist(records: Record<string, CaseRecord>) {
 					overrides: rec.overrides,
 					documentDrafts: rec.documentDrafts,
 					evidenceCache: rec.evidenceCache,
+					assistantThread: rec.assistantThread,
 					createdAt: rec.createdAt,
 				};
 			}
@@ -205,6 +215,10 @@ interface CaseStoreValue {
 	) => void;
 	removeCustomEvidence: (id: string, evidenceId: string) => void;
 	updateDocument: (id: string, lang: Language, patch: Partial<DocumentData>) => void;
+	/** Append a turn to the persisted per-case assistant conversation. */
+	appendAssistantMessage: (id: string, msg: AssistantMessage) => void;
+	/** Reset the per-case assistant conversation. */
+	clearAssistantThread: (id: string) => void;
 }
 
 const CaseStoreContext = createContext<CaseStoreValue | null>(null);
@@ -249,6 +263,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 						hi: demo.analysis("hi").document,
 					},
 					evidenceCache: demo.analysis("en").evidence,
+					assistantThread: [],
 					status: "ready",
 					stage: null,
 					pct: 100,
@@ -312,6 +327,7 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 				overrides: emptyOverrides(),
 				documentDrafts: {},
 				evidenceCache: null,
+				assistantThread: [],
 				status: "analyzing",
 				stage: "reading",
 				pct: 0,
@@ -327,11 +343,13 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 	const reanalyze = useCallback(
 		async (id: string, intake: IntakeData, lang: Language) => {
 			// Intake changed → the canonical analysis and letter drafts are stale.
+			// The assistant's answers referenced the old facts — start it over.
 			patchRecord(id, {
 				intake,
 				overrides: emptyOverrides(),
 				documentDrafts: {},
 				evidenceCache: null,
+				assistantThread: [],
 			});
 			const rec = recordsRef.current[id];
 			await runAnalysis(id, intake, lang, rec?.isDemo ?? false);
@@ -448,6 +466,21 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 		[patchRecord],
 	);
 
+	const appendAssistantMessage = useCallback(
+		(id: string, msg: AssistantMessage) => {
+			const prev = recordsRef.current[id]?.assistantThread ?? [];
+			patchRecord(id, {
+				assistantThread: [...prev, msg].slice(-THREAD_LIMIT),
+			});
+		},
+		[patchRecord],
+	);
+
+	const clearAssistantThread = useCallback(
+		(id: string) => patchRecord(id, { assistantThread: [] }),
+		[patchRecord],
+	);
+
 	const value = useMemo(
 		() => ({
 			records,
@@ -460,6 +493,8 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 			updateCustomEvidence,
 			removeCustomEvidence,
 			updateDocument,
+			appendAssistantMessage,
+			clearAssistantThread,
 		}),
 		[
 			records,
@@ -472,6 +507,8 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 			updateCustomEvidence,
 			removeCustomEvidence,
 			updateDocument,
+			appendAssistantMessage,
+			clearAssistantThread,
 		],
 	);
 

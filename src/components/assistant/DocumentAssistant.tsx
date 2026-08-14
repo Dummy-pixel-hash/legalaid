@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n/provider";
 import { useCase } from "@/lib/store/case-store";
 import { getProvider } from "@/lib/providers";
-import { CaseAssistant } from "./CaseAssistant";
 import type { DocumentData } from "@/lib/types/domain";
 
 /**
  * The document page's assistant layer: preset + free-form revision actions
- * (the AI-collaborative editing loop — propose → apply/discard → keep editing)
- * plus the contextual Q&A about the letter.
+ * (the AI-collaborative editing loop — propose → apply/discard → keep editing).
+ * Q&A about the case lives in the floating assistant pill (persistent thread),
+ * which includes the live draft as context on this page.
  */
 export function DocumentAssistant({
 	caseId,
@@ -186,17 +186,6 @@ export function DocumentAssistant({
 						</div>
 					</div>
 				)}
-			</div>
-
-			<div className="border-t border-line p-0">
-				<CaseAssistant
-					caseId={caseId}
-					page="document"
-					document={doc}
-					heading={t("assistantDocHeading")}
-					chips={[t("assistantChipDocStrong"), t("assistantChipDocMissing")]}
-					className="border-0 rounded-none"
-				/>
 			</div>
 		</section>
 	);
