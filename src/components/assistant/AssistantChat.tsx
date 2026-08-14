@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, MessageCircleQuestion, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VoiceInput } from "@/components/shared/VoiceInput";
 import { useI18n } from "@/lib/i18n/provider";
@@ -62,10 +62,14 @@ export function AssistantChat({
 	}, [live, streamingText]);
 
 	return (
-		<div className={cn("flex min-h-0 flex-1 flex-col", className)}>
+		<div className={cn("relative flex min-h-0 flex-1 flex-col", className)}>
 			{messages.length === 0 && streamingText.length === 0 ? (
-				<div className="px-4 pt-4 sm:px-5">
-					<p className="text-xs leading-relaxed text-ink-50">
+				<div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
+					<MessageCircleQuestion
+						className="h-6 w-6 text-accent-strong"
+						aria-hidden
+					/>
+					<p className="max-w-[34ch] text-xs leading-relaxed text-ink-50">
 						{t("assistantSubtitle")}
 					</p>
 				</div>
@@ -150,6 +154,7 @@ export function AssistantChat({
 					/>
 					{voice && (
 						<VoiceInput
+							iconOnly
 							className="shrink-0"
 							language={language}
 							onTranscribed={(text) =>

@@ -62,7 +62,10 @@ export function LoadingAnalysis({
 				className="fixed inset-0 bg-background/70 backdrop-blur-xl"
 			/>
 			{/* Soft blurred color fields — the blur look even over empty page */}
-			<div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
+			<div
+				aria-hidden
+				className="pointer-events-none fixed inset-0 overflow-hidden"
+			>
 				<div className="absolute -top-24 left-[15%] h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
 				<div className="absolute top-1/3 -right-20 h-80 w-80 rounded-full bg-accent-strong/15 blur-3xl" />
 				<div className="absolute -bottom-28 left-[8%] h-80 w-80 rounded-full bg-ink/10 blur-3xl" />

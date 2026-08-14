@@ -108,58 +108,54 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 	}
 
 	return (
-		<>
-			{/* Heavy blur + grain backdrop: the page behind the AI window is
-			    veiled and blurred; clicking it collapses the window. */}
+		<div
+			ref={panelRef}
+			className="fixed right-4 bottom-5 z-50 flex max-h-[min(72vh,34rem)] min-h-[20rem] w-[min(24rem,calc(100vw-2rem))] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-background/80 shadow-lg backdrop-blur-xl motion-safe:duration-200 motion-safe:ease-out sm:right-6 sm:bottom-6"
+			role="dialog"
+			aria-label={heading}
+		>
+			{/* Frosted grain inside the window itself — the page stays visible
+			    and interactive behind it; no full-screen backdrop. */}
 			<div
 				aria-hidden
-				onClick={() => setOpen(false)}
-				className="fixed inset-0 z-40 bg-background/60 motion-safe:animate-in motion-safe:fade-in-0 backdrop-blur-xl motion-safe:duration-300 motion-safe:ease-out"
-			/>
-			<div
-				aria-hidden
-				className="pointer-events-none fixed inset-0 z-40 opacity-[0.05] mix-blend-multiply"
+				className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-multiply"
 				style={{ backgroundImage: GRAIN, backgroundSize: "160px 160px" }}
 			/>
-			<div
-				ref={panelRef}
-				className="fixed right-4 bottom-5 z-50 flex max-h-[min(72vh,34rem)] min-h-[26rem] w-[min(24rem,calc(100vw-2rem))] motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 flex-col overflow-hidden rounded-[10px] border border-line bg-surface shadow-lg motion-safe:duration-200 motion-safe:ease-out sm:right-6 sm:bottom-6"
-				role="dialog"
-				aria-label={heading}
-			>
-			<div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
-				<div className="flex min-w-0 items-center gap-2">
-					<MessageCircleQuestion
-						className="h-4 w-4 shrink-0 text-accent-strong"
-						aria-hidden
-					/>
-					<h2 className="truncate text-sm font-semibold text-ink">{heading}</h2>
-				</div>
-				<div className="flex shrink-0 items-center gap-1">
-					{chat.thread.length > 0 && (
+			<div className="relative flex items-center justify-between gap-2 border-b border-line px-4 py-3">
+					<div className="flex min-w-0 items-center gap-2">
+						<MessageCircleQuestion
+							className="h-4 w-4 shrink-0 text-accent-strong"
+							aria-hidden
+						/>
+						<h2 className="truncate text-sm font-semibold text-ink">
+							{heading}
+						</h2>
+					</div>
+					<div className="flex shrink-0 items-center gap-1">
+						{chat.thread.length > 0 && (
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-sm"
+								onClick={chat.clear}
+								title={t("assistantClear")}
+								aria-label={t("assistantClear")}
+							>
+								<RotateCcw className="h-4 w-4" aria-hidden />
+							</Button>
+						)}
 						<Button
 							type="button"
 							variant="ghost"
 							size="icon-sm"
-							onClick={chat.clear}
-							title={t("assistantClear")}
-							aria-label={t("assistantClear")}
+							onClick={() => setOpen(false)}
+							title={t("assistantClose")}
+							aria-label={t("assistantClose")}
 						>
-							<RotateCcw className="h-4 w-4" aria-hidden />
+							<X className="h-4 w-4" aria-hidden />
 						</Button>
-					)}
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						onClick={() => setOpen(false)}
-						title={t("assistantClose")}
-						aria-label={t("assistantClose")}
-					>
-						<X className="h-4 w-4" aria-hidden />
-					</Button>
+					</div>
 				</div>
-			</div>
 			<AssistantChat
 				chips={chips}
 				messages={chat.thread}
@@ -173,6 +169,5 @@ export function AssistantPill({ caseId }: { caseId: string }) {
 				language={lang}
 			/>
 		</div>
-		</>
 	);
 }

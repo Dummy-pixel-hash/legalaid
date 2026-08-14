@@ -24,6 +24,8 @@ interface VoiceInputProps {
 	/** ISO-639-1 hint, e.g. the current UI language. */
 	language?: "en" | "hi";
 	disabled?: boolean;
+	/** Icon-only variant for cramped composers (aria-label/title still carry the state). */
+	iconOnly?: boolean;
 	className?: string;
 }
 
@@ -31,6 +33,7 @@ export function VoiceInput({
 	onTranscribed,
 	language,
 	disabled,
+	iconOnly,
 	className,
 }: VoiceInputProps) {
 	const { t } = useI18n();
@@ -186,9 +189,11 @@ export function VoiceInput({
 				) : (
 					<Mic aria-hidden />
 				)}
-				<span className="hidden sm:inline">
-					{status === "recording" ? t("voiceRecording") : t("voiceLabel")}
-				</span>
+				{!iconOnly && (
+					<span className="hidden sm:inline">
+						{status === "recording" ? t("voiceRecording") : t("voiceLabel")}
+					</span>
+				)}
 			</Button>
 			{error && status === "error" && (
 				<span
