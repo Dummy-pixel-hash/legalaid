@@ -27,24 +27,24 @@ export function HeroIntake() {
 
 	return (
 		<section className="relative overflow-hidden">
-			<div className="mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-between gap-5 px-4 pb-[6vh] pt-[5vh] text-center sm:px-6">
+			<div className="mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-between gap-4 px-4 pb-5 pt-4 text-center sm:gap-5 sm:px-6 sm:pb-[6vh] sm:pt-[5vh]">
 				<div className="max-w-3xl">
 					<p className="text-xs font-medium uppercase tracking-[0.08em] text-accent-strong">
 						{t("headerSub")}
 					</p>
-					<h1 className="mt-[18px] text-[clamp(38px,6.5vw,60px)] font-semibold uppercase leading-[1.05] tracking-[0.01em] text-ink">
+					<h1 className="mt-3 text-[clamp(28px,6.5vw,60px)] font-semibold uppercase leading-[1.05] tracking-[0.01em] text-ink sm:mt-[18px]">
 						{t("homeHeroTitle")}
 					</h1>
-					<p className="mx-auto mt-5 max-w-[34rem] text-[17px] leading-[1.6] text-ink-70">
+					<p className="mx-auto mt-3 max-w-[34rem] text-base leading-[1.6] text-ink-70 sm:mt-5 sm:text-[17px]">
 						{t("homeHeroSubtitle")}
 					</p>
 				</div>
 
 				{/* The first sheet of the file */}
 				<div className="mt-auto w-full max-w-[720px] rounded-[10px] border border-line bg-surface text-left shadow-[0_1px_2px_rgba(27,36,54,0.08),0_8px_24px_rgba(27,36,54,0.10)]">
-					<div className="flex items-baseline justify-between gap-3 border-b-4 border-ink px-6 pt-[18px] pb-3 sm:px-7">
+					<div className="flex items-baseline justify-between gap-3 border-b-4 border-ink px-6 pt-4 pb-2.5 sm:px-7 sm:pt-[18px] sm:pb-3">
 						<p
-							className={`${serif} text-[17px] font-semibold uppercase tracking-[0.08em] text-ink`}
+							className={`${serif} text-[15px] font-semibold uppercase tracking-[0.08em] text-ink sm:text-[17px]`}
 						>
 							{t("situationSheet")}
 						</p>
@@ -75,24 +75,27 @@ export function HeroIntake() {
 								}
 							/>
 						</div>
+						<p className="mt-1.5 text-xs leading-snug text-ink-50">
+							{t("voicePrivacyNote")}
+						</p>
 						<Textarea
 							id="hero-situation"
 							value={text}
 							onChange={(e) => setText(e.target.value)}
 							placeholder={t("homeIntakePlaceholder")}
-							className="mt-2 min-h-[170px] w-full text-[17px] leading-[1.6]"
+							className="mt-2 min-h-[130px] w-full text-[17px] leading-[1.6] sm:min-h-[170px]"
 						/>
 						<div className="mt-[18px] flex flex-wrap items-center justify-between gap-4">
 							<ul
-								className="flex flex-wrap gap-2.5"
+								className="flex gap-2.5 overflow-x-auto sm:overflow-visible sm:flex-wrap"
 								aria-label={t("homeExamplesHeading")}
 							>
 								{EXAMPLE_SCENARIOS.map((s) => (
-									<li key={s.key}>
+									<li key={s.key} className="shrink-0">
 										<button
 											type="button"
 											onClick={() => setText(lang === "hi" ? s.hi : s.en)}
-											className="inline-flex min-h-10 items-center rounded-md border border-line bg-surface px-3.5 py-1.5 text-left text-[13px] leading-tight font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
+											className="inline-flex min-h-10 shrink-0 items-center rounded-md border border-line bg-surface px-3.5 py-1.5 text-left text-[13px] leading-tight font-medium text-ink-70 transition-colors hover:border-ink-30 hover:bg-surface-muted hover:text-ink"
 										>
 											{lang === "hi" ? s.labelHi : s.labelEn}
 										</button>
@@ -109,6 +112,11 @@ export function HeroIntake() {
 								<ArrowRight className="h-4 w-4" aria-hidden />
 							</Button>
 						</div>
+						{!text.trim() && (
+							<p className="mt-2 text-right text-xs leading-snug text-ink-50">
+								{t("understandHint")}
+							</p>
+						)}
 					</form>
 				</div>
 			</div>

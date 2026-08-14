@@ -37,6 +37,7 @@ export const en = {
 	homeIntakePlaceholder:
 		"e.g. My landlord hasn't returned my ₹30,000 security deposit even though I moved out and there was no damage.",
 	understandMySituation: "Understand my situation",
+	understandHint: "Tell us what happened in your own words, or pick an example.",
 	homeExamplesHeading: "Or start from an example",
 	homeDomainsHeading: "Choose your area",
 	homeDomainsHint: "These are the areas we cover today.",
@@ -63,9 +64,9 @@ export const en = {
 	homeDemoNote: "Demo references are clearly marked",
 	homeDemoBody:
 		"Where the law is uncertain or varies by state, we tag it 'Demo — verify with an expert' and never present it as established law.",
-	homePrivacyNote: "Works on your device — your situation stays on your device",
+	homePrivacyNote: "Typed words stay on your device",
 	homePrivacyBody:
-		"The MVP runs entirely in your browser. Your situation is never sent to a server.",
+		"What you type never leaves your browser. Voice notes are sent to a third-party service to be transcribed.",
 	homeDisclaimerNote:
 		"LegalAId provides general legal information, not legal advice. It is not a substitute for a qualified lawyer. For help, contact the State Legal Services Authority (helpline 15100).",
 	startHere: "Start here",
@@ -107,6 +108,7 @@ export const en = {
 	describePlaceholder:
 		"e.g. My landlord hasn't returned my ₹30,000 security deposit even though I moved out and there was no damage.",
 	voiceLabel: "Speak instead of typing",
+	voicePrivacyNote: "Voice notes are transcribed online — typed words stay on your device.",
 	voiceRecording: "Listening — tap to stop",
 	voiceTranscribing: "Transcribing…",
 	voiceError: "Couldn't transcribe that. Please try again or type instead.",

@@ -24,6 +24,8 @@
   --color-paper-line-inactive: var(--paper-line-inactive);
   --color-accent-strong: var(--accent-strong);
   --color-accent-strong-hover: var(--accent-strong-hover);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-seal: var(--seal);
   --color-seal-hover: var(--seal-hover);
   --color-seal-soft: var(--seal-soft);
