@@ -66,7 +66,11 @@ async function main() {
 			check(a.evidence.length > 0, `${id} [${lang}] evidence`);
 			check(a.nextSteps.length > 0, `${id} [${lang}] next steps`);
 			check(
-				a.document.title.length > 0 && a.document.sections.length > 0,
+				Boolean(
+					a.document &&
+						a.document.title.length > 0 &&
+						a.document.sections.length > 0,
+				),
 				`${id} [${lang}] document`,
 			);
 			check(
@@ -125,12 +129,17 @@ async function main() {
 		"amount injected into facts",
 	);
 	check(
-		stages.length === 7,
-		`all 7 progress stages emitted (got ${stages.length})`,
+		stages.length === 6,
+		`all 6 pass-1 progress stages emitted (got ${stages.length})`,
+	);
+	check(!stages.includes("document"), "pass 1 emits no document stage");
+	check(
+		analysis.document === undefined,
+		"pass 1 returns no document (letter is generated on demand)",
 	);
 	check(
-		analysis.document.sections.length >= 4,
-		"document has structured sections",
+		analysis.nextSteps.length > 0,
+		"next steps ship with pass 1",
 	);
 
 	// 4. Legal-source provider abstraction (spec §13)
@@ -239,11 +248,22 @@ async function main() {
 	check(streamed === answer, "assistant streams the full answer (typewriter)");
 	check(answer.includes("डेमो"), "mock answer is honestly labeled as demo");
 
+	// Pass 2: the letter is generated on demand, then revised from that draft.
+	const draft = await provider.generateDocument({
+		analysis,
+		intake,
+		lang: "hi",
+	});
+	check(
+		Boolean(draft) && draft.sections.length >= 4,
+		"pass-2 draft has structured sections",
+	);
+
 	const revised = await provider.reviseDocument({
 		analysis,
 		intake,
 		lang: "hi",
-		currentDraft: analysis.document,
+		currentDraft: draft,
 		instruction: "इसे और सख्त बनाएँ",
 	});
 	const lastSection = revised.sections[revised.sections.length - 1];
@@ -253,7 +273,7 @@ async function main() {
 		"revision round-trip applies a visible change",
 	);
 	check(
-		revised.title === analysis.document.title,
+		revised.title === draft.title,
 		"revision keeps unrelated fields",
 	);
 
@@ -261,11 +281,11 @@ async function main() {
 		analysis,
 		intake,
 		lang: "hi",
-		currentDraft: analysis.document,
+		currentDraft: draft,
 		instruction: "Translate to English", // mock can't translate → no changes
 	});
 	check(
-		JSON.stringify(untouched) === JSON.stringify(analysis.document),
+		JSON.stringify(untouched) === JSON.stringify(draft),
 		"unknown instruction reports no changes (translate path)",
 	);
 

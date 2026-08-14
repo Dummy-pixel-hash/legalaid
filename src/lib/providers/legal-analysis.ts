@@ -74,5 +74,4 @@ export const ANALYSIS_STAGES: Progress["stage"][] = [
 	"laws",
 	"evidence",
 	"steps",
-	"document",
 ];

@@ -148,7 +148,11 @@ export interface CaseAnalysis {
 	uncertainty: Uncertainty[];
 	evidence: EvidenceItem[];
 	nextSteps: Step[];
-	document: DocumentData;
+	/** Pass-2 artifact: the letter draft is generated on demand (per language)
+	 * via the provider's generateDocument / ensureDocumentDraft, so pass 1
+	 * (analyze) usually returns no document. The generic "other" fallback is
+	 * the exception — it ships a generic letter with the analysis. */
+	document?: DocumentData;
 	disclaimer: string;
 	generatedAt: string;
 }

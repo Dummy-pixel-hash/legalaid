@@ -189,8 +189,10 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 			"uncertainty",
 			"evidence",
 			"nextSteps",
-			"document",
 		];
+		// "document" is intentionally absent: the letter is pass-2 (generated
+		// on demand via generateDocument), so its section is never required of
+		// the analysis stream. The server may still stream it; it is ignored.
 		const missing = required.filter((k) => !(k in m));
 		if (!allDone || missing.length > 0) {
 			throw new Error(
@@ -393,8 +395,9 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 	}): Promise<DocumentData> {
 		const { analysis, intake, lang, edits } = ctx;
 		if (analysis.domain === "other") {
-			// No model call for the generic fallback — honor edits on the base draft.
-			return { ...analysis.document, ...(edits ?? {}) };
+			// No model call for the generic fallback — honor edits on the base
+			// draft (pass 1 ships a generic letter for these cases).
+			return { ...(analysis.document ?? {}), ...(edits ?? {}) } as DocumentData;
 		}
 		// The server resolves its own authoritative candidate set by domain;
 		// the client only sends intake + lang (see security review fix #1).

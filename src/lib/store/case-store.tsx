@@ -311,40 +311,40 @@ export function CaseProvider({ children }: { children: ReactNode }) {
 					(p) => patchRecord(id, { stage: p.stage, pct: p.pct }),
 					{ fast },
 				);
-				const prev = recordsRef.current[id];
 				patchRecord(id, {
 					baseAnalysis: analysis,
 					intake,
-					documentDrafts: {
-						...(prev?.documentDrafts ?? {}),
-						[lang]: analysis.document,
-					},
 					status: "ready",
 					stage: null,
 					pct: 100,
 				});
-				// Pre-warm the OTHER language's letter in the background: the
-				// letter is per-language, and generating it on first toggle cost a
-				// slow on-demand model call (and silently showed the old language
-				// meanwhile). Fired right after analysis while the user reads, so
-				// toggling the letter language is instant in practice.
+				// Pass 2 pre-warm: generate the ACTIVE language's letter in the
+				// background so the document sheet is ready by the time the user
+				// walks the journey — without holding up the analysis. The other
+				// language generates on first toggle (ensureDocumentDraft cold
+				// path, which shows a preparing state meanwhile).
 				if (analysis.domain !== "other") {
-					const other: Language = lang === "en" ? "hi" : "en";
 					void provider
 						.generateDocument({
 							analysis,
 							intake,
-							lang: other,
+							lang,
 							edits: {},
 						})
 						.then((draft) => {
-							// Skip if the case was re-analyzed while this ran (stale).
+							// Bail only on a genuinely stale re-analysis (a
+							// different analysis id). The mock resolves so fast the
+							// completion state may not be committed yet — then
+							// cur.baseAnalysis is still null and the patch is safe
+							// (patchRecord merges into the latest state).
 							const cur = recordsRef.current[id];
-							if (cur?.baseAnalysis?.id !== analysis.id) return;
+							if (!cur) return;
+							if (cur.baseAnalysis && cur.baseAnalysis.id !== analysis.id)
+								return;
 							patchRecord(id, {
 								documentDrafts: {
 									...(cur.documentDrafts ?? {}),
-									[other]: draft,
+									[lang]: draft,
 								},
 							});
 						})

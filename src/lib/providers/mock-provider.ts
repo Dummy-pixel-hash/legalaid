@@ -59,13 +59,13 @@ export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
 		let pct = 0;
 		if (!opts?.fast) {
 			for (const stage of ANALYSIS_STAGES) {
-				pct += Math.round(100 / ANALYSIS_STAGES.length);
+				pct = Math.min(100, pct + Math.round(100 / ANALYSIS_STAGES.length));
 				onProgress?.({ stage, pct });
 				await sleep(STAGE_DELAY_MS[stage]);
 			}
 		} else {
 			pct = 100;
-			onProgress?.({ stage: "document", pct });
+			onProgress?.({ stage: "steps", pct });
 		}
 
 		const builders: Record<Domain, typeof buildConsumerAnalysis> = {
@@ -75,7 +75,17 @@ export class MockLegalAnalysisProvider implements LegalAnalysisProvider {
 		};
 
 		const build = domain ? builders[domain] : buildGenericAnalysis;
-		return build({ intake, lang, id });
+		const full = build({ intake, lang, id });
+
+		// Pass 1 = analysis + evidence + next steps. The letter is generated on
+		// demand (pass 2) via generateDocument when the user reaches the
+		// document sheet. The generic fallback (no domain detected) keeps its
+		// letter in pass 1 — it is cheap, generic content and the document page
+		// renders it directly for that case.
+		if (domain) {
+			return { ...full, document: undefined };
+		}
+		return full;
 	}
 
 	async generateDocument(ctx: {

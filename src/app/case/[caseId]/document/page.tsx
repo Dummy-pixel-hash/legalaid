@@ -59,15 +59,17 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	if (record.status === "error")
 		return <ErrorState onRetry={() => router.refresh()} />;
 	if (!analysis) return <EmptyState />;
-	// The document ships with the analysis now (4th section); per-language
-	// edits/regenerated drafts (overrides.document[lang]) always win over the
-	// active language's base draft, so toggling never leaks a letter across.
+	// The letter is generated in pass 2 (on demand per language via
+	// ensureDocumentDraft / the background pre-warm); per-language edits
+	// (overrides.document[lang]) always win over the active language's draft,
+	// so toggling never leaks a letter across.
 	const draftReady = Boolean(record.documentDrafts?.[lang]);
-	const genericCase = analysis.domain === "other";
-	const doc = {
-		...analysis.document,
-		...(record.overrides.document?.[lang] ?? {}),
-	};
+	const doc = analysis.document
+		? {
+				...analysis.document,
+				...(record.overrides.document?.[lang] ?? {}),
+			}
+		: undefined;
 	const langName = t(lang === "hi" ? "languageHi" : "languageEn");
 
 	const handleChange = (patch: Partial<DocumentData>) => {
@@ -80,6 +82,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	};
 
 	const handleCopy = async () => {
+		if (!doc) return;
 		try {
 			const text = [
 				doc.title,
@@ -105,6 +108,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 	};
 
 	const handlePdf = () => {
+		if (!doc) return;
 		// The print stylesheet renders only the document sheet.
 		window.setTimeout(() => window.print(), 50);
 	};
@@ -209,7 +213,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 						</h1>
 						<p className="mt-2 text-ink-70">{t("documentSubtitle")}</p>
 					</header>
-					{draftReady || genericCase ? (
+					{doc ? (
 						<div
 							id="document-sheet"
 							className={cn(
@@ -243,7 +247,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 							</Button>
 						</div>
 					)}
-					{draftReady || genericCase ? (
+					{doc ? (
 						<div className="mt-6 print-hide">
 							<DocumentAssistant
 								caseId={caseId}
