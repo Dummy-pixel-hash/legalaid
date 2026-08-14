@@ -9,6 +9,7 @@ import { useCase } from "@/lib/store/case-store";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingAnalysis } from "@/components/analysis/LoadingAnalysis";
+import { CaseAssistant } from "@/components/assistant/CaseAssistant";
 import type { Step } from "@/lib/types/domain";
 import { localize } from "@/lib/types/domain";
 
@@ -98,6 +99,14 @@ function NextStepsClient({ caseId }: { caseId: string }) {
 			<p className="bs1-close mt-6 rounded-lg border border-line bg-surface-muted px-4 py-3 text-xs leading-relaxed text-ink-70">
 				{t("stepsClosing")}
 			</p>
+
+			<div className="mt-6">
+				<CaseAssistant
+					caseId={caseId}
+					page="steps"
+					chips={[t("assistantChipStepsFirst"), t("assistantChipStepsWait")]}
+				/>
+			</div>
 
 			<div className="mt-10 border-t border-line pt-6">
 				<Button

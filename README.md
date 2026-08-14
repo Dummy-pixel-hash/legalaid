@@ -40,7 +40,7 @@ Set these in `.env.local` (see `.gitignore` — env files are never committed):
 
 | Variable | Used by | Required |
 | --- | --- | --- |
-| `AI_API_KEY` | model backend (`/api/analyze`, `/api/document`) | yes, for real analysis |
+| `AI_API_KEY` | model backend (`/api/analyze`, `/api/document`, `/api/assistant`) | yes, for real analysis |
 | `GROQ_API_KEY` | speech-to-text (`/api/transcribe`, Groq Whisper large-v3) | only for voice input |
 
 `AI_ENDPOINT` / `AI_ENDPOINT_REGISTRY` / `AI_MODEL` / `AI_ENABLE_THINKING`
@@ -55,6 +55,22 @@ browser (`MediaRecorder`); the audio clip is uploaded to `POST /api/transcribe`,
 which forwards it to Groq's `whisper-large-v3` model. The Groq key never
 reaches the client. Requires a browser with `MediaRecorder` + microphone
 permission, and `GROQ_API_KEY` set on the server.
+
+### Case assistant (Q&A + document revisions)
+
+Every case page ends with a contextual assistant — "Questions about your
+case?" — that answers follow-up questions grounded in *that case* (intake,
+analysis, evidence state, next steps, and the current letter draft on the
+document page). Answers stream in and are constrained to the law sources the
+analysis already established (the server resolves sources; none are ever
+invented). On the document page the assistant also **revises the letter**: pick
+a preset (firmer, more formal, translate, shorten) or type an instruction, and
+the assistant proposes a revised draft you can **Apply** or **Discard** — an
+AI-collaborative editing loop on top of the existing edits-wins draft model.
+
+Backend: `POST /api/assistant` (mode `chat` streams SSE deltas; mode
+`document` returns a grammar-constrained draft). The mock provider returns
+honestly-labeled demo answers, so the flow works without the model backend.
 
 ## Architecture in brief
 

@@ -12,7 +12,7 @@
 ## 2. Stack
 
 | Layer | Choice |
-|---|---|
+| --- | --- |
 | Framework | Next.js 15 (App Router), React 19 |
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS v4 (CSS-first `@theme` tokens) |
@@ -194,16 +194,26 @@ export function getProvider(): LegalAnalysisProvider {
 ```
 
 **MockLegalAnalysisProvider** (`lib/providers/mock-provider.ts`):
+
 - Holds per-domain *templates* in `en` and `hi`, referencing legal sources by id.
 - Injects the user's facts (amounts, dates, names, state) into summaries, why-applies text, and the document.
 - Emits staged `Progress` events with small realistic delays (e.g., 500–1200ms per stage) so the loading UI is real, not theater.
 - Falls back to a **generic guidance** analysis when the domain can't be detected (marked `ai-interpretation`), rather than guessing confidently.
 
 **Future providers** (designed, not built):
-- **API model:** same interface, server route (`app/api/analyze/route.ts`) calling a hosted model; client keeps identical UI.
+
 - **Local model:** WebGPU/Transformers.js in-browser; same interface.
 - **Fine-tuned model:** the templates become training data; provider output identical in shape (this is why structured templates matter — they become the schema of training examples).
 - **RAG pipeline:** provider fetches from `lib/legal/sources.ts`-backed vector store; `LawReference` gets `retrievedFrom`/`confidence` fields.
+
+**API model** (built, `lib/providers/api-provider.ts`): same interface, server
+routes (`app/api/analyze/route.ts`, `app/api/document/route.ts`) calling a
+hosted llama.cpp backend; the client keeps identical UI. The interface also
+covers the **case-aware assistant**: `askAssistant` (streaming Q&A grounded in
+the user's own case, via `app/api/assistant/route.ts` mode `chat`) and
+`reviseDocument` (grammar-constrained letter revisions, mode `document`). The
+assistant's prompt is grounded in the registry law sources the server resolves
+by domain — it can only reference law already established for the case.
 
 ## 7. Legal data abstraction
 
@@ -217,6 +227,7 @@ export const LEGAL_SOURCES: LegalSource[] = [ /* all citations used anywhere */ 
 ```
 
 Rules (from PRODUCT.md §7):
+
 1. Every citation in every analysis/document resolves by id to this registry.
 2. `verified: true` only for real, confirmed Act/Code + section (verified list below).
 3. `verified: false` for anything uncertain/state-specific — UI renders these with the **"Demo — verify with an expert"** tag and never asserts them as law.

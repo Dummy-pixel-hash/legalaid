@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingAnalysis } from "@/components/analysis/LoadingAnalysis";
 import { EvidenceRow } from "@/components/evidence/EvidenceRow";
+import { CaseAssistant } from "@/components/assistant/CaseAssistant";
 
 export default function EvidencePage({
 	params,
@@ -181,6 +182,17 @@ function EvidenceClient({ caseId }: { caseId: string }) {
 					</Button>
 				</div>
 			</form>
+
+			<div className="mt-6">
+				<CaseAssistant
+					caseId={caseId}
+					page="evidence"
+					chips={[
+						t("assistantChipEvidenceWhy"),
+						t("assistantChipEvidenceMost"),
+					]}
+				/>
+			</div>
 
 			<div className="mt-10 border-t border-line pt-6">
 				<Button

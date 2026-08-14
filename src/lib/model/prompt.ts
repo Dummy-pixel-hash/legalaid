@@ -14,33 +14,35 @@ import type { LegalSource } from "@/lib/legal/sources";
 import type { ChatMessage } from "./chat";
 
 function intakeContext(intake: IntakeData, lang: Language): string {
-  const lines: string[] = [`Description: ${intake.description.trim()}`];
-  if (intake.amount !== undefined && intake.amount > 0)
-    lines.push(`Amount involved: ₹${intake.amount}`);
-  if (intake.otherParty) lines.push(`Other party: ${intake.otherParty}`);
-  if (intake.state) lines.push(`State: ${intake.state}`);
-  if (intake.dates?.length)
-    lines.push(`Dates: ${intake.dates.map((d) => d.date).join(", ")}`);
-  void lang;
-  return lines.join("\n");
+	const lines: string[] = [`Description: ${intake.description.trim()}`];
+	if (intake.amount !== undefined && intake.amount > 0)
+		lines.push(`Amount involved: ₹${intake.amount}`);
+	if (intake.otherParty) lines.push(`Other party: ${intake.otherParty}`);
+	if (intake.state) lines.push(`State: ${intake.state}`);
+	if (intake.dates?.length)
+		lines.push(`Dates: ${intake.dates.map((d) => d.date).join(", ")}`);
+	void lang;
+	return lines.join("\n");
 }
 
 function sourcesContext(sources: LegalSource[], lang: Language): string {
-  return JSON.stringify(
-    sources.map((s) => ({
-      id: s.id,
-      act: s.act,
-      section: s.section,
-      title: s.title[lang],
-      plain: s.plain[lang],
-      verified: s.source.verified,
-    })),
-    null,
-    2,
-  );
+	return JSON.stringify(
+		sources.map((s) => ({
+			id: s.id,
+			act: s.act,
+			section: s.section,
+			title: s.title[lang],
+			plain: s.plain[lang],
+			verified: s.source.verified,
+		})),
+		null,
+		2,
+	);
 }
 
-const SYSTEM = (lang: Language) => `You are LegalAId's legal analysis engine. You help a person in India facing a legal problem for the first time understand what may be happening, what their rights are, and what to do next.
+const SYSTEM = (
+	lang: Language,
+) => `You are LegalAId's legal analysis engine. You help a person in India facing a legal problem for the first time understand what may be happening, what their rights are, and what to do next.
 
 Respond entirely in this language: ${lang === "hi" ? "Hindi (or natural Hinglish)" : "English"}.
 
@@ -61,175 +63,182 @@ Respond with ONLY a single valid JSON object — no markdown fences, no extra te
 /** JSON Schema for a string that must be provided in BOTH languages — the
  * analysis is canonical per case, so every text field carries en + hi. */
 function biStr(description: string) {
-  return {
-    type: "object",
-    additionalProperties: false,
-    properties: {
-      en: { type: "string", description: `${description} — in English` },
-      hi: {
-        type: "string",
-        description: `${description} — in Hindi (or natural Hinglish)`,
-      },
-    },
-    required: ["en", "hi"],
-    description: `${description} — in BOTH English and Hindi`,
-  };
+	return {
+		type: "object",
+		additionalProperties: false,
+		properties: {
+			en: { type: "string", description: `${description} — in English` },
+			hi: {
+				type: "string",
+				description: `${description} — in Hindi (or natural Hinglish)`,
+			},
+		},
+		required: ["en", "hi"],
+		description: `${description} — in BOTH English and Hindi`,
+	};
 }
 
 const CORE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    caseSummary: biStr(
-      "a 1-3 sentence plain restatement of what the user told you",
-    ),
-    issues: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", description: "short-slug" },
-          label: biStr("short title"),
-          kind: {
-            type: "string",
-            enum: ["fact", "possible-issue", "legal-info", "ai-interpretation"],
-            description:
-              'fact = what the user stated or is established; possible-issue = a plausible issue, not a ruling; legal-info = general cited law; ai-interpretation = your own reading',
-          },
-          detail: biStr("2-3 sentences, plain, tied to their facts"),
-        },
-        required: ["id", "label", "kind", "detail"],
-      },
-    },
-    rights: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", description: "short-slug" },
-          title: biStr("short title"),
-          plain: biStr("1-2 sentences plain"),
-          linkedLaws: {
-            type: "array",
-            items: { type: "string" },
-            description: "use only provided source ids",
-          },
-        },
-        required: ["id", "title", "plain", "linkedLaws"],
-      },
-    },
-    lawIds: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: {
-            type: "string",
-            description: "one of the provided source ids",
-          },
-          whyApplies: biStr(
-            "1-2 sentences why it applies to this situation",
-          ),
-        },
-        required: ["id", "whyApplies"],
-      },
-    },
-  },
-  required: ["caseSummary", "issues", "rights", "lawIds"],
+	type: "object",
+	additionalProperties: false,
+	properties: {
+		caseSummary: biStr(
+			"a 1-3 sentence plain restatement of what the user told you",
+		),
+		issues: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", description: "short-slug" },
+					label: biStr("short title"),
+					kind: {
+						type: "string",
+						enum: ["fact", "possible-issue", "legal-info", "ai-interpretation"],
+						description:
+							"fact = what the user stated or is established; possible-issue = a plausible issue, not a ruling; legal-info = general cited law; ai-interpretation = your own reading",
+					},
+					detail: biStr("2-3 sentences, plain, tied to their facts"),
+				},
+				required: ["id", "label", "kind", "detail"],
+			},
+		},
+		rights: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", description: "short-slug" },
+					title: biStr("short title"),
+					plain: biStr("1-2 sentences plain"),
+					linkedLaws: {
+						type: "array",
+						items: { type: "string" },
+						description: "use only provided source ids",
+					},
+				},
+				required: ["id", "title", "plain", "linkedLaws"],
+			},
+		},
+		lawIds: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: {
+						type: "string",
+						description: "one of the provided source ids",
+					},
+					whyApplies: biStr("1-2 sentences why it applies to this situation"),
+				},
+				required: ["id", "whyApplies"],
+			},
+		},
+	},
+	required: ["caseSummary", "issues", "rights", "lawIds"],
 };
 
 const RISK_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    uncertainty: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", description: "short-slug" },
-          plain: biStr("what is uncertain"),
-          changesAnswer: biStr("what would change the answer"),
-          resolve: biStr("how to find out"),
-        },
-        required: ["id", "plain", "changesAnswer", "resolve"],
-      },
-    },
-    evidence: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", description: "short-slug" },
-          label: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              en: { type: "string", description: "evidence name in English" },
-              hi: { type: "string", description: "evidence name in Hindi (or natural Hinglish)" },
-            },
-            required: ["en", "hi"],
-            description: "evidence name in BOTH English and Hindi",
-          },
-          why: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              en: { type: "string", description: "why it matters, in English" },
-              hi: { type: "string", description: "why it matters, in Hindi (or natural Hinglish)" },
-            },
-            required: ["en", "hi"],
-            description: "why it matters, in BOTH English and Hindi",
-          },
-          status: {
-            type: "string",
-            enum: ["need-to-find", "have", "dont-have", "unset"],
-            description: "need-to-find by default; the user sets the real status later",
-          },
-          note: { type: "string", description: "" },
-        },
-        required: ["id", "label", "why", "status", "note"],
-      },
-    },
-  },
-  required: ["uncertainty", "evidence"],
+	type: "object",
+	additionalProperties: false,
+	properties: {
+		uncertainty: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", description: "short-slug" },
+					plain: biStr("what is uncertain"),
+					changesAnswer: biStr("what would change the answer"),
+					resolve: biStr("how to find out"),
+				},
+				required: ["id", "plain", "changesAnswer", "resolve"],
+			},
+		},
+		evidence: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", description: "short-slug" },
+					label: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							en: { type: "string", description: "evidence name in English" },
+							hi: {
+								type: "string",
+								description: "evidence name in Hindi (or natural Hinglish)",
+							},
+						},
+						required: ["en", "hi"],
+						description: "evidence name in BOTH English and Hindi",
+					},
+					why: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							en: { type: "string", description: "why it matters, in English" },
+							hi: {
+								type: "string",
+								description: "why it matters, in Hindi (or natural Hinglish)",
+							},
+						},
+						required: ["en", "hi"],
+						description: "why it matters, in BOTH English and Hindi",
+					},
+					status: {
+						type: "string",
+						enum: ["need-to-find", "have", "dont-have", "unset"],
+						description:
+							"need-to-find by default; the user sets the real status later",
+					},
+					note: { type: "string", description: "" },
+				},
+				required: ["id", "label", "why", "status", "note"],
+			},
+		},
+	},
+	required: ["uncertainty", "evidence"],
 };
 
 const STEPS_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    nextSteps: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", description: "short-slug" },
-          order: { type: "integer", description: "1" },
-          title: biStr("short title"),
-          plain: biStr("what to do"),
-          why: biStr("why this step"),
-          effort: {
-            type: "string",
-            enum: ["quick", "moderate", "long"],
-            description: "quick|moderate|long",
-          },
-          urgent: { type: "boolean", description: "false" },
-        },
-        required: ["id", "order", "title", "plain", "why", "effort", "urgent"],
-      },
-    },
-  },
-  required: ["nextSteps"],
+	type: "object",
+	additionalProperties: false,
+	properties: {
+		nextSteps: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					id: { type: "string", description: "short-slug" },
+					order: { type: "integer", description: "1" },
+					title: biStr("short title"),
+					plain: biStr("what to do"),
+					why: biStr("why this step"),
+					effort: {
+						type: "string",
+						enum: ["quick", "moderate", "long"],
+						description: "quick|moderate|long",
+					},
+					urgent: { type: "boolean", description: "false" },
+				},
+				required: ["id", "order", "title", "plain", "why", "effort", "urgent"],
+			},
+		},
+	},
+	required: ["nextSteps"],
 };
 
-const DOC_SYSTEM = (lang: Language) => `You are LegalAId's legal document engine. You draft a first-draft legal notice/complaint in plain, formal language for a first-time litigant in India.
+const DOC_SYSTEM = (
+	lang: Language,
+) => `You are LegalAId's legal document engine. You draft a first-draft legal notice/complaint in plain, formal language for a first-time litigant in India.
 
 Respond entirely in this language: ${lang === "hi" ? "Hindi (or natural Hinglish)" : "English"}.
 
@@ -255,102 +264,107 @@ const DOC_SCHEMA = `{
 }`;
 
 /** The document draft, wrapped under a single "document" key. */
-const DOC_SECTION_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    document: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        type: {
-          type: "string",
-          enum: ["legal-notice", "consumer-complaint", "labour-complaint", "other"],
-          description: "legal-notice|consumer-complaint|labour-complaint|other",
-        },
-        title: { type: "string", description: "DOCUMENT TITLE" },
-        subject: { type: "string", description: "SUBJECT LINE" },
-        fromParty: { type: "string", description: "[Your name and address]" },
-        toParty: {
-          type: "string",
-          description: "the other party or [their name and address]",
-        },
-        sections: {
-          type: "array",
-          items: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              heading: { type: "string", description: "SECTION HEADING" },
-              body: {
-                type: "string",
-                description: "paragraph using their facts",
-              },
-            },
-            required: ["heading", "body"],
-          },
-        },
-        legalReferences: {
-          type: "array",
-          items: { type: "string" },
-          description: "Act, section text",
-        },
-        remedy: { type: "string", description: "the remedy being asked for" },
-        signature: {
-          type: "object",
-          additionalProperties: false,
-          properties: {
-            name: { type: "string", description: "[Your name]" },
-            role: { type: "string", description: "[Your address and contact]" },
-          },
-          required: ["name", "role"],
-        },
-      },
-      required: [
-        "type",
-        "title",
-        "subject",
-        "fromParty",
-        "toParty",
-        "sections",
-        "legalReferences",
-        "remedy",
-        "signature",
-      ],
-    },
-  },
-  required: ["document"],
+export const DOC_SECTION_SCHEMA = {
+	type: "object",
+	additionalProperties: false,
+	properties: {
+		document: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				type: {
+					type: "string",
+					enum: [
+						"legal-notice",
+						"consumer-complaint",
+						"labour-complaint",
+						"other",
+					],
+					description: "legal-notice|consumer-complaint|labour-complaint|other",
+				},
+				title: { type: "string", description: "DOCUMENT TITLE" },
+				subject: { type: "string", description: "SUBJECT LINE" },
+				fromParty: { type: "string", description: "[Your name and address]" },
+				toParty: {
+					type: "string",
+					description: "the other party or [their name and address]",
+				},
+				sections: {
+					type: "array",
+					items: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							heading: { type: "string", description: "SECTION HEADING" },
+							body: {
+								type: "string",
+								description: "paragraph using their facts",
+							},
+						},
+						required: ["heading", "body"],
+					},
+				},
+				legalReferences: {
+					type: "array",
+					items: { type: "string" },
+					description: "Act, section text",
+				},
+				remedy: { type: "string", description: "the remedy being asked for" },
+				signature: {
+					type: "object",
+					additionalProperties: false,
+					properties: {
+						name: { type: "string", description: "[Your name]" },
+						role: { type: "string", description: "[Your address and contact]" },
+					},
+					required: ["name", "role"],
+				},
+			},
+			required: [
+				"type",
+				"title",
+				"subject",
+				"fromParty",
+				"toParty",
+				"sections",
+				"legalReferences",
+				"remedy",
+				"signature",
+			],
+		},
+	},
+	required: ["document"],
 };
 
 export type AnalysisSection = "core" | "risk" | "steps" | "document";
 
 export interface SectionSpec {
-  section: AnalysisSection;
-  messages: ChatMessage[];
-  schema: object; // JSON Schema for grammar-constrained output
-  name: string; // json_schema "name"
-  maxTokens: number;
+	section: AnalysisSection;
+	messages: ChatMessage[];
+	schema: object; // JSON Schema for grammar-constrained output
+	name: string; // json_schema "name"
+	maxTokens: number;
 }
 
 /** Build the user-turn for one section: intake, optional sources, output keys. */
 function sectionUser(opts: {
-  intake: IntakeData;
-  lang: Language;
-  keys: string;
-  sources?: LegalSource[];
-  extra?: string;
+	intake: IntakeData;
+	lang: Language;
+	keys: string;
+	sources?: LegalSource[];
+	extra?: string;
 }): string {
-  const parts = [`USER'S SITUATION:\n${intakeContext(opts.intake, opts.lang)}`];
-  if (opts.sources && opts.sources.length > 0) {
-    parts.push(
-      `LAW SOURCES AVAILABLE (use ONLY these ids):\n${sourcesContext(opts.sources, opts.lang)}`,
-    );
-  }
-  if (opts.extra) parts.push(opts.extra);
-  parts.push(
-    `OUTPUT — respond with ONLY a single valid JSON object containing exactly these keys: ${opts.keys}. No markdown fences, no extra text, no reasoning.`,
-  );
-  return parts.join("\n\n");
+	const parts = [`USER'S SITUATION:\n${intakeContext(opts.intake, opts.lang)}`];
+	if (opts.sources && opts.sources.length > 0) {
+		parts.push(
+			`LAW SOURCES AVAILABLE (use ONLY these ids):\n${sourcesContext(opts.sources, opts.lang)}`,
+		);
+	}
+	if (opts.extra) parts.push(opts.extra);
+	parts.push(
+		`OUTPUT — respond with ONLY a single valid JSON object containing exactly these keys: ${opts.keys}. No markdown fences, no extra text, no reasoning.`,
+	);
+	return parts.join("\n\n");
 }
 
 /**
@@ -360,71 +374,71 @@ function sectionUser(opts: {
  * can be grounded in the completed analysis (see buildDocumentSection).
  */
 export function buildSectionPrompts(opts: {
-  intake: IntakeData;
-  lang: Language;
-  lawSources: LegalSource[];
+	intake: IntakeData;
+	lang: Language;
+	lawSources: LegalSource[];
 }): SectionSpec[] {
-  const { intake, lang, lawSources } = opts;
-  return [
-    {
-      section: "core",
-      name: "core",
-      maxTokens: 4096,
-      schema: CORE_SCHEMA,
-      messages: [
-        { role: "system", content: SYSTEM(lang) },
-        {
-          role: "user",
-          content: sectionUser({
-            intake,
-            lang,
-            keys: '"caseSummary", "issues", "rights", "lawIds"',
-            sources: lawSources,
-            extra:
-              "BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (e.g. caseSummary.en + caseSummary.hi, issues[].label.en + issues[].label.hi, issues[].detail.en + issues[].detail.hi, rights[].title/plain, lawIds[].whyApplies). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
-          }),
-        },
-      ],
-    },
-    {
-      section: "risk",
-      name: "risk",
-      maxTokens: 4096,
-      schema: RISK_SCHEMA,
-      messages: [
-        { role: "system", content: SYSTEM(lang) },
-        {
-          role: "user",
-          content: sectionUser({
-            intake,
-            lang,
-            keys: '"uncertainty", "evidence"',
-            extra:
-              "EVIDENCE CHECKLIST: this list is the case's canonical evidence checklist, shown in both languages — for EVERY evidence item write the \"label\" and \"why\" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi).\n\nBILINGUAL OUTPUT: the uncertainty fields (plain, changesAnswer, resolve) must also be in BOTH English and Hindi.\n\nEVIDENCE GUIDANCE — follow strictly:\n- Choose items that would actually prove or disprove the disputed facts; every key issue should have evidence behind it.\n- Prefer concrete records the user can realistically get: receipts, messages/emails, bank or UPI statements, photos, notices, agreements, ID or work papers.\n- \"label\" is a short noun phrase naming the item; \"why\" is one sentence on what it proves in THIS case.\n- Keep \"id\" short and descriptive (e.g. \"rent-receipts\", \"moveout-photos\"), never numbered or generic.\n- 4-7 focused items — no padding.",
-          }),
-        },
-      ],
-    },
-    {
-      section: "steps",
-      name: "steps",
-      maxTokens: 2048,
-      schema: STEPS_SCHEMA,
-      messages: [
-        { role: "system", content: SYSTEM(lang) },
-        {
-          role: "user",
-          content: sectionUser({
-            intake,
-            lang,
-            keys: '"nextSteps"',
-            extra:
-              "BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (nextSteps[].title.en + .hi, plain.en + .hi, why.en + .hi). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
-          }),
-        },
-      ],
-    },
-  ];
+	const { intake, lang, lawSources } = opts;
+	return [
+		{
+			section: "core",
+			name: "core",
+			maxTokens: 4096,
+			schema: CORE_SCHEMA,
+			messages: [
+				{ role: "system", content: SYSTEM(lang) },
+				{
+					role: "user",
+					content: sectionUser({
+						intake,
+						lang,
+						keys: '"caseSummary", "issues", "rights", "lawIds"',
+						sources: lawSources,
+						extra:
+							"BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (e.g. caseSummary.en + caseSummary.hi, issues[].label.en + issues[].label.hi, issues[].detail.en + issues[].detail.hi, rights[].title/plain, lawIds[].whyApplies). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
+					}),
+				},
+			],
+		},
+		{
+			section: "risk",
+			name: "risk",
+			maxTokens: 4096,
+			schema: RISK_SCHEMA,
+			messages: [
+				{ role: "system", content: SYSTEM(lang) },
+				{
+					role: "user",
+					content: sectionUser({
+						intake,
+						lang,
+						keys: '"uncertainty", "evidence"',
+						extra:
+							'EVIDENCE CHECKLIST: this list is the case\'s canonical evidence checklist, shown in both languages — for EVERY evidence item write the "label" and "why" text in BOTH English and Hindi (label.en + label.hi, why.en + why.hi).\n\nBILINGUAL OUTPUT: the uncertainty fields (plain, changesAnswer, resolve) must also be in BOTH English and Hindi.\n\nEVIDENCE GUIDANCE — follow strictly:\n- Choose items that would actually prove or disprove the disputed facts; every key issue should have evidence behind it.\n- Prefer concrete records the user can realistically get: receipts, messages/emails, bank or UPI statements, photos, notices, agreements, ID or work papers.\n- "label" is a short noun phrase naming the item; "why" is one sentence on what it proves in THIS case.\n- Keep "id" short and descriptive (e.g. "rent-receipts", "moveout-photos"), never numbered or generic.\n- 4-7 focused items — no padding.',
+					}),
+				},
+			],
+		},
+		{
+			section: "steps",
+			name: "steps",
+			maxTokens: 2048,
+			schema: STEPS_SCHEMA,
+			messages: [
+				{ role: "system", content: SYSTEM(lang) },
+				{
+					role: "user",
+					content: sectionUser({
+						intake,
+						lang,
+						keys: '"nextSteps"',
+						extra:
+							"BILINGUAL OUTPUT: this analysis is canonical and shown in both languages — EVERY text field must be provided in BOTH English and Hindi (nextSteps[].title.en + .hi, plain.en + .hi, why.en + .hi). The Hindi variant must be natural Hindi (or Hinglish), never a literal word-for-word copy.",
+					}),
+				},
+			],
+		},
+	];
 }
 
 /**
@@ -433,55 +447,55 @@ export function buildSectionPrompts(opts: {
  * uncertainties, evidence, next steps) into account, not just the intake.
  */
 export function buildDocumentSection(opts: {
-  intake: IntakeData;
-  lang: Language;
-  lawSources: LegalSource[];
-  context: Record<string, unknown>;
+	intake: IntakeData;
+	lang: Language;
+	lawSources: LegalSource[];
+	context: Record<string, unknown>;
 }): SectionSpec {
-  const { intake, lang, lawSources, context } = opts;
-  const contextJson = JSON.stringify(context, null, 1);
-  return {
-    section: "document",
-    name: "document",
-    maxTokens: 4096,
-    schema: DOC_SECTION_SCHEMA,
-    messages: [
-      { role: "system", content: DOC_SYSTEM(lang) },
-      {
-        role: "user",
-        content: sectionUser({
-          intake,
-          lang,
-          keys: '"document"',
-          sources: lawSources,
-          extra:
-            "ANALYSIS FINDINGS (use these to ground the document — reference the identified issues, the chosen laws, the amounts and the requested remedy):\n" +
-            contextJson +
-            "\n\nLETTER GUIDANCE — follow strictly:\n" +
-            "- Structure: open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n" +
-            "- Use ONLY the user's facts and the findings above — never invent facts, names, dates, addresses, or amounts.\n" +
-            "- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n" +
-            "- Use the placeholders for from/to party details the user did not provide.",
-        }),
-      },
-    ],
-  };
+	const { intake, lang, lawSources, context } = opts;
+	const contextJson = JSON.stringify(context, null, 1);
+	return {
+		section: "document",
+		name: "document",
+		maxTokens: 4096,
+		schema: DOC_SECTION_SCHEMA,
+		messages: [
+			{ role: "system", content: DOC_SYSTEM(lang) },
+			{
+				role: "user",
+				content: sectionUser({
+					intake,
+					lang,
+					keys: '"document"',
+					sources: lawSources,
+					extra:
+						"ANALYSIS FINDINGS (use these to ground the document — reference the identified issues, the chosen laws, the amounts and the requested remedy):\n" +
+						contextJson +
+						"\n\nLETTER GUIDANCE — follow strictly:\n" +
+						"- Structure: open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n" +
+						"- Use ONLY the user's facts and the findings above — never invent facts, names, dates, addresses, or amounts.\n" +
+						"- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n" +
+						"- Use the placeholders for from/to party details the user did not provide.",
+				}),
+			},
+		],
+	};
 }
 
 export function buildDocumentPrompt(opts: {
-  intake: IntakeData;
-  lang: Language;
-  lawSources: LegalSource[];
+	intake: IntakeData;
+	lang: Language;
+	lawSources: LegalSource[];
 }): ChatMessage[] {
-  const { intake, lang, lawSources } = opts;
-  return [
-    { role: "system", content: DOC_SYSTEM(lang) },
-    {
-      role: "user",
-      content: `USER'S SITUATION:\n${intakeContext(intake, lang)}\n\nLAW SOURCES AVAILABLE (use ONLY these):\n${sourcesContext(
-        lawSources,
-        lang,
-      )}\n\nLETTER GUIDANCE — follow strictly:\n- Open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n- Use ONLY the user's facts — never invent facts, names, dates, addresses, or amounts.\n- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n- Use the placeholders for from/to party details the user did not provide.\n\nOUTPUT EXACTLY THIS JSON SHAPE:\n${DOC_SCHEMA}\n\nRespond with ONLY the JSON object.`,
-    },
-  ];
+	const { intake, lang, lawSources } = opts;
+	return [
+		{ role: "system", content: DOC_SYSTEM(lang) },
+		{
+			role: "user",
+			content: `USER'S SITUATION:\n${intakeContext(intake, lang)}\n\nLAW SOURCES AVAILABLE (use ONLY these):\n${sourcesContext(
+				lawSources,
+				lang,
+			)}\n\nLETTER GUIDANCE — follow strictly:\n- Open by identifying yourself and the dispute in 1-2 sentences; state the facts with real dates/amounts; give the legal basis citing the specific sections; state the demand and a reasonable deadline (e.g. 15 days); close formally.\n- Use ONLY the user's facts — never invent facts, names, dates, addresses, or amounts.\n- Keep sections short, factual and plain. No threats, no emotional language, no unexplained legal jargon.\n- Use the placeholders for from/to party details the user did not provide.\n\nOUTPUT EXACTLY THIS JSON SHAPE:\n${DOC_SCHEMA}\n\nRespond with ONLY the JSON object.`,
+		},
+	];
 }

@@ -28,6 +28,11 @@ import type { LegalSource } from "@/lib/legal/sources";
 import { getLocalSource } from "@/lib/providers/legal-source";
 import { candidateSources } from "@/lib/providers/candidates";
 import type { LegalAnalysisProvider } from "./legal-analysis";
+import type { AssistantMessage } from "./legal-analysis";
+import type {
+	AssistantContextPayload,
+	AssistantPage,
+} from "@/lib/assistant-context";
 import {
 	detectDomain,
 	disclaimerFor,
@@ -55,7 +60,10 @@ type ModelSections = Array<Record<string, unknown>>;
 
 /** Coerce a model field that may be a plain string or a {en,hi} object into a
  * bilingual value; the other language falls back to whatever exists. */
-const bi = (v: unknown, fallback: string): Partial<{ en: string; hi: string }> => {
+const bi = (
+	v: unknown,
+	fallback: string,
+): Partial<{ en: string; hi: string }> => {
 	if (typeof v === "string") {
 		return v.trim() ? { en: v, hi: v } : { en: fallback, hi: fallback };
 	}
@@ -187,8 +195,7 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		if (!allDone || missing.length > 0) {
 			throw new Error(
 				`analysis failed: ${
-					firstError ||
-					"model stream ended before all sections completed"
+					firstError || "model stream ended before all sections completed"
 				}`,
 			);
 		}
@@ -430,6 +437,130 @@ export class ApiLegalAnalysisProvider implements LegalAnalysisProvider {
 		const base = this.coerceDocument(docRaw, lang);
 		// User edits always win over the model's fresh draft.
 		return { ...base, ...(edits ?? {}) };
+	}
+
+	/** Ask the case-aware assistant a follow-up question (streaming SSE). */
+	async askAssistant(
+		ctx: {
+			context: AssistantContextPayload;
+			question: string;
+			history: AssistantMessage[];
+			lang: Language;
+			page: AssistantPage;
+		},
+		onDelta?: (delta: string) => void,
+	): Promise<string> {
+		const { context, question, history, lang, page } = ctx;
+		const res = await fetch("/api/assistant", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				mode: "chat",
+				page,
+				lang,
+				question,
+				history,
+				context,
+			}),
+			signal: AbortSignal.timeout(300_000),
+		});
+		if (!res.ok) {
+			const detail = await res.text().catch(() => "");
+			throw new Error(`assistant failed (${res.status}) ${detail}`);
+		}
+		if (!res.body) throw new Error("assistant failed: empty stream");
+
+		// SSE frames: `data: {"delta":"…"}` chunks, then `data: {"done":true}`
+		// (or a `{"error":"…"}` frame mid-stream).
+		const reader = res.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = "";
+		let text = "";
+		let failed = "";
+		let done = false;
+		try {
+			while (!done) {
+				const { value, done: streamDone } = await reader.read();
+				if (streamDone) break;
+				buffer += decoder.decode(value, { stream: true });
+				let sep = buffer.indexOf("\n\n");
+				while (sep !== -1) {
+					const raw = buffer.slice(0, sep);
+					buffer = buffer.slice(sep + 2);
+					sep = buffer.indexOf("\n\n");
+					if (!raw.startsWith("data: ")) continue;
+					let evt: { delta?: string; done?: boolean; error?: string };
+					try {
+						evt = JSON.parse(raw.slice(6));
+					} catch {
+						continue; // malformed frame — skip
+					}
+					if (typeof evt.error === "string" && evt.error) failed = evt.error;
+					if (evt.done !== undefined) {
+						done = true;
+						break;
+					}
+					if (typeof evt.delta === "string" && evt.delta) {
+						text += evt.delta;
+						onDelta?.(evt.delta);
+					}
+				}
+			}
+		} finally {
+			reader.releaseLock();
+		}
+		if (failed) throw new Error(`assistant failed: ${failed}`);
+		const trimmed = text.trim();
+		if (!trimmed) throw new Error("assistant returned empty answer");
+		return trimmed;
+	}
+
+	/** Ask the assistant to revise the current document draft per an instruction. */
+	async reviseDocument(ctx: {
+		analysis: CaseAnalysis;
+		intake: IntakeData;
+		lang: Language;
+		currentDraft: DocumentData;
+		instruction: string;
+	}): Promise<DocumentData> {
+		const { analysis, intake, lang, currentDraft, instruction } = ctx;
+		if (analysis.domain === "other") {
+			// The generic fallback has no model path — return the draft unchanged.
+			return currentDraft;
+		}
+		const res = await fetch("/api/assistant", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				mode: "document",
+				lang,
+				instruction,
+				draft: currentDraft,
+				context: {
+					domain: analysis.domain,
+					intake,
+					caseSummary: analysis.caseSummary,
+					issues: analysis.issues,
+				},
+			}),
+			signal: AbortSignal.timeout(300_000),
+		});
+		if (!res.ok) {
+			const detail = await res.text().catch(() => "");
+			throw new Error(`document revision failed (${res.status}) ${detail}`);
+		}
+		const data = (await res.json()) as { content?: unknown };
+		const content =
+			data.content && typeof data.content === "object"
+				? (data.content as Record<string, unknown>)
+				: {};
+		const docRaw =
+			content.document && typeof content.document === "object"
+				? (content.document as Record<string, unknown>)
+				: content;
+		const base = this.coerceDocument(docRaw, lang);
+		// The model shouldn't silently re-date the letter — keep the current date.
+		return { ...base, date: currentDraft.date };
 	}
 
 	detectDomain(text: string): Domain | undefined {

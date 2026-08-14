@@ -234,6 +234,41 @@ export const en = {
 		"Download PDF opens your browser's print dialog — choose 'Save as PDF'.",
 	documentFooterDisclaimer: "General legal information, not legal advice.",
 
+	// ── Assistant ────────────────────────────────────────────────────
+	assistantHeading: "Questions about your case?",
+	assistantDocHeading: "Ask about your document",
+	assistantSubtitle:
+		"Ask follow-up questions about your case and analysis. LegalAId answers from your case alone.",
+	assistantPlaceholder: "Ask a question about your case…",
+	assistantSend: "Ask",
+	assistantWorking: "Working…",
+	assistantError: "Couldn't get an answer. Please try again.",
+	assistantDisclaimer:
+		"General legal information, not legal advice. Helpline 15100.",
+	assistantChipLaw: "Why might this law apply to me?",
+	assistantChipMissing: "What information are we missing?",
+	assistantChipHindi: "Explain this in Hindi.",
+	assistantChipFirst: "What should I do first?",
+	assistantChipEvidenceWhy: "Why is this evidence important?",
+	assistantChipEvidenceMost: "Which evidence matters most?",
+	assistantChipStepsFirst: "Which of these should I do first?",
+	assistantChipStepsWait: "What can wait?",
+	assistantChipDocStrong: "Is this letter strong enough?",
+	assistantChipDocMissing: "What's missing from this letter?",
+	reviseTitle: "Revise the document",
+	revisePlaceholder: "Tell the assistant how to change the letter…",
+	reviseActionFirmer: "Make it firmer",
+	reviseActionFormal: "Make it more formal",
+	reviseActionTranslate: "Translate to {target}",
+	reviseActionCondense: "Shorten it",
+	reviseProposalTitle: "Proposed revision",
+	reviseProposalNote:
+		"Review the proposed changes, then apply or discard them.",
+	reviseApply: "Apply changes",
+	reviseDiscard: "Discard",
+	reviseWorking: "Preparing revision…",
+	reviseError: "Couldn't revise the document. Try again.",
+
 	// ── Legal info page ─────────────────────────────────────────────
 	legalTitle: "Legal info",
 	legalIntro:

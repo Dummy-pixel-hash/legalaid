@@ -2,7 +2,16 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, Eye, FileDown, Loader2, PencilLine, RefreshCw, Save } from "lucide-react";
+import {
+	Check,
+	Copy,
+	Eye,
+	FileDown,
+	Loader2,
+	PencilLine,
+	RefreshCw,
+	Save,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n/provider";
 import { getProvider } from "@/lib/providers";
@@ -12,6 +21,7 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingAnalysis } from "@/components/analysis/LoadingAnalysis";
 import { DevelopmentProviderNotice } from "@/components/analysis/DevelopmentProviderNotice";
 import { DocumentSheet } from "@/components/document/DocumentSheet";
+import { DocumentAssistant } from "@/components/assistant/DocumentAssistant";
 import type { DocumentData } from "@/lib/types/domain";
 import { cn } from "@/lib/utils";
 
@@ -203,6 +213,9 @@ function DocumentClient({ caseId }: { caseId: string }) {
 							editing={editing}
 							onChange={handleChange}
 						/>
+					</div>
+					<div className="mt-6 print-hide">
+						<DocumentAssistant caseId={caseId} doc={doc} />
 					</div>
 				</div>
 			</div>
