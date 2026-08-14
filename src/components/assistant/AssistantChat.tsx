@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { Loader2, MessageCircleQuestion, Send } from "lucide-react";
+import { FlaskConical, Loader2, MessageCircleQuestion, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VoiceInput } from "@/components/shared/VoiceInput";
 import { useI18n } from "@/lib/i18n/provider";
@@ -44,6 +44,16 @@ export function AssistantChat({
 }: AssistantChatProps) {
 	const { t } = useI18n();
 	const listRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLTextAreaElement>(null);
+
+	// Grow the composer with the draft (capped), so long questions stay
+	// readable instead of scrolling inside a one-line box.
+	useEffect(() => {
+		const el = inputRef.current;
+		if (!el) return;
+		el.style.height = "auto";
+		el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+	}, [input]);
 
 	// Show the streaming answer as a live bubble; keep the newest message visible.
 	const live = useMemo<ChatTurn[]>(
@@ -79,26 +89,48 @@ export function AssistantChat({
 					aria-live="polite"
 					className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5"
 				>
-					{live.map((m, i) => (
-						<div
-							key={i}
-							className={cn(
-								"flex min-w-0",
-								m.role === "user" ? "justify-end" : "justify-start",
-							)}
-						>
+					{live.map((m, i) => {
+						const streaming =
+							m.role === "assistant" &&
+							i === live.length - 1 &&
+							streamingText.length > 0;
+						const { body, note } = splitDemoNote(m.content);
+						return (
 							<div
+								key={i}
 								className={cn(
-									"max-w-[85%] min-w-0 break-words whitespace-pre-wrap rounded-md px-3 py-2 text-sm leading-relaxed",
-									m.role === "user"
-										? "bg-ink text-background"
-										: "border border-line bg-surface-muted text-ink",
+									"flex min-w-0",
+									m.role === "user" ? "justify-end" : "justify-start",
 								)}
 							>
-								{m.content}
+								<div
+									className={cn(
+										"max-w-[85%] min-w-0 rounded-md px-3 py-2 text-sm leading-relaxed",
+										m.role === "user"
+											? "bg-ink text-background"
+											: "border border-line bg-surface-muted text-ink",
+									)}
+								>
+									<RichText text={body} />
+									{streaming && (
+										<span
+											aria-hidden
+											className="ml-0.5 inline-block h-[1em] w-[2px] animate-pulse bg-accent-strong align-middle"
+										/>
+									)}
+									{note && (
+										<p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-ink-50">
+											<FlaskConical
+												className="mt-px h-3 w-3 shrink-0 text-accent-strong"
+												aria-hidden
+											/>
+											<span className="min-w-0">{note}</span>
+										</p>
+									)}
+								</div>
 							</div>
-						</div>
-					))}
+						);
+					})}
 				</div>
 			)}
 
@@ -138,6 +170,7 @@ export function AssistantChat({
 						{t("assistantPlaceholder")}
 					</label>
 					<textarea
+						ref={inputRef}
 						id="assistant-pill-input"
 						value={input}
 						onChange={(e) => onInput(e.target.value)}
@@ -150,7 +183,7 @@ export function AssistantChat({
 								onSend(input);
 							}
 						}}
-						className="min-h-10 min-w-0 flex-1 resize-none rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
+						className="max-h-40 min-h-10 min-w-0 flex-1 resize-none overflow-y-auto rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
 					/>
 					{voice && (
 						<VoiceInput
@@ -180,6 +213,81 @@ export function AssistantChat({
 					{t("assistantDisclaimer")}
 				</p>
 			</div>
+		</div>
+	);
+}
+
+/**
+ * The demo-provider contract: answers end with a bracketed "[Demo …]" note.
+ * Render it as a distinct caption (with the flask mark) instead of burying it
+ * in the answer body — real model answers simply won't have the suffix.
+ */
+function splitDemoNote(content: string): { body: string; note: string | null } {
+	const m = content.match(/^([\s\S]*?)\s*(\[[^\]]+\])\s*$/);
+	if (m && m[1].trim() && m[2]) {
+		return { body: m[1].trim(), note: m[2] };
+	}
+	return { body: content, note: null };
+}
+
+/** Minimal inline formatting: **bold** — nothing heavier than the desk needs. */
+function renderInline(text: string, keyPrefix: string) {
+	return text.split(/(\*\*[^*\n]+\*\*)/g).map((part, i) =>
+		part.startsWith("**") && part.endsWith("**") ? (
+			<strong key={`${keyPrefix}-${i}`} className="font-semibold">
+				{part.slice(2, -2)}
+			</strong>
+		) : (
+			<span key={`${keyPrefix}-${i}`}>{part}</span>
+		),
+	);
+}
+
+/**
+ * Light answer formatting: paragraphs on blank lines; lines that all start
+ * with "-", "•", or "1." render as a list with brass markers. Preserves the
+ * model's structure without a markdown dependency.
+ */
+function RichText({ text }: { text: string }) {
+	const paragraphs = text.split(/\n{2,}/);
+	return (
+		<div className="space-y-2 break-words">
+			{paragraphs.map((p, i) => {
+				const lines = p.split("\n");
+				const isList =
+					lines.length > 1 &&
+					lines.every((l) => /^\s*(?:[-•]|\d+[.)])\s+/.test(l));
+				if (isList) {
+					return (
+						<ul key={i} className="space-y-1">
+							{lines.map((l, j) => {
+								const m = l.trim().match(/^(\s*(?:[-•]|\d+[.)]))\s+(.*)$/);
+								const marker = m?.[1].trim();
+								const bullet =
+									marker === "-" || marker === "•" ? "•" : marker ?? "";
+								return (
+									<li key={j} className="flex gap-1.5">
+										<span
+											className="w-4 shrink-0 text-left text-accent-strong"
+											aria-hidden
+										>
+											{bullet}
+										</span>
+										<span className="min-w-0">
+											{renderInline(m ? m[2] : l, `l${i}-${j}`)}
+										</span>
+									</li>
+								);
+							})}
+						</ul>
+					);
+				}
+				return (
+					<p key={i} className="whitespace-pre-wrap">
+						{renderInline(p, `p${i}`)}
+					</p>
+				);
+			})}
 		</div>
 	);
 }
