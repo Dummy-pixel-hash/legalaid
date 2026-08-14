@@ -37,8 +37,10 @@ export default function DocumentPage({
 function DocumentClient({ caseId }: { caseId: string }) {
 	const { t, lang } = useI18n();
 	const router = useRouter();
-	const { record, analysis, updateDocument, ensureDocumentDraft } =
-		useCase(caseId, lang);
+	const { record, analysis, updateDocument, ensureDocumentDraft } = useCase(
+		caseId,
+		lang,
+	);
 	const [editing, setEditing] = useState(true);
 	const [savedFlash, setSavedFlash] = useState(false);
 	const [copiedFlash, setCopiedFlash] = useState(false);

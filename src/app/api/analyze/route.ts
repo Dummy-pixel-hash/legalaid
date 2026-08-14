@@ -67,7 +67,9 @@ export async function POST(req: Request) {
 			const maybeFinish = () => {
 				if (pending > 0) return;
 				controller.enqueue(
-					encoder.encode(`data: ${JSON.stringify({ done: failures === 0 })}\n\n`),
+					encoder.encode(
+						`data: ${JSON.stringify({ done: failures === 0 })}\n\n`,
+					),
 				);
 				controller.close();
 			};
@@ -90,8 +92,7 @@ export async function POST(req: Request) {
 							);
 						} catch (err) {
 							failures++;
-							const msg =
-								err instanceof Error ? err.message : String(err);
+							const msg = err instanceof Error ? err.message : String(err);
 							controller.enqueue(
 								encoder.encode(
 									`data: ${JSON.stringify({
@@ -117,9 +118,7 @@ export async function POST(req: Request) {
 				});
 				const { section, content } = await runSection(docSpec);
 				controller.enqueue(
-					encoder.encode(
-						`data: ${JSON.stringify({ section, content })}\n\n`,
-					),
+					encoder.encode(`data: ${JSON.stringify({ section, content })}\n\n`),
 				);
 			} catch (err) {
 				failures++;
