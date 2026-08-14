@@ -236,7 +236,7 @@ export const hi: Dictionary = {
 	assistantSubtitle:
 		"अपने मामले और विश्लेषण के बारे में आगे के सवाल पूछें। LegalAId सिर्फ़ आपके मामले के आधार पर जवाब देता है।",
 	assistantPlaceholder: "अपने मामले के बारे में सवाल पूछें…",
-	assistantSend: "पूछें",
+	assistantSendLabel: "सवाल भेजें",
 	assistantWorking: "काम जारी…",
 	assistantError: "जवाब नहीं मिल सका। कृपया फिर कोशिश करें।",
 	assistantDisclaimer: "सामान्य कानूनी जानकारी, कानूनी सलाह नहीं। हेल्पलाइन 15100।",
@@ -251,6 +251,8 @@ export const hi: Dictionary = {
 	assistantChipDocStrong: "क्या यह पत्र पर्याप्त मज़बूत है?",
 	assistantChipDocMissing: "इस पत्र में क्या कमी है?",
 	reviseTitle: "दस्तावेज़ में बदलाव करें",
+	reviseSubtitle:
+		"आसान शब्दों में बदलाव बताइए — प्रस्तावित संशोधन देखें, फिर पत्र में लागू करें।",
 	revisePlaceholder: "बताइए कि पत्र में क्या बदलना है…",
 	reviseActionFirmer: "इसे और सख्त बनाएँ",
 	reviseActionFormal: "इसे और औपचारिक बनाएँ",
@@ -258,9 +260,12 @@ export const hi: Dictionary = {
 	reviseActionCondense: "इसे छोटा करें",
 	reviseProposalTitle: "प्रस्तावित बदलाव",
 	reviseProposalNote: "प्रस्तावित बदलाव देखें, फिर लागू करें या छोड़ दें।",
+	revisePreview:
+		"संशोधित पत्र का पूर्वावलोकन — हाइलाइट किया गया टेक्स्ट वही है जो बदलेगा",
 	reviseApply: "बदलाव लागू करें",
 	reviseDiscard: "छोड़ दें",
 	reviseWorking: "बदलाव तैयार हो रहा है…",
+	reviseSend: "निर्देश भेजें",
 	reviseError: "दस्तावेज़ में बदलाव नहीं हो सका। फिर कोशिश करें।",
 	reviseApplied: "बदलाव लागू हो गए",
 	reviseUnavailable:

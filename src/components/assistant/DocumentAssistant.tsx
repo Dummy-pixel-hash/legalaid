@@ -7,6 +7,8 @@ import { useI18n } from "@/lib/i18n/provider";
 import { useCase } from "@/lib/store/case-store";
 import { getProvider } from "@/lib/providers";
 import type { DocumentData } from "@/lib/types/domain";
+import type { TranslationKey } from "@/lib/i18n/types";
+import { cn } from "@/lib/utils";
 
 /**
  * The document page's assistant layer: preset + free-form revision actions
@@ -32,26 +34,40 @@ export function DocumentAssistant({
 	const [proposal, setProposal] = useState<DocumentData | null>(null);
 	const [appliedFlash, setAppliedFlash] = useState(false);
 
-	// Diff the proposal against the current draft so the user sees exactly
-	// what will change before applying (and knows when nothing would).
+	// Diff the proposal against the current draft field by field, so the
+	// preview can highlight exactly what will change (and the summary can name
+	// the affected fields) before the user commits to applying.
+	const diff = useMemo(() => {
+		if (!proposal) return null;
+		return {
+			title: proposal.title !== doc.title,
+			fromParty: proposal.fromParty !== doc.fromParty,
+			toParty: proposal.toParty !== doc.toParty,
+			subject: proposal.subject !== doc.subject,
+			remedy: proposal.remedy !== doc.remedy,
+			sections: proposal.sections.map((s, i) => {
+				const a = doc.sections[i];
+				return {
+					heading: !a || a.heading !== s.heading,
+					body: !a || a.body !== s.body,
+				};
+			}),
+		};
+	}, [proposal, doc]);
+
 	const changeSummary = useMemo(() => {
-		if (!proposal) return [];
+		if (!diff) return [];
 		const out: string[] = [];
-		if (proposal.title !== doc.title) out.push(t("documentTitle"));
-		if (proposal.subject !== doc.subject) out.push(t("subjectLabel"));
-		if (proposal.fromParty !== doc.fromParty) out.push(t("fromParty"));
-		if (proposal.toParty !== doc.toParty) out.push(t("toParty"));
-		if (proposal.remedy !== doc.remedy) out.push(t("remedyLabel"));
-		const n = Math.max(doc.sections.length, proposal.sections.length);
-		for (let i = 0; i < n; i++) {
-			const a = doc.sections[i];
-			const b = proposal.sections[i];
-			if (!a || !b || a.heading !== b.heading || a.body !== b.body) {
-				out.push(`${t("sectionLabel")} ${i + 1}`);
-			}
-		}
+		if (diff.title) out.push(t("documentTitle"));
+		if (diff.subject) out.push(t("subjectLabel"));
+		if (diff.fromParty) out.push(t("fromParty"));
+		if (diff.toParty) out.push(t("toParty"));
+		if (diff.remedy) out.push(t("remedyLabel"));
+		diff.sections.forEach((s, i) => {
+			if (s.heading || s.body) out.push(`${t("sectionLabel")} ${i + 1}`);
+		});
 		return out;
-	}, [proposal, doc, t]);
+	}, [diff, t]);
 
 	const revise = useCallback(
 		async (instr: string) => {
@@ -112,7 +128,7 @@ export function DocumentAssistant({
 					<h2 className="text-sm font-semibold text-ink">{t("reviseTitle")}</h2>
 				</div>
 				<p className="mt-1 text-xs leading-relaxed text-ink-50">
-					{t("assistantSubtitle")}
+					{t("reviseSubtitle")}
 				</p>
 			</div>
 
@@ -179,19 +195,20 @@ export function DocumentAssistant({
 									void revise(instruction);
 								}
 							}}
-							className="min-h-10 flex-1 resize-none rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
+							className="min-h-10 min-w-0 flex-1 resize-none rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
 						/>
 						<Button
 							type="submit"
-							size="sm"
+							size="icon-sm"
+							className="h-10 w-10 shrink-0"
 							disabled={!instruction.trim() || revising}
+							aria-label={revising ? t("reviseWorking") : t("reviseSend")}
 						>
 							{revising ? (
 								<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
 							) : (
 								<Wand2 className="h-4 w-4" aria-hidden />
 							)}
-							{revising ? t("reviseWorking") : t("assistantSend")}
 						</Button>
 					</form>
 
@@ -214,67 +231,148 @@ export function DocumentAssistant({
 						</p>
 					)}
 
-					{proposal && (
-						<div className="mt-4 rounded-md border border-accent-strong/30 bg-accent/20 p-4">
-							<p className="text-sm font-semibold text-ink">
-								{t("reviseProposalTitle")}
-							</p>
+					{proposal && diff && (
+						<div className="mt-4 rounded-md border border-accent-strong/40 bg-surface p-4 sm:p-5">
+							<div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+								<p className="text-sm font-semibold text-ink">
+									{t("reviseProposalTitle")}
+								</p>
+								{changeSummary.length > 0 && (
+									<p className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-50">
+										{t("reviseChanged")} {changeSummary.join(" · ")}
+									</p>
+								)}
+							</div>
 							<p className="mt-1 text-xs text-ink-70">
 								{t("reviseProposalNote")}
 							</p>
 
 							{changeSummary.length > 0 ? (
-								<div className="mt-3 rounded-md border border-line bg-background p-3">
-									<p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-50">
-										{t("reviseChanged")}
-									</p>
-									<ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
-										{changeSummary.map((c) => (
-											<li
-												key={c}
-												className="flex items-center gap-1.5 text-xs font-medium text-ink-70"
-											>
-												<Check
-													className="h-3 w-3 shrink-0 text-status-success"
-													aria-hidden
-												/>
-												{c}
-											</li>
-										))}
-									</ul>
-									{proposal.subject && (
-										<p className="mt-2 truncate text-xs font-semibold uppercase tracking-wide text-ink">
-											{proposal.subject}
+								<>
+									<div className="mt-3 rounded-md border border-line bg-background p-4 sm:p-5">
+										<p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-50">
+											{t("revisePreview")}
 										</p>
-									)}
-								</div>
+										<div className="mt-2 max-h-[340px] overflow-y-auto pr-1">
+											<RevisionPreview proposal={proposal} diff={diff} t={t} />
+										</div>
+									</div>
+									<div className="mt-3 flex flex-wrap gap-2">
+										<Button size="sm" onClick={applyProposal}>
+											<Check className="h-4 w-4" aria-hidden />
+											{t("reviseApply")}
+										</Button>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => setProposal(null)}
+										>
+											<X className="h-4 w-4" aria-hidden />
+											{t("reviseDiscard")}
+										</Button>
+									</div>
+								</>
 							) : (
-								<p
-									className="mt-3 rounded-md border border-line bg-background px-3 py-2 text-xs font-medium text-ink-70"
-									role="status"
-								>
-									{t("reviseNoChanges")}
-								</p>
+								<>
+									<p
+										className="mt-3 rounded-md border border-line bg-background px-3 py-2 text-xs font-medium text-ink-70"
+										role="status"
+									>
+										{t("reviseNoChanges")}
+									</p>
+									<div className="mt-3 flex flex-wrap gap-2">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => setProposal(null)}
+										>
+											<X className="h-4 w-4" aria-hidden />
+											{t("reviseDiscard")}
+										</Button>
+									</div>
+								</>
 							)}
-
-							<div className="mt-3 flex flex-wrap gap-2">
-								<Button size="sm" onClick={applyProposal}>
-									<Check className="h-4 w-4" aria-hidden />
-									{t("reviseApply")}
-								</Button>
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => setProposal(null)}
-								>
-									<X className="h-4 w-4" aria-hidden />
-									{t("reviseDiscard")}
-								</Button>
-							</div>
 						</div>
 					)}
 				</div>
 			)}
 		</section>
+	);
+}
+
+/** Field-level change map between the current draft and the proposal. */
+type RevisionDiff = {
+	title: boolean;
+	fromParty: boolean;
+	toParty: boolean;
+	subject: boolean;
+	remedy: boolean;
+	sections: { heading: boolean; body: boolean }[];
+};
+
+/** Brass-wash highlight for changed runs — reads as new ink on the draft. */
+const hl = (active: boolean) =>
+	active
+		? "rounded-[3px] bg-accent px-1 text-accent-foreground box-decoration-clone"
+		: "";
+
+/**
+ * The proposed letter rendered in the document voice (serif, like the sheet)
+ * with the parts that would change highlighted, so the user can review the
+ * actual revision text before applying — not just a list of field names.
+ */
+function RevisionPreview({
+	proposal,
+	diff,
+	t,
+}: {
+	proposal: DocumentData;
+	diff: RevisionDiff;
+	t: (key: TranslationKey, vars?: Record<string, string | number>) => string;
+}) {
+	return (
+		<div className="font-doc text-[14.5px] leading-[1.55] text-ink">
+			<p className="text-center text-[15px] font-semibold uppercase tracking-[0.02em]">
+				<span className={hl(diff.title)}>{proposal.title}</span>
+			</p>
+			<div className="mt-2 text-[13px]">
+				<p>
+					<span className={hl(diff.fromParty)}>{proposal.fromParty}</span>
+				</p>
+				<p>
+					<span className={hl(diff.toParty)}>{proposal.toParty}</span>
+				</p>
+				<p className="mt-1 font-semibold">
+					<span className={hl(diff.subject)}>{proposal.subject}</span>
+				</p>
+			</div>
+			<div className="mt-3 space-y-3">
+				{proposal.sections.map((s, i) => {
+					const sec = diff.sections[i] ?? { heading: true, body: true };
+					return (
+						<div key={i}>
+							<p className="font-semibold">
+								{i + 1}. <span className={hl(sec.heading)}>{s.heading}</span>
+							</p>
+							<p
+								className={cn(
+									"mt-0.5",
+									sec.body &&
+										"rounded-[3px] bg-accent px-1 text-accent-foreground",
+								)}
+							>
+								{s.body}
+							</p>
+						</div>
+					);
+				})}
+			</div>
+			{proposal.remedy && (
+				<p className="mt-3">
+					<span className="font-semibold">{t("remedyLabel")}: </span>
+					<span className={hl(diff.remedy)}>{proposal.remedy}</span>
+				</p>
+			)}
+		</div>
 	);
 }

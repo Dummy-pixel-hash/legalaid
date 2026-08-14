@@ -248,7 +248,7 @@ export const en = {
 	assistantSubtitle:
 		"Ask follow-up questions about your case and analysis. LegalAId answers from your case alone.",
 	assistantPlaceholder: "Ask a question about your case…",
-	assistantSend: "Ask",
+	assistantSendLabel: "Send question",
 	assistantWorking: "Working…",
 	assistantError: "Couldn't get an answer. Please try again.",
 	assistantDisclaimer:
@@ -264,6 +264,8 @@ export const en = {
 	assistantChipDocStrong: "Is this letter strong enough?",
 	assistantChipDocMissing: "What's missing from this letter?",
 	reviseTitle: "Revise the document",
+	reviseSubtitle:
+		"Ask for changes in plain words — review the proposed revision, then apply it to the letter.",
 	revisePlaceholder: "Tell the assistant how to change the letter…",
 	reviseActionFirmer: "Make it firmer",
 	reviseActionFormal: "Make it more formal",
@@ -272,9 +274,12 @@ export const en = {
 	reviseProposalTitle: "Proposed revision",
 	reviseProposalNote:
 		"Review the proposed changes, then apply or discard them.",
+	revisePreview:
+		"Preview of the revised letter — highlighted text is what changes",
 	reviseApply: "Apply changes",
 	reviseDiscard: "Discard",
 	reviseWorking: "Preparing revision…",
+	reviseSend: "Send instruction",
 	reviseError: "Couldn't revise the document. Try again.",
 	reviseApplied: "Changes applied",
 	reviseUnavailable:

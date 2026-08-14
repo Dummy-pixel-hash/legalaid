@@ -150,7 +150,7 @@ export function AssistantChat({
 								onSend(input);
 							}
 						}}
-						className="min-h-10 flex-1 resize-none rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
+						className="min-h-10 min-w-0 flex-1 resize-none rounded-md border border-line bg-background px-3 py-2 text-sm text-ink placeholder:text-ink-50 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent-strong/20 disabled:opacity-50"
 					/>
 					{voice && (
 						<VoiceInput
@@ -164,16 +164,16 @@ export function AssistantChat({
 					)}
 					<Button
 						type="submit"
-						size="sm"
-						className="shrink-0"
+						size="icon-sm"
+						className="h-10 w-10 shrink-0"
 						disabled={!input.trim() || busy}
+						aria-label={busy ? t("assistantWorking") : t("assistantSendLabel")}
 					>
 						{busy ? (
 							<Loader2 className="h-4 w-4 animate-spin" aria-hidden />
 						) : (
 							<Send className="h-4 w-4" aria-hidden />
 						)}
-						{busy ? t("assistantWorking") : t("assistantSend")}
 					</Button>
 				</form>
 				<p className="mt-2 text-[11px] leading-relaxed text-ink-50">

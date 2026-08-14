@@ -211,6 +211,7 @@ function DocumentClient({ caseId }: { caseId: string }) {
 					</header>
 					{draftReady || genericCase ? (
 						<div
+							id="document-sheet"
 							className={cn(
 								"mt-[22px]",
 								!editing && "pointer-events-none select-none",
@@ -250,6 +251,10 @@ function DocumentClient({ caseId }: { caseId: string }) {
 								onApplied={() => {
 									setAppliedPulse(true);
 									window.setTimeout(() => setAppliedPulse(false), 1400);
+									// Close the loop: show the change landing in the letter.
+									document
+										.getElementById("document-sheet")
+										?.scrollIntoView({ behavior: "smooth", block: "start" });
 								}}
 							/>
 						</div>
