@@ -39,7 +39,7 @@ function interpolate(template: string, vars?: Interpolations): string {
   );
 }
 
-interface LanguageContextValue {
+export interface LanguageContextValue {
   lang: Language;
   setLang: (lang: Language) => void;
   /** Translate a UI key, with optional {placeholder} interpolation. */

@@ -8,8 +8,7 @@ import { useI18n } from "@/lib/i18n/provider";
  * Reads like a notice, not a SaaS card grid.
  */
 export function TrustSection() {
-  const { t, lang } = useI18n();
-  const serif = lang === "hi" ? "font-doc-hi" : "font-doc";
+  const { t } = useI18n();
 
   const rows = [
     {
@@ -35,10 +34,10 @@ export function TrustSection() {
   return (
         <section className="t2-sec mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pb-28">
           <div className="max-w-2xl">
-            <h2 className={`${serif} text-[13px] font-semibold tracking-[0.02em] text-accent-strong`}>
+            <h2 className="text-lg font-semibold text-ink">
               {t("homeTrustHeading")}
             </h2>
-            <p className="mt-3 text-lg leading-relaxed text-ink-70">
+            <p className="mt-1 text-lg leading-relaxed text-ink-70">
               {t("homeTrustHint")}
             </p>
           </div>

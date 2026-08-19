@@ -24,10 +24,10 @@ export function HowItWorks() {
     <section className="border-y border-line bg-surface">
       <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6">
         <div className="max-w-2xl">
-          <h2 className={`${serif} text-[13px] font-semibold tracking-[0.02em] text-accent-strong`}>
+          <h2 className="text-lg font-semibold text-ink">
             {t("homeHowHeading")}
           </h2>
-          <p className="mt-2 text-ink-70">{t("homeHowHint")}</p>
+          <p className="mt-1 text-ink-70">{t("homeHowHint")}</p>
         </div>
 
         <ol className="mt-9 divide-y divide-line border-y border-line">

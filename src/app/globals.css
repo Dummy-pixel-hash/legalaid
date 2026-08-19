@@ -292,6 +292,17 @@
   }
 }
 
+/* Tactile feedback: subtle press on :active for buttons and interactive elements */
+@media (prefers-reduced-motion: no-preference) {
+  button:active:not(:disabled),
+  a:active {
+    transform: translateY(1px);
+  }
+  .v1-sheet button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 /* Reduced motion: stop decorative pulse/spin/slide effects while preserving
    state feedback. Progress percentages, stage copy, and bar widths are DOM
    state — they keep updating; only the animation/transition stops. */
